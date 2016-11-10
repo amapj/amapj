@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration status="WARN">
+    <properties>
+        <property name="logMsgPattern1">%d{dd-MM-yyyy HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</property>
+        <property name="logMsgPattern2">%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</property>
+    </properties>
+    
+    <appenders>
+         <Console name="Console" target="SYSTEM_OUT">           
+            <PatternLayout pattern="${logMsgPattern2}"/>
+         </Console>
+
+	<Routing name="Routing">
+		<Routes pattern="$${ctx:fileId}">  
+
+			<!-- This route is chosen if ThreadContext has no value for key ctx:fileId. -->
+			<Route key="$${ctx:fileId}">
+				<RollingFile name="RollingFile-default" fileName="${sys:amapjLogDir}/global.log" filePattern="${sys:amapjLogDir}/global.log.%i">
+	      			<PatternLayout>
+	        			<Pattern>${logMsgPattern1}</Pattern>
+	      			</PatternLayout>
+	      			<Policies>
+	        			<SizeBasedTriggeringPolicy size="10 MB"/>
+	      			</Policies>
+	      			<DefaultRolloverStrategy max="5"/>
+    			</RollingFile>
+			</Route>
+		           
+		   <!-- This route is chosen if ThreadContext has a value for key ctx:fileId. -->
+			<Route>
+				<RollingFile name="RollingFile-${ctx:fileId}" fileName="${sys:amapjLogDir}/${ctx:fileId}.log" filePattern="${sys:amapjLogDir}/${ctx:fileId}.log.%i">
+	      			<PatternLayout>
+	        			<Pattern>${logMsgPattern2}</Pattern>
+	      			</PatternLayout>
+	      			<Policies>
+	        			<SizeBasedTriggeringPolicy size="10 MB"/>
+	      			</Policies>
+	      			<DefaultRolloverStrategy max="5"/>
+    			</RollingFile>
+			</Route>
+			
+			
+		</Routes>
+	</Routing>  
+    </appenders>
+
+    <loggers>               
+        <root level="debug">
+            <appender-ref ref="Console" level="debug" />
+            <appender-ref ref="Routing" level="debug"/>
+        </root>                     
+    </loggers>  
+</configuration>
+

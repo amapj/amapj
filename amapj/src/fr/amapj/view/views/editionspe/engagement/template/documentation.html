@@ -1,0 +1,134 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+
+<p>Ce document fournit laliste des champs utilisables pour la génération des contrats</p>
+<p><u><span style="font-size:12pt;"><strong>Les informations de l&#39;amapien</strong></span></u></p>
+
+<p>$amapien.nom :&nbsp;donne le nom de l&#39;amapien</p>
+
+<p>$amapien.prenom : donne le pr&eacute;nom de l&#39;amapien</p>
+
+<p>$amapien.email : donne l&#39;email de l&#39;amapien&nbsp;</p>
+
+<p>$amapien.numTel1 : donne le num&eacute;ro de t&eacute;l&eacute;phone 1</p>
+
+<p>$amapien.numTel2 : donne le num&eacute;ro de t&eacute;l&eacute;phone 2</p>
+
+<p>$amapien.libAdr1 :&nbsp; donne le libell&eacute; de l&#39;adresse</p>
+
+<p>$amapien.codePostal : donne le code postal</p>
+
+<p>$amapien.ville : donne la ville de l&#39;amapien&nbsp;</p>
+
+<p><u><span style="font-size:12pt;"><strong>Les informations du contrat</strong></span></u></p>
+
+<p>$contrat.nom : donne le nom du contrat</p>
+
+<p>$contrat.description : donne la description du contrat</p>
+
+<p>$contrat.dateDebut : donne la date de d&eacute;but du contrat (date pour tous les amapiens, ce n&#39;est forc&eacute;ment la premi&egrave;re date &agrave; laquelle l&#39;amapien a command&eacute;)</p>
+
+<p>$contrat.dateFin :&nbsp;donne la date de fin du contrat (date pour tous les amapiens, ce n&#39;est forc&eacute;ment la premi&egrave;re date &agrave; laquelle l&#39;amapien a command&eacute;)</p>
+
+<p>$contrat.nbLivraison : donne le nombre total de livraison pour ce contrat, pour tous les amapiens</p>
+
+<p>$contrat.amapienNbLivraison : donne le nombre de livraison pour cet amapien</p>
+
+<p>$contrat.saison : donne le nom de la saison, par exemple 2016 , ou 2016-2017 pour un contrat &agrave; cheval sur 2 ann&eacute;es</p>
+
+<p>$contrat.libCheque : donne l&#39;ordre des ch&egrave;ques</p>
+
+<p>$contrat.nbCheque : donne le nombre de ch&egrave;ques que l&#39;amapien doit remettre</p>
+
+<div>$contrat.tableauDateProduit</div>
+
+<p>=&gt;donne un tableau des produits et des dates (attention ce champ doit &ecirc;tre mis dans une balise div obligatoirement)</p>
+
+<div>$contrat.tableauDateCheque</div>
+
+<p>=&gt;&nbsp;donne un tableau des ch&egrave;ques (attention ce champ doit &ecirc;tre mis dans une balise div obligatoirement)</p>
+
+<p>$contrat.montantProduit : donne le montant total des produits command&eacute;s, c&#39;est &agrave; dire la somme du prix de tous les produits command&eacute;s par l&#39;amapien</p>
+
+<p>$contrat.montantCheque : donne la somme du montant de tous les ch&egrave;ques</p>
+
+<p>$contrat.montantAvoir : donne le montant de l&#39;avoir de cet amapien</p>
+
+<p>$contrat.listeDateProduit</p>
+
+<p>=&gt; donne la liste des dates, et pour chaque date la liste des produits command&eacute;s par l&#39;amapien</p>
+
+<p>$contrat.listeDateProduitCompact</p>
+
+<p>=&gt; donne la liste des dates, et pour chaque date la liste des produits command&eacute;s par l&#39;amapien, mais en mode compact. On regroupe toutes les dates o&ugrave; l&#39;amapien a command&eacute; les m&ecirc;mes produits</p>
+
+<p>$contrat.listeDateCheque</p>
+
+<p>=&gt; donne la liste des dates de ch&egrave;que, et pour chaque date le montant du ch&egrave;que</p>
+
+<p>$contrat.listeDateChequeCompact</p>
+
+<p>=&gt;donne la liste des ch&egrave;ques, et on regroupe les ch&egrave;ques qui ont le m&ecirc;me montant</p>
+
+<p>$contrat.amapienNbProduit : donne le nombre total &nbsp;de produits command&eacute;s par l&#39;amapien</p>
+
+<p><u><span style="font-size:12pt;"><strong>Les informations du producteur</strong></span></u></p>
+
+<p>$producteur.nom : donne le nom du producteur, tel qu&#39;il est renseign&eacute; dans le champ &quot;<strong>Nom&quot;</strong> de la fiche producteur</p>
+
+<p>$producteur.libContrat :&nbsp;donne l&#39;identification du producteur sur le contrat, tel qu&#39;il est renseign&eacute; dans le champ &quot;<strong>Identification du producteur sur le contrat d&#39;engagement&quot;</strong>&nbsp;de la fiche producteur</p>
+
+<p>&nbsp;</p>
+
+<p>Il est paussi ossible d&#39;acc&eacute;der aux informations relatives au premier utilisateur du producteur , c&#39;est &agrave; dire le premier utilisateur qui est renseign&eacute; dans la liste &quot;le nom des producteurs&quot; dans la fiche producteur. Voici la liste des champs disponibles :</p>
+
+<p>$contactproducteur.nom :&nbsp;donne le nom de l&#39;utilisateur producteur</p>
+
+<p>$contactproducteur.prenom : donne le pr&eacute;nom de l&#39;utilisateur producteur</p>
+
+<p>$contactproducteur.email : donne l&#39;email</p>
+
+<p>$contactproducteur.numTel1 : donne le num&eacute;ro de t&eacute;l&eacute;phone 1</p>
+
+<p>$contactproducteur.numTel2 : donne le num&eacute;ro de t&eacute;l&eacute;phone 2</p>
+
+<p>$contactproducteur.libAdr1 :&nbsp;&nbsp;donne le libell&eacute; de l&#39;adresse</p>
+
+<p>$contactproducteur.codePostal : donne le code postal</p>
+
+<p>$contactproducteur.ville : donne la ville de l&#39;utilisateur producteur</p>
+
+<p><u><span style="font-size:12pt;"><strong>Les informations du r&eacute;f&eacute;rent</strong></span></u></p>
+
+<p>Il est possible d&#39;acc&eacute;der aux informations relatives au premier r&eacute;f&eacute;rent, c&#39;est &agrave; dire celui qui est le premier de la liste des r&eacute;f&eacute;rents dans la fiche producteur. Voici la liste des champs :</p>
+
+<p>$referent.nom :&nbsp;donne le nom du r&eacute;f&eacute;rent</p>
+
+<p>$referent.prenom : donne le pr&eacute;nom du r&eacute;f&eacute;rent</p>
+
+<p>$referent.email : donne l&#39;email du r&eacute;f&eacute;rent&nbsp;</p>
+
+<p>$referent.numTel1 : donne le num&eacute;ro de t&eacute;l&eacute;phone 1</p>
+
+<p>$referent.numTel2 : donne le num&eacute;ro de t&eacute;l&eacute;phone 2</p>
+
+<p>$referent.libAdr1 :&nbsp;&nbsp;donne le libell&eacute; de l&#39;adresse</p>
+
+<p>$referent.codePostal : donne le code postal</p>
+
+<p>$referent.ville : donne la ville du r&eacute;f&eacute;rent&nbsp;</p>
+
+<p><u><span style="font-size:12pt;"><strong>Les informations de date</strong></span></u></p>
+
+<p>$date.impression : donne la date de g&eacute;n&eacute;ration du document par le logiciel&nbsp;</p>
+
+<p><u><span style="font-size:12pt;"><strong>Les informations de l&#39;AMAP</strong></span></u></p>
+
+<p>$amap.nom : donne le nom de l&#39;AMAP</p>
+
+<p>$amap.ville : donne la ville de l&#39;AMAP</p>
+</body>
+</html>

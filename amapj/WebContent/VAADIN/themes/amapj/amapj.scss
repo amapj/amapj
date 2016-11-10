@@ -1,0 +1,39 @@
+// Global variable overrides. Must be declared before importing Valo.
+
+$v-app-loading-text: "AmapJ";
+
+// Les fontes
+$v-font-family: Helvetica, Arial, 'lucida grande', tahoma, verdana, arial, sans-serif;
+$v-font-weight: 400;
+$v-font-size: 14px;
+$v-font-weight--header: 400;
+
+$v-background-color: #fff;
+$v-focus-color: rgb(150,190,90);
+$v-luminance-threshold: 180;
+$v-border: 2px solid v-shade;
+$v-border-radius: 6px;
+$v-bevel: false;
+$v-gradient: false;
+$v-shadow: false;
+$v-textfield-bevel: false;
+$v-textfield-shadow: false;
+$v-link-text-decoration: false;
+$v-selection-overlay-padding-horizontal: 0;
+$v-selection-overlay-padding-vertical: 6px;
+$v-selection-item-height: 30px;
+$v-selection-item-border-radius: 0;
+$valo-menu-background-color: #eee;
+
+$v-table-row-height: 26px;
+$v-table-header-font-size: 16px;
+$v-table-background-color : #FFF;
+
+
+@import "../valo/valo.scss";
+
+@mixin amapj {
+  @include valo;
+
+  // Insert your own theme rules here
+}

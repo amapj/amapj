@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+
+    <display-name>AMAP</display-name>
+    <description>
+	AMAP application
+    </description>
+    
+	
+	<context-param>
+  		<description>Vaadin production mode</description>
+  		<param-name>productionMode</param-name>
+  		<param-value>true</param-value>
+	</context-param>
+
+	<!-- Servlet principale -->
+
+    <servlet>
+        <servlet-name>AMAPServlet</servlet-name>
+        <servlet-class>fr.amapj.view.engine.ui.AmapJServlet</servlet-class>
+       
+		<init-param>
+            <description>Vaadin UI</description>
+            <param-name>UIProvider</param-name>
+            <param-value>fr.amapj.view.engine.ui.AmapUIProvider</param-value>
+        </init-param>
+        
+       <init-param>
+       <param-name>heartbeatInterval</param-name>
+       <param-value>60</param-value>
+       </init-param>
+       
+        <init-param>
+      <param-name>widgetset</param-name>
+      <param-value>fr.amapj.widgetset.AmapjWidgetset</param-value>
+    </init-param>
+        
+    </servlet>
+    
+    
+    
+    <!-- Servlet Monitor -->
+
+    <servlet>
+        <servlet-name>InfoServlet</servlet-name>
+        <servlet-class>fr.amapj.view.engine.infoservlet.InfoServlet</servlet-class>
+    </servlet>
+    
+    
+
+    <servlet-mapping>
+        <servlet-name>AMAPServlet</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+    
+      <servlet-mapping>
+        <servlet-name>InfoServlet</servlet-name>
+        <url-pattern>/infoservlet/*</url-pattern>
+    </servlet-mapping>
+   
+    
+
+</web-app>

@@ -1,0 +1,113 @@
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+<table border="0" cellpadding="1" cellspacing="0" style="width: 100%;">
+	<tbody>
+		<tr>
+			<td style="width:120px;"><img src="http://amapj.fr/img_amapj/ladybug.png" style="width: 120px; height: 120px; float: right;" /></td>
+			<td style="text-align: center;"><span style="font-size:22pt;"><em><span style="color:#A52A2A;">AMAP LE BON PANIER </span></em></span></td>
+		</tr>
+	</tbody>
+</table>
+
+<table border="0" cellpadding="1" cellspacing="0" style="border: 1px solid black; border-image: none; width: 100%;">
+	<tbody>
+		<tr>
+			<td colspan="2" style="text-align: center;"><span style="font-size: 18pt;">CONTRAT D&#39;ENGAGEMENT LEGUMES / FRUITS $contrat.saison</span><br />
+			<span style="font-size: 12pt;">du $contrat.dateDebut au $contrat.dateFin</span></td>
+		</tr>
+	</tbody>
+</table>
+
+<p style="margin: 6pt 0pt; text-align: center;">A REMETTRE AUX REFERENTS LORS DE LA DISTRIBUTION</p>
+
+<table border="0" cellpadding="1" cellspacing="0" style="width: 100%;">
+	<tbody>
+		<tr>
+			<td style="width: 25%; text-align: right;">&nbsp;</td>
+			<td style="width: 75%; text-align: right;">&nbsp;</td>
+		</tr>
+		<tr>
+			<td style="width: 25%; text-align: right;">&nbsp;</td>
+			<td style="width: 75%; text-align: right;"><span style="color: rgb(0, 0, 205);"><u>PRODUCTEUR</u></span>&nbsp;&nbsp; <strong>$contactproducteur.nom $contactproducteur.prenom</strong></td>
+		</tr>
+		<tr>
+			<td style="width: 25%; text-align: right;">&nbsp;</td>
+			<td style="width: 75%; text-align: right;"><strong>$contactproducteur.ville</strong></td>
+		</tr>
+		<tr>
+			<td style="width: 25%;"><span style="color: rgb(0, 0, 205);"><u>CONSOM&#39;ACTEUR</u></span></td>
+			<td style="width: 75%;">&nbsp;</td>
+		</tr>
+		<tr>
+			<td style="width: 25%;">Nom et Pr&eacute;nom :</td>
+			<td style="width: 75%;"><strong>$amapien.nom $amapien.prenom</strong></td>
+		</tr>
+		<tr>
+			<td style="width: 25%;">Adresse :</td>
+			<td style="width: 75%;"><strong>$amapien.libAdr1</strong></td>
+		</tr>
+		<tr>
+			<td style="width: 25%;">Ville :</td>
+			<td style="width: 75%;"><strong>$amapien.codePostal $amapien.ville</strong></td>
+		</tr>
+		<tr>
+			<td style="width: 25%;">T&eacute;l :</td>
+			<td style="width: 75%;"><strong>$amapien.numTel1</strong></td>
+		</tr>
+		<tr>
+			<td style="width: 25%;">Courriel</td>
+			<td style="width: 75%;"><strong>$amapien.email</strong></td>
+		</tr>
+	</tbody>
+</table>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="1" cellspacing="0" style="width: 100%;">
+	<tbody>
+		<tr>
+			<td><span style="color: rgb(0, 0, 205);"><u>DETAIL DU CONTRAT</u></span></td>
+			<td style="text-align: center;">Nb de Distributions</td>
+			<td style="text-align: center;">TOTAL</td>
+		</tr>
+		<tr>
+			<td>$contrat.listeDateProduit</td>
+			<td style="text-align: center;">$contrat.amapienNbLivraison</td>
+			<td style="text-align: center;">$contrat.montantProduit &euro;</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td colspan="3">Etablir &agrave; l&rsquo;ordre de <strong>$contrat.libCheque:</strong> $contrat.listeDateChequeCompact</td>
+		</tr>
+	</tbody>
+</table>
+
+<p>&nbsp;</p>
+
+<p style="text-align: justify;"><strong>Les parties attestent avoir pris connaissance des principes de fonctionnement de l&#39;AMAP de XXXXX et s&#39;engagent &agrave; les respecter.</strong></p>
+
+<table border="0" cellpadding="1" cellspacing="1" style="width: 100%; height: 30pt;">
+	<tbody>
+		<tr>
+			<td style="width: 28%;">Signature du consom&#39;acteur :</td>
+			<td>&nbsp;</td>
+			<td style="width: 28%;">Signature du producteur :</td>
+			<td>&nbsp;</td>
+		</tr>
+	</tbody>
+</table>
+
+<p>&nbsp;</p>
+
+<p>N.B. Le pr&eacute;sent contrat ne peut en aucun cas &ecirc;tre reconduit automatiquement en fin de saison. Le consom&#39;acteur devra faire la d&eacute;marche de renouveler son engagement pour la saison suivante.</p>
+
+<hr/>
+</body>
+</html>

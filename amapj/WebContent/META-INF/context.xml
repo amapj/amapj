@@ -1,0 +1,18 @@
+<Context>
+
+ <Parameter name="dbms" value="hi"  />
+ 
+ <Parameter name="dbms.hi.type" value="hsql_internal"  />
+ <Parameter name="dbms.hi.dir" value="C:/dev-amapj/workspace/amapj/db/data"  />
+ <Parameter name="dbms.hi.port" value="9005"  />
+ 
+  
+ <Parameter name="master.dbms" value="hi"  />
+ <Parameter name="master.name" value="master"  />
+
+  <Parameter name="logDir" value="c:/dev-amapj/logs/"  />
+ 
+<!-- Permet de desactiver la serialisation des sessions-->
+<Manager pathname="" />
+
+</Context>

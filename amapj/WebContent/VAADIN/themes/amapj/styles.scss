@@ -1,0 +1,1446 @@
+@import "addons.scss";
+@import "amapj.scss";
+
+/* This file prefixes all rules with the theme name to avoid causing conflicts with other themes. */
+/* The actual styles should be defined in themes2.scss */
+.amapj {
+  @include addons;
+  @include amapj;
+  
+ 
+/******************************************************************************
+ * POINTS A RANGER ET INEXPLIQUES
+ *******************************************************************************/
+
+.valo-test 
+{
+  .v-button-primary.v-button-primary 
+  {
+    background: #fff;
+    border-color: $v-focus-color;
+    color: $v-focus-color;
+  }
+
+  .v-button-danger.v-button-danger 
+  {
+    background: #fff;
+    border-color: $v-error-indicator-color;
+    color: $v-error-indicator-color;
+  }
+
+  .v-slider-base:before,
+  .v-slider-base:after 
+  {
+    border: none !important;
+  }
+}
+  
+.valo-menu-item 
+{
+    outline: none;
+    font-weight: 500;
+    font-size: 16px;
+    padding: 0 30px 0 15px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    text-shadow: 0 -2px 0 rgba(255, 255, 255, 0.2);
+    -webkit-transition: background-color 300ms, color 60ms;
+    -moz-transition: background-color 300ms, color 60ms;
+    transition: background-color 300ms, color 60ms;
+}
+
+
+
+/******************************************************************************
+ * ELEMENTS GENERAUX
+ *******************************************************************************/  
+
+.v-link a 
+{
+    color: #369;
+    font-size: 16px;
+}
+
+
+ .v-Notification 
+{
+	font-size: 16px;
+}
+
+.v-button 
+{
+	font-size: 16px;
+}
+
+
+/** A SUPPRIMER 
+.v-label 
+{
+	font-size: 16px;
+}
+
+.v-caption 
+{
+	font-size: 16px;
+}
+*/
+
+
+/******************************************************************************
+ * L'ECRAN DE LOGIN
+ *******************************************************************************/  
+  
+.login-backgroundimage 
+{
+      background: url("img/login.jpg");
+      background-size: cover;
+}
+
+
+.login-layout
+{
+	width : 95% !important;
+    max-width: 450px;
+    
+    
+    
+    .v-caption-name , .name
+    {
+    	font-size : 16px;
+    }
+    
+    .v-caption-password , .password
+    {
+    	font-size : 16px;
+    }
+    
+    .v-button-perdu
+    {
+    	color: #369;
+    }
+    
+}
+
+
+/******************************************************************************
+ * LES ELEMENTS COMMUN DU FRONT OFFICE 
+ *******************************************************************************/  
+
+.front-office-backgroundimage 
+{
+      background: url("img/apples.jpg");
+      background-size: cover;
+}
+
+/* Permet de gerer un affichage sur un bloc central restreint à 960 px - les marges dependent de la taille de l'écran*/
+
+.front-office-backgroundimage[width-range~="0-500px"] > .block-center
+{
+	max-width: 960px;
+  	display: block;
+  	margin: 4px;
+}
+
+
+.front-office-backgroundimage[width-range~="501px-984px"]  > .block-center
+{
+	max-width: 960px;
+  	display: block;
+  	margin: 12px;
+}
+
+.front-office-backgroundimage[width-range~="984px-"]  > .block-center
+{
+	max-width: 960px;
+  	display: block;
+  	margin: 0 auto;
+  	margin-top: 12px;
+}
+
+
+/******************************************************************************
+ * LES ELEMENTS COMMUN DU BACK OFFICE LONG 
+ *******************************************************************************/  
+
+.back-office-long-backgroundimage > .block-center
+{
+	padding: 16px !important;
+	display: block;
+	background : #FCFFF6;
+}
+
+
+
+/******************************************************************************
+ * LES ELEMENTS COMMUN DE STANDARDLISTPART
+ *******************************************************************************/  
+
+.listpart-backgroundimage > .block-center
+{
+	padding-left: 8px !important;
+	padding-right: 8px !important;
+	padding-top: 4px !important;
+	padding-bottom: 2px !important;
+	
+	
+	
+	background-image:-moz-linear-gradient(white,  #96be5a);
+	background-image:-webkit-linear-gradient(white,  #96be5a);
+	background-image:-o-linear-gradient(white,  #96be5a);
+	background-image: linear-gradient(white, #96be5a);
+}
+
+
+.v-verticallayout-stdlistpart
+{
+	
+	/* Le titre */ 
+	.v-label-title
+	{
+	    line-height: 1.1;
+	    font-weight: 500;
+	    font-size: 24px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.6em;
+	    margin-bottom: 0.4em;
+	}	
+
+	/* La barre des boutons */
+	.v-horizontallayout-buttonbar
+	{
+		margin-top: 8px;	
+		margin-bottom: 0px;
+	}  
+
+	/* Le contrat selector  */		
+	.v-horizontallayout-contrat-selectorpart
+	{
+		margin-top: 8px;	
+		margin-bottom: 8px;
+		
+		.v-label-combobox
+		{
+			margin-top: 0.25em;	
+			font-size : 16px;
+		}  
+	}
+	
+	/* Le producteur selector */
+  	.v-horizontallayout-producteur-selectorpart
+	{
+		.v-label-unproducteur
+		{
+			line-height: 1.1;
+		    font-weight: 600;
+		    font-size: 20px;
+		    color: #5cb85c;
+		    letter-spacing: 0;
+		    margin-top: 0.2em;
+		    margin-bottom: 0.2em;
+		}
+		
+		.v-label-xproducteurs
+		{
+			margin-top: 0.25em;	
+			font-size : 16px;
+		}
+	}
+
+	/* Le periode selector */
+  	.v-horizontallayout-periode-selectorpart
+	{
+		.v-label-periode
+		{
+			margin-top: 0.25em;	
+			font-size : 16px;
+		}
+	}
+	
+	/* Le utilisateur selector */
+	.utilisateur-selectorpart
+	{
+		.v-label-xutilisateurs
+		{
+			margin-top: 0.25em;		
+			font-size : 16px;
+		}
+	}
+
+	
+	/* La table */
+	.v-table-header-wrap 
+	{
+	  	background-image:-moz-linear-gradient(#fafafa, #e6e6e6);
+		background-image:-webkit-linear-gradient(#fafafa, #e6e6e6);
+		background-image:-o-linear-gradient(#fafafa, #e6e6e6);
+		background-image: linear-gradient(#fafafa, #e6e6e6);
+	}
+	
+	.v-table 
+	{
+	    background-color: #FCFFF6;
+	}
+	
+	.v-table-row 
+	{
+    	background-color: #FCFFF6;
+    	color : #000;
+  	}
+  	
+  	.v-table-row-odd 
+	{
+    	background-color: #FCFFF6;
+    	color : #000;
+  	}
+  	
+}
+
+
+/******************************************************************************
+ * COMPOSANT COLLECTIONEDITOR 
+ *******************************************************************************/  
+
+.collection-editor
+{
+	.v-table-header-wrap 
+	{
+	  	background-image:-moz-linear-gradient(#fafafa, #e6e6e6);
+		background-image:-webkit-linear-gradient(#fafafa, #e6e6e6);
+		background-image:-o-linear-gradient(#fafafa, #e6e6e6);
+		background-image: linear-gradient(#fafafa, #e6e6e6);
+	}
+	
+	.v-table
+	{
+		.text
+		{
+			border: 1px solid #B2B2B2 !important;
+		} 
+		
+		/* Correspond au searcher et à combo */
+		.v-filterselect [class*="input"]
+		{
+			border: 1px solid #B2B2B2 !important;
+		}
+	
+		.currency
+		{
+		    border: 1px solid #B2B2B2 !important;
+		    text-align: center;
+		    font-size : 16px;
+		}
+		
+		.qte
+		{
+			border: 1px solid #B2B2B2 !important;
+		    text-align: center;
+		    font-size : 16px;
+		}
+		
+		.integer
+		{
+			border: 1px solid #B2B2B2 !important;
+		    text-align: center;
+		    font-size : 16px;
+		}
+		
+		.checkbox
+		{
+		    text-align: center;
+		}
+		
+	}
+}
+
+
+
+/******************************************************************************
+ * LA SAISIE DES CONTRATS 
+ *******************************************************************************/  
+
+.v-textfield-erreurqte 
+{
+    background-color: #eb0000;
+}
+ 
+.v-textfield-align-right 
+{
+   text-align: right;
+}
+
+.v-textfield-align-center 
+{
+   text-align: center;
+}
+
+.v-label-align-right 
+{
+   text-align: right;
+}
+
+.v-label-align-center 
+{
+   text-align: center;
+}
+
+
+.v-label-tete 
+{
+   text-align: center;
+   background-color: #e2ffdb;
+    font-size: 16px;
+   	margin: 0px;
+	padding: 0px;
+	border: 1px solid gray;
+}
+
+
+.v-label-prix 
+{
+   text-align: center;
+   background-color: #e2ffdb;
+   color: #eb0000;
+   font-size: 16px;
+   margin: 0px;
+	padding: 0px;
+	border: 1px solid gray;
+}
+
+
+.v-label-libprix 
+{
+   text-align: center;
+   background-color: #e2ffdb;
+   color: #eb0000;
+   font-size: 16px;
+   margin: 0px;
+   padding : 0px 10px 0px 10px; 
+   border: 1px solid gray;
+}
+
+
+
+
+.cell-saisie
+{
+    border: 1px solid #525252 !important;
+    text-align: center;
+    font-size : 16px;
+    height: 26px;
+}
+
+.v-caption-cell-saisie 
+{
+    font-size: 16px !important;
+}
+
+.cell-voir
+{
+    text-align: center;
+    font-size : 16px;
+}
+
+.date-saisie
+{
+    text-align: center;
+    font-size : 16px;
+}
+
+.description-panier
+{
+    text-align: left;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.v-textfield-error
+{
+    background: #E1B3B3;
+    color: #000000;
+}  
+
+.popup-integer-grid-message
+{
+	line-height: 1.1;
+    font-weight: 500;
+    font-size: 24px;
+    color: #000000;
+    letter-spacing: 0;
+    margin-top: 0.2em;
+    margin-bottom: 0.4em;
+}
+
+
+.popup-currency-vector-message
+{
+	line-height: 1.1;
+    font-weight: 500;
+    font-size: 24px;
+    color: #000000;
+    letter-spacing: 0;
+    margin-top: 0.2em;
+    margin-bottom: 0.4em;
+}
+
+
+/******************************************************************************
+ * ELEMENTS COMMUNS AUX POPUPS (COREPOPUP) 
+ *******************************************************************************/  
+
+/*  GESTION DES POPUPS  AVEC BANDEAU VERT, UNE CROIX POUR FERMER ET SUPPRESSION DU BOUTON POUR MAXIMISER */
+
+.v-window-modalitycurtain 
+{
+    opacity: 0.72;
+    filter: alpha(opacity=80);
+    -webkit-animation: initial;
+    -moz-animation: initial;
+    animation: none;
+}
+
+.v-window-header
+{
+    text-align: center;
+	
+	background-image:-moz-linear-gradient(#96BE5A, #69853F);
+	background-image:-webkit-linear-gradient(#96BE5A, #69853F);
+	background-image:-o-linear-gradient(#96BE5A, #69853F);
+	background-image: linear-gradient(#96BE5A, #69853F);
+	
+    
+    font-size: 16px;
+    color: white;
+    margin-right: 28px;
+   
+}
+
+
+.v-window-closebox 
+{
+    background-image:-moz-linear-gradient(#96BE5A, #69853F);
+	background-image:-webkit-linear-gradient(#96BE5A, #69853F);
+	background-image:-o-linear-gradient(#96BE5A, #69853F);
+	background-image: linear-gradient(#96BE5A, #69853F);
+	
+    border-radius: 0 0 0 0 !important;
+    font-size : 26px;
+    color: white;
+}
+
+.v-window-maximizebox
+{
+	width: 0px !important;
+	padding-left: 0px;
+}
+
+
+/** Il y a un bug qui empeche de faire ca plus proprement
+voir https://vaadin.com/forum#!/thread/7622424 */
+
+
+/* POPUP DE TYPE FILL */
+
+.v-window .v-verticallayout-fill-corepopup-size0_500px 
+{
+  	padding: 6px;
+  	padding-top : 3px;
+  	
+  	.buttonbar
+  	{
+  		padding-top : 6px;
+  	}
+}
+
+.v-window .v-verticallayout-fill-corepopup-size501_800px
+{
+  	padding: 12px;
+  	padding-top : 6px;
+  	
+  	.buttonbar
+  	{
+  		padding-top : 6px;
+  	}
+}
+
+.v-window .v-verticallayout-fill-corepopup-size801px_
+{
+  	padding: 32px;
+  	padding-top : 16px;
+  	
+  	.buttonbar
+  	{
+  		padding-top : 16px;
+  	}  	
+}
+
+
+/* POPUP DE TYPE CENTERFIT  */
+
+.v-window .v-verticallayout-centerfit-corepopup-size0_500px 
+{
+  	padding: 6px;
+  	padding-top : 3px;
+  	
+  	.buttonbar
+  	{
+  		padding-top : 6px;
+  	}
+}
+
+.v-window .v-verticallayout-centerfit-corepopup-size501_800px
+{
+  	padding: 12px;
+  	padding-top : 6px;
+  	
+  	.buttonbar
+  	{
+  		padding-top : 6px;
+  	}
+}
+
+.v-window .v-verticallayout-centerfit-corepopup-size801px_
+{
+  	padding: 32px;
+  	padding-top : 16px;
+  	
+  	.buttonbar
+  	{
+  		padding-top : 16px;
+  	}
+}
+
+
+/*POUR LE COLOR STYLE RED */
+.corepopup-red .v-window-header
+{
+	background-image:-moz-linear-gradient(#ED473B, #A53129);
+	background-image:-webkit-linear-gradient(#ED473B, #A53129);
+	background-image:-o-linear-gradient(#ED473B, #A53129);
+	background-image: linear-gradient(#ED473B, #A53129);  
+}
+
+
+.corepopup-red .v-window-closebox 
+{
+    background-image:-moz-linear-gradient(#ED473B, #A53129);
+	background-image:-webkit-linear-gradient(#ED473B, #A53129);
+	background-image:-o-linear-gradient(#ED473B, #A53129);
+	background-image: linear-gradient(#ED473B, #A53129);
+}
+
+
+.corepopup
+{
+	
+	.v-caption
+	{
+		font-size : 16px;
+	}
+
+	.v-label
+	{
+		font-size : 16px;
+	}
+}
+
+/** POINT TRES IMPORTANT : ceci garantit que les fenetres ont toujours un ascenceur horizontal, exemple des contrats */
+.v-window  
+{
+	max-width : 99%;
+}
+
+/******************************************************************************
+ * ELEMENTS COMMUNS DE AbstractFormPopup
+ *******************************************************************************/  
+
+.v-button-question-mark
+{
+	font-size:24px;
+	margin-top: -3px;
+}
+
+
+.v-button-question-mark:focus:after
+{
+	box-shadow: 0 0 0 0px;
+}
+     
+
+
+
+/******************************************************************************
+ * POPUP TELECHARGER
+ *******************************************************************************/  
+
+.v-verticallayout-popup-telecharger
+{
+	
+	.v-label-titre
+	{
+	    font-size: 16px;   
+	    margin-bottom: 1.6em;
+	}
+	
+	.v-label-separateur
+	{
+	    font-size: 16px;   
+	   	margin-bottom: 0.3em;
+    	margin-top: 0.6em;
+	}
+}
+
+
+/******************************************************************************
+ * POPUP SWITCHPOPUP
+ *******************************************************************************/  
+
+.v-verticallayout-popup-switch
+{
+	/* Le titre du groupe */
+	.v-caption
+	{
+		font-size: 16px;   
+	}
+	
+	/* chaque élement du groupe */
+	.v-select-optiongroup 
+	{
+		font-size: 16px;
+	}
+}
+
+
+/******************************************************************************
+ * POPUP WIZARDPOPUP
+ *******************************************************************************/  
+
+.v-verticallayout-wizard-popup
+{
+	.v-label-wizard-popup-etape
+	{
+		line-height: 1.1;
+	    font-weight: 500;
+	    font-size: 22px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0em;
+	    margin-bottom: 0em;
+	}
+}
+
+
+
+
+
+
+/******************************************************************************
+ * ECRAN MES CONTRATS
+ *******************************************************************************/  
+
+
+.v-verticallayout-contrat
+{
+		/* Les différentes rubriques Mes contrats existants, Les nouveaux contrats, ...*/
+		.v-label-rubrique
+		{
+		    line-height: 1.1;
+		    font-weight: 500;
+		    font-size: 24px;
+		    color: #000000;
+		    letter-spacing: 0;
+		    margin-top: 0.6em;
+		    margin-bottom: 0.4em;
+		}
+		
+		/*Le titre des contrats */
+		.v-label-titrecontrat
+		{
+		    line-height: 1.1;
+		    font-weight: 600;
+		    font-size: 16px;
+		    color: #5cb85c;
+		    letter-spacing: 0;
+		    margin-top: 0.8em;
+		    margin-bottom: 1.6em;
+		}
+		
+		/* Le panel correspondant à 1 contrat */
+		.v-panel-uncontrat 
+		{
+		    border: 2px solid #5cb85c !important;
+		}
+
+		/* Le bouton principal correspondant à Voir ou Adhérer */
+		.v-button-principal 
+		{
+		    color: white;
+		    border: none;
+		    background: #5cb85c;
+		    font-size: 16px;
+		}
+		
+		.v-label-libelle-contrat
+		{	
+			font-size : 16px;
+		}
+		
+		.v-link-adhesion
+		{	
+			 margin-top: 1.2em;
+		}
+		
+}
+
+/******************************************************************************
+ * ECRAN MES LIVRAISONS
+ *******************************************************************************/
+ 
+.v-verticallayout-livraison
+{
+	.v-verticallayout-semaine-viewer
+	{
+		.v-label
+		{
+			line-height: 1.1;
+		    font-weight: 400;
+		    font-size: 22px;
+		    color: #000000;
+		    letter-spacing: 0;
+		    margin-top: 0.2em;
+		    margin-bottom: 0.2em;
+		}
+		
+		.v-button-fleche 
+		{
+			border: 2px solid #57223B;
+			background: #B64E49;
+			color: #f4f6f1;
+			min-width: 150px;
+		}
+	
+		.v-button-fleche:focus:after 
+		{
+		    border: inherit;
+		    -webkit-box-shadow: 0 0 0 2px rgba(150, 190, 90, 0.5);
+		    box-shadow: 0 0 0 2px rgba(190, 90, 108, 0.5);
+		}			
+	}
+
+
+	.v-label-datejourliv
+	{
+	    line-height: 1.1;
+	    font-weight: 600;
+	    font-size: 20px;
+	    color: #5cb85c;
+	    letter-spacing: 0;
+	    margin-top: 0.4em;
+	    margin-bottom: 0.8em;
+	    
+	}
+
+
+	.v-label-qteproduit
+	{
+	    line-height: 1.1;
+	    font-size: 16px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.2em;
+	    margin-bottom: 0.2em;
+	
+	}
+
+
+	.v-panel-unjour 
+	{
+	    border: 2px solid #5cb85c !important;
+	    margin-bottom : 12px;
+	}	
+	
+	
+	.v-panel-bandeau-nomcontrat
+	{
+	    background-color: #f1f1f1;
+	    border: 0px;
+		
+		.v-label
+		{
+		    line-height: 1.1;
+		    font-weight: 500;
+		    font-size: 20px;
+		    color: #000000;
+		    letter-spacing: 0;
+		    margin-top: 0.4em;
+		    margin-bottom: 0.4em;
+		    background-color: #f1f1f1;
+		    padding-left: 5px;
+		}	
+	}
+
+}
+
+/******************************************************************************
+ * ECRAN MES PAIEMENTS
+ *******************************************************************************/
+
+
+ 
+.v-verticallayout-paiement
+{
+	/* Les textes sur le fond */ 
+	.v-label-textefond
+	{
+	    line-height: 1.1;
+	    font-weight: 500;
+	    font-size: 24px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.6em;
+	    margin-bottom: 0.4em;
+	} 
+ 
+
+	/* Partie Les chèques que je dois donner à l'AMAP */
+	.v-label-contrat
+	{
+	    line-height: 1.1;
+	    font-weight: 500;
+	    font-size: 20px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.4em;
+	    margin-bottom: 0.4em;
+	    background-color: #f1f1f1;
+	}
+
+	.v-label-chequeafournir
+	{
+	    line-height: 1.1;
+	    font-size: 16px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.2em;
+	    margin-bottom: 0.2em;
+	
+	}
+ 
+	.v-panel-contrat
+	{
+	    background-color: #f1f1f1;
+	    border: 0px;
+	} 
+ 
+	.v-panel-chequeafournir 
+	{
+	    border: 2px solid #5cb85c !important;
+	    margin-bottom : 12px;
+	}
+
+
+
+	/* Partie Le planning de mes paiements à venir mois par mois */  
+	
+	
+	.v-label-mois
+	{
+	    line-height: 1.1;
+	    font-weight: 500;
+	    font-size: 20px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.4em;
+	    margin-bottom: 0.4em;
+	    background-color: #f1f1f1;
+	}
+	
+	.v-label-cheque
+	{
+	    line-height: 1.1;
+	    font-size: 16px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.2em;
+	    margin-bottom: 0.2em;
+	
+	}
+	 
+	
+	.v-panel-mois
+	{
+	    background-color: #f1f1f1;
+	    border: 0px;
+	}
+	
+	 
+	.v-panel-avenir 
+	{
+	    border: 2px solid #5cb85c !important;
+	    margin-bottom : 12px;
+	}
+}
+
+
+/******************************************************************************
+ * ECRAN MON COMPTE 
+ *******************************************************************************/
+
+.v-verticallayout-moncompte
+{
+	
+	.v-panel-compteform 
+	{
+	    border: 2px solid #5cb85c !important;
+	    margin-bottom : 12px;
+	    background-color: #f9f9f9;
+	}
+	
+	.v-textfield-compteinput
+	{
+	    font-size: 16px  !important;
+	}
+	
+	.v-caption-compteinput 
+	{
+	    font-size: 16px  !important;
+	}
+}
+
+
+/******************************************************************************
+ * ECRAN PRODUCTEUR REFERENT
+ *******************************************************************************/
+
+.v-verticallayout-producteurreferent
+{
+	.v-label-titre
+	{
+	    line-height: 1.1;
+	    font-weight: 500;
+	    font-size: 20px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.4em;
+	    margin-bottom: 0.4em;
+	}
+	
+	.v-label-ligne
+	{
+	    line-height: 1.1;
+	    font-size: 16px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.2em;
+	    margin-bottom: 0.2em;
+	
+	}
+	 
+	 
+	.v-panel-producteur 
+	{
+	    border: 2px solid #5cb85c !important;
+	    margin-bottom : 12px;
+	}   
+}
+
+
+/******************************************************************************
+ * ECRAN PLANNING PERMANENCES
+ *******************************************************************************/
+
+.v-verticallayout-planning-permanence
+{
+	
+	.v-verticallayout-semaine-viewer
+	{
+		.v-label
+		{
+			line-height: 1.1;
+		    font-weight: 400;
+		    font-size: 22px;
+		    color: #000000;
+		    letter-spacing: 0;
+		    margin-top: 0.2em;
+		    margin-bottom: 0.2em;
+		}
+		
+		.v-button-fleche 
+		{
+			border: 2px solid #57223B;
+			background: #B64E49;
+			color: #f4f6f1;
+			min-width: 150px;
+		}
+	
+		.v-button-fleche:focus:after 
+		{
+		    border: inherit;
+		    -webkit-box-shadow: 0 0 0 2px rgba(150, 190, 90, 0.5);
+		    box-shadow: 0 0 0 2px rgba(190, 90, 108, 0.5);
+		}			
+	}
+	
+	
+	.v-label-titre
+	{
+	    line-height: 1.1;
+	    font-weight: 500;
+	    font-size: 24px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.6em;
+	    margin-bottom: 0.4em;
+	}
+	
+	.v-label-ligne
+	{
+	    line-height: 1.1;
+	    font-size: 16px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.2em;
+	    margin-bottom: 0.2em;
+	}
+	 
+	.v-label-contenu-semaine
+	{
+	    line-height: 1.1;
+	    font-size: 16px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.2em;
+	    margin-bottom: 0.2em;
+	} 
+	 
+	.v-panel-mes-permanences
+	{
+	    border: 2px solid #5cb85c !important;
+	    margin-bottom : 12px;
+	}
+	
+	.v-panel-semaine
+	{
+	    border: 2px solid #5cb85c !important;
+	    margin-bottom : 12px;
+	}   
+	
+	   
+}
+
+
+/******************************************************************************
+ * ECRAN LIVRAISON PRODUCTEUR
+ *******************************************************************************/
+
+.v-verticallayout-producteur-livraison
+{
+	
+	.v-verticallayout-semaine-viewer
+	{
+		.v-label
+		{
+			line-height: 1.1;
+		    font-weight: 400;
+		    font-size: 22px;
+		    color: #000000;
+		    letter-spacing: 0;
+		    margin-top: 0.2em;
+		    margin-bottom: 0.2em;
+		}
+		
+		.v-button-fleche 
+		{
+			border: 2px solid #57223B;
+			background: #B64E49;
+			color: #f4f6f1;
+			min-width: 150px;
+		}
+	
+		.v-button-fleche:focus:after 
+		{
+		    border: inherit;
+		    -webkit-box-shadow: 0 0 0 2px rgba(150, 190, 90, 0.5);
+		    box-shadow: 0 0 0 2px rgba(190, 90, 108, 0.5);
+		}			
+	}
+	
+	.producteur-selectorpart
+	{
+		.v-label-unproducteur
+		{
+			line-height: 1.1;
+		    font-weight: 600;
+		    font-size: 20px;
+		    color: #5cb85c;
+		    letter-spacing: 0;
+		    margin-top: 0.2em;
+		    margin-bottom: 0.2em;
+		}
+		
+		.v-label-xproducteurs
+		{
+			margin-top: 0.25em;	
+			font-size : 16px;
+		}
+	}
+
+
+	.v-label-datejourliv
+	{
+	    line-height: 1.1;
+	    font-weight: 600;
+	    font-size: 20px;
+	    color: #5cb85c;
+	    letter-spacing: 0;
+	    margin-top: 0.4em;
+	    margin-bottom: 0.8em;
+	    
+	}
+
+
+	.v-label-qteproduit
+	{
+	    line-height: 1.1;
+	    font-size: 16px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.2em;
+	    margin-bottom: 0.2em;
+	
+	}
+
+
+	.v-panel-unjour 
+	{
+	    border: 2px solid #5cb85c !important;
+	    margin-bottom : 12px;
+	}	
+	
+	
+	.v-panel-bandeau-nomcontrat
+	{
+	    background-color: #f1f1f1;
+	    border: 0px;
+		
+		.v-label
+		{
+		    line-height: 1.1;
+		    font-weight: 500;
+		    font-size: 20px;
+		    color: #000000;
+		    letter-spacing: 0;
+		    margin-top: 0.4em;
+		    margin-bottom: 0.4em;
+		    background-color: #f1f1f1;
+		    padding-left: 5px;
+		}	
+	}
+	
+}
+
+
+/******************************************************************************
+ * ECRAN LIVRAISON D'UN AMAPIEN
+ *******************************************************************************/
+ 
+.v-verticallayout-livraison-amapien
+{
+	.utilisateur-selectorpart
+	{
+		.v-label-xutilisateurs
+		{
+			margin-top: 0.25em;
+			margin-bottom: 30px; /** Permet de laisser un espace suffisant entre le bouton "Changer d'amapien" et "Semaine suivante" **/		
+			font-size : 16px;
+		}
+	}
+	
+	
+	.v-verticallayout-semaine-viewer
+	{
+		.v-label
+		{
+			line-height: 1.1;
+		    font-weight: 400;
+		    font-size: 22px;
+		    color: #000000;
+		    letter-spacing: 0;
+		    margin-top: 0.2em;
+		    margin-bottom: 0.2em;
+		}
+		
+		.v-button-fleche 
+		{
+			border: 2px solid #57223B;
+			background: #B64E49;
+			color: #f4f6f1;
+			min-width: 150px;
+		}
+	
+		.v-button-fleche:focus:after 
+		{
+		    border: inherit;
+		    -webkit-box-shadow: 0 0 0 2px rgba(150, 190, 90, 0.5);
+		    box-shadow: 0 0 0 2px rgba(190, 90, 108, 0.5);
+		}			
+	}
+
+
+	.v-label-datejourliv
+	{
+	    line-height: 1.1;
+	    font-weight: 600;
+	    font-size: 20px;
+	    color: #5cb85c;
+	    letter-spacing: 0;
+	    margin-top: 0.4em;
+	    margin-bottom: 0.8em;
+	    
+	}
+
+
+	.v-label-qteproduit
+	{
+	    line-height: 1.1;
+	    font-size: 16px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.2em;
+	    margin-bottom: 0.2em;
+	
+	}
+
+
+	.v-panel-unjour 
+	{
+	    border: 2px solid #5cb85c !important;
+	    margin-bottom : 12px;
+	}	
+	
+	
+	.v-panel-bandeau-nomcontrat
+	{
+	    background-color: #f1f1f1;
+	    border: 0px;
+		
+		.v-label
+		{
+		    line-height: 1.1;
+		    font-weight: 500;
+		    font-size: 20px;
+		    color: #000000;
+		    letter-spacing: 0;
+		    margin-top: 0.4em;
+		    margin-bottom: 0.4em;
+		    background-color: #f1f1f1;
+		    padding-left: 5px;
+		}	
+	}
+}
+
+
+
+
+/******************************************************************************
+ * ECRAN IMPORT DES DONNEES
+ *******************************************************************************/
+ 
+ 
+.v-verticallayout-import-donnees
+{
+	.v-label-titre
+	{
+		line-height: 1.1;
+	    font-weight: 500;
+	    font-size: 24px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.6em;
+	    margin-bottom: 0.4em;
+	}
+	
+	
+	.v-panel-action 
+	{
+		background: white;
+		
+		.v-button
+		{
+	    	border: 2px solid #a3a3a3;
+    		background-image:-moz-linear-gradient(white, #c9c9c9);
+			background-image:-webkit-linear-gradient(white, #c9c9c9);
+			background-image:-o-linear-gradient(white, #c9c9c9);
+			background-image: linear-gradient(white, #c9c9c9);
+		}
+	}
+	
+	.v-panel-action  > div > [class*="-caption"] 
+	{
+		font-size : 16px;
+		color : white;
+		background-image:-moz-linear-gradient(#96BE5A, #69853F);
+		background-image:-webkit-linear-gradient(#96BE5A, #69853F);
+		background-image:-o-linear-gradient(#96BE5A, #69853F);
+		background-image: linear-gradient(#96BE5A, #69853F);
+	}
+	
+	
+	
+	
+}
+ 
+
+
+
+/******************************************************************************
+ * ECRAN MAINTENANCE
+ *******************************************************************************/
+ 
+ 
+.v-verticallayout-maintenance
+{
+	.v-label-titre
+	{
+		line-height: 1.1;
+	    font-weight: 500;
+	    font-size: 24px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.6em;
+	    margin-bottom: 0.4em;
+	}
+	
+	
+	.v-panel-action 
+	{
+		background: white;
+		
+		.v-button
+		{
+	    	border: 2px solid #a3a3a3;
+    		background-image:-moz-linear-gradient(white, #c9c9c9);
+			background-image:-webkit-linear-gradient(white, #c9c9c9);
+			background-image:-o-linear-gradient(white, #c9c9c9);
+			background-image: linear-gradient(white, #c9c9c9);
+		}
+	}
+	
+	.v-panel-action  > div > [class*="-caption"] 
+	{
+		font-size : 16px;
+		color : white;
+		background-image:-moz-linear-gradient(#96BE5A, #69853F);
+		background-image:-webkit-linear-gradient(#96BE5A, #69853F);
+		background-image:-o-linear-gradient(#96BE5A, #69853F);
+		background-image: linear-gradient(#96BE5A, #69853F);
+	}
+	
+}
+ 
+ 
+
+
+
+

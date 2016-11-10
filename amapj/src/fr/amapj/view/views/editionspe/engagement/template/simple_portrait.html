@@ -1,0 +1,291 @@
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+<div style="min-height:375pt;">
+<table border="0" cellpadding="1" cellspacing="0" style="width:100%;border: 1px solid;">
+	<tbody>
+		<tr>
+			<td><span style="font-size:10pt;">AMAP LE BON PANIER</span></td>
+			<td style="text-align: right;"><span style="font-size:10pt;">P&eacute;riode du contrat : du $contrat.dateDebut au $contrat.dateFin</span></td>
+		</tr>
+		<tr>
+			<td colspan="2" style="text-align: center;"><span style="font-size:18pt;">Contrat $contrat.nom</span></td>
+		</tr>
+	</tbody>
+</table>
+
+<p style="margin:0pt 0pt 0pt 0pt;line-height : 0.5em;"> </p>
+
+<table border="0" cellpadding="1" cellspacing="0" style="width:100%;">
+	<tbody>
+		<tr>
+			<td style="width: 18%;">Nom de l&#39;amapien</td>
+			<td style="width: 32%;"><strong>$amapien.nom $amapien.prenom</strong></td>
+			<td style="width: 18%;">Nom du producteur</td>
+			<td style="width: 32%;"><strong>$producteur.libContrat</strong></td>
+		</tr>
+		<tr>
+			<td style="width: 18%;">Adresse</td>
+			<td style="width: 32%;"><strong>$amapien.libAdr1</strong></td>
+			<td style="width: 18%;">Adresse</td>
+			<td style="width: 32%;"><strong>$contactproducteur.libAdr1</strong></td>
+		</tr>
+		
+		<tr>
+			<td style="width: 18%;">Ville</td>
+			<td style="width: 32%;"><strong>$amapien.codePostal $amapien.ville</strong></td>
+			<td style="width: 18%;">Ville</td>
+			<td style="width: 32%;"><strong>$contactproducteur.codePostal $contactproducteur.ville</strong></td>
+		</tr>
+		
+		<tr>
+			<td style="width: 18%;">Tel</td>
+			<td style="width: 32%;"><strong>$amapien.numTel1</strong></td>
+			<td style="width: 18%;"> </td>
+			<td style="width: 32%;"> </td>
+		</tr>
+		<tr>
+			<td style="width: 18%;">Portable</td>
+			<td style="width: 32%;"><strong>$amapien.numTel2</strong></td>
+			<td style="width: 18%;"> </td>
+			<td style="width: 32%;"> </td>
+		</tr>
+		<tr>
+			<td style="width: 18%;">Courriel</td>
+			<td style="width: 32%;"><strong>$amapien.email</strong></td>
+			<td style="width: 18%;"> </td>
+			<td style="width: 32%;"> </td>
+		</tr>
+	</tbody>
+</table>
+
+<table border="1" cellpadding="1" cellspacing="0" style="width:100%;">
+	<tbody>
+		<tr>
+			<td style="width: 50%;"><span style="font-size:8pt;">L&#39;amapien ci-dessus d&eacute;sign&eacute; :<br />
+			- s&rsquo;engage selon les principes de la charte AMAP (cf. verso) envers le producteur pour l&rsquo;achat des produits ci-dessous.<br />
+			- engage sa responsabilit&eacute; civile en cas d&rsquo;incident sur le lieu de distribution.</span></td>
+			<td style="width: 50%;"><span style="font-size:8pt;">Le producteur ci-dessus d&eacute;sign&eacute; :<br />
+			- s&rsquo;engage selon les principes de la charte AMAP (cf.verso) envers le consommateur &agrave; fournir les produits ci-dessous.<br />
+			- engage sa responsabilit&eacute; civile en cas d&rsquo;incident sur le lieu de distribution.</span></td>
+		</tr>
+	</tbody>
+</table>
+
+<p style="margin:0pt 0pt 0pt 0pt;line-height : 0.5em;"> </p>
+
+<table border="0" cellpadding="1" cellspacing="1" style="height:30pt;width:100%;">
+	<tbody>
+		<tr>
+			<td style="width: 25%;">Signature de l&#39;amapien</td>
+			<td style="border: 2px solid; width: 25%;"> </td>
+			<td style="width: 25%;">Signature du producteur</td>
+			<td style="border: 2px solid; width: 25%;"> </td>
+		</tr>
+	</tbody>
+</table>
+
+<p style="margin:0pt 0pt 0pt 0pt;line-height : 0.2em;"> </p>
+
+<table border="1" cellpadding="1" cellspacing="0" style="width:100%;">
+	<tbody>
+		<tr>
+			<td colspan="5" rowspan="1" style="width: 60%;background-color:#D3D3D3;"><strong>D&eacute;tails des produits</strong></td>
+			<td colspan="3" rowspan="1" style="width: 40%;background-color:#D3D3D3;">Nombre total de produits : $contrat.amapienNbProduit</td>
+		</tr>
+		<tr>
+			<td colspan="8">
+			<div>$contrat.listeDateProduitCompact</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="7" rowspan="1" style="background-color:#D3D3D3;">Somme totale TTC</td>
+			<td style="text-align: right; background-color: rgb(211, 211, 211);">$contrat.montantProduit &euro;</td>
+		</tr>
+		<tr>
+			<td colspan="7" rowspan="1" style="background-color:#D3D3D3;">Dont TVA 5,5% : TTC - (TTC / 1,055)</td>
+			<td style="text-align: right; background-color: rgb(211, 211, 211);">$contrat.montantProduitTVA(5.5) &euro;</td>
+		</tr>
+	</tbody>
+</table>
+
+<p style="margin:0pt 0pt 0pt 0pt;line-height : 0.5em;"> </p>
+
+<table border="0" cellpadding="1" cellspacing="0" style="width:100%;border: 1px solid;">
+	<tbody>
+		<tr>
+			<td>MODE DE REGLEMENT</td>
+			<td style="text-align: right;"><strong>Ch&egrave;ques &agrave; l&rsquo;ordre de $contrat.libCheque</strong></td>
+		</tr>
+		<tr>
+			<td colspan="2">$contrat.listeDateChequeCompact</td>
+		</tr>
+	</tbody>
+</table>
+
+<p style="margin:0pt 0pt 0pt 0pt;line-height : 0.5em;"></p>
+
+<table border="0" cellpadding="1" cellspacing="1" style="width:100%;border: 1px solid;">
+	<tbody>
+		<tr>
+			<td>
+			<p style="margin: 0pt; text-align: center;">Partie &agrave; conserver par le g&eacute;rant du contrat pendant toute la dur&eacute;e du contrat.</p>
+
+			<p style="margin: 0pt; text-align: center;">R&eacute;f&eacute;rent contrat : $referent.prenom $referent.nom $referent.libAdr1 $referent.codePostal $referent.ville</p>
+
+			<p style="margin: 0pt; text-align: center;">$referent.numTel1 $referent.email</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+
+<hr />
+
+
+<!--  PARTIE RECU  , strictement identique à la partie précédente, hormis le mot recu en plus et le destintaire du papier-->
+
+<div style="page-break-inside:avoid;">
+
+<table border="0" cellpadding="1" cellspacing="0" style="width:100%;border: 1px solid;">
+	<tbody>
+		<tr>
+			<td><span style="font-size:10pt;">AMAP LE BON PANIER</span></td>
+			<td style="text-align: right;"><span style="font-size:10pt;">P&eacute;riode du contrat : du $contrat.dateDebut au $contrat.dateFin</span></td>
+		</tr>
+		<tr>
+			<td colspan="2" style="text-align: center;"><span style="font-size:18pt;">Reçu du contrat $contrat.nom</span></td>
+		</tr>
+	</tbody>
+</table>
+
+<p style="margin:0pt 0pt 0pt 0pt;line-height : 0.5em;"> </p>
+
+<table border="0" cellpadding="1" cellspacing="0" style="width:100%;">
+	<tbody>
+		<tr>
+			<td style="width: 18%;">Nom de l&#39;amapien</td>
+			<td style="width: 32%;"><strong>$amapien.nom $amapien.prenom</strong></td>
+			<td style="width: 18%;">Nom du producteur</td>
+			<td style="width: 32%;"><strong>$producteur.libContrat</strong></td>
+		</tr>
+		<tr>
+			<td style="width: 18%;">Adresse</td>
+			<td style="width: 32%;"><strong>$amapien.libAdr1</strong></td>
+			<td style="width: 18%;">Adresse</td>
+			<td style="width: 32%;"><strong>$contactproducteur.libAdr1</strong></td>
+		</tr>
+		
+		<tr>
+			<td style="width: 18%;">Ville</td>
+			<td style="width: 32%;"><strong>$amapien.codePostal $amapien.ville</strong></td>
+			<td style="width: 18%;">Ville</td>
+			<td style="width: 32%;"><strong>$contactproducteur.codePostal $contactproducteur.ville</strong></td>
+		</tr>
+		
+		<tr>
+			<td style="width: 18%;">Tel</td>
+			<td style="width: 32%;"><strong>$amapien.numTel1</strong></td>
+			<td style="width: 18%;"> </td>
+			<td style="width: 32%;"> </td>
+		</tr>
+		<tr>
+			<td style="width: 18%;">Portable</td>
+			<td style="width: 32%;"><strong>$amapien.numTel2</strong></td>
+			<td style="width: 18%;"> </td>
+			<td style="width: 32%;"> </td>
+		</tr>
+		<tr>
+			<td style="width: 18%;">Courriel</td>
+			<td style="width: 32%;"><strong>$amapien.email</strong></td>
+			<td style="width: 18%;"> </td>
+			<td style="width: 32%;"> </td>
+		</tr>
+	</tbody>
+</table>
+
+<table border="1" cellpadding="1" cellspacing="0" style="width:100%;">
+	<tbody>
+		<tr>
+			<td style="width: 50%;"><span style="font-size:8pt;">L&#39;amapien ci-dessus d&eacute;sign&eacute; :<br />
+			- s&rsquo;engage selon les principes de la charte AMAP (cf. verso) envers le producteur pour l&rsquo;achat des produits ci-dessous.<br />
+			- engage sa responsabilit&eacute; civile en cas d&rsquo;incident sur le lieu de distribution.</span></td>
+			<td style="width: 50%;"><span style="font-size:8pt;">Le producteur ci-dessus d&eacute;sign&eacute; :<br />
+			- s&rsquo;engage selon les principes de la charte AMAP (cf.verso) envers le consommateur &agrave; fournir les produits ci-dessous.<br />
+			- engage sa responsabilit&eacute; civile en cas d&rsquo;incident sur le lieu de distribution.</span></td>
+		</tr>
+	</tbody>
+</table>
+
+<p style="margin:0pt 0pt 0pt 0pt;line-height : 0.5em;"> </p>
+
+<table border="0" cellpadding="1" cellspacing="1" style="height:30pt;width:100%;">
+	<tbody>
+		<tr>
+			<td style="width: 25%;">Signature de l&#39;amapien</td>
+			<td style="border: 2px solid; width: 25%;"> </td>
+			<td style="width: 25%;">Signature du producteur</td>
+			<td style="border: 2px solid; width: 25%;"> </td>
+		</tr>
+	</tbody>
+</table>
+
+<p style="margin:0pt 0pt 0pt 0pt;line-height : 0.2em;"> </p>
+
+<table border="1" cellpadding="1" cellspacing="0" style="width:100%;">
+	<tbody>
+		<tr>
+			<td colspan="5" rowspan="1" style="width: 60%;background-color:#D3D3D3;"><strong>D&eacute;tails des produits</strong></td>
+			<td colspan="3" rowspan="1" style="width: 40%;background-color:#D3D3D3;">Nombre total de produits : $contrat.amapienNbProduit</td>
+		</tr>
+		<tr>
+			<td colspan="8">
+			<div>$contrat.listeDateProduitCompact</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="7" rowspan="1" style="background-color:#D3D3D3;">Somme totale TTC</td>
+			<td style="text-align: right; background-color: rgb(211, 211, 211);">$contrat.montantProduit &euro;</td>
+		</tr>
+		<tr>
+			<td colspan="7" rowspan="1" style="background-color:#D3D3D3;">Dont TVA 5,5% : TTC - (TTC / 1,055)</td>
+			<td style="text-align: right; background-color: rgb(211, 211, 211);">$contrat.montantProduitTVA(5.5) &euro;</td>
+		</tr>
+	</tbody>
+</table>
+
+<p style="margin:0pt 0pt 0pt 0pt;line-height : 0.5em;"> </p>
+
+<table border="0" cellpadding="1" cellspacing="0" style="width:100%;border: 1px solid;">
+	<tbody>
+		<tr>
+			<td>MODE DE REGLEMENT</td>
+			<td style="text-align: right;"><strong>Ch&egrave;ques &agrave; l&rsquo;ordre de $contrat.libCheque</strong></td>
+		</tr>
+		<tr>
+			<td colspan="2">$contrat.listeDateChequeCompact</td>
+		</tr>
+	</tbody>
+</table>
+
+<p style="margin:0pt 0pt 0pt 0pt;line-height : 0.5em;"></p>
+
+<table border="0" cellpadding="1" cellspacing="1" style="width:100%;border: 1px solid;">
+	<tbody>
+		<tr>
+			<td>
+			<p style="margin: 0pt; text-align: center;">Partie &agrave; conserver par l'amapien pendant toute la dur&eacute;e du contrat.</p>
+
+			<p style="margin: 0pt; text-align: center;">R&eacute;f&eacute;rent contrat : $referent.prenom $referent.nom $referent.libAdr1 $referent.codePostal $referent.ville</p>
+
+			<p style="margin: 0pt; text-align: center;">$referent.numTel1 $referent.email</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+</div>
+</body>
+</html>

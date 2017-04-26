@@ -53,6 +53,7 @@ import fr.amapj.view.engine.popup.formpopup.validator.IValidator;
 import fr.amapj.view.engine.searcher.Searcher;
 import fr.amapj.view.engine.searcher.SearcherDefinition;
 import fr.amapj.view.engine.tools.BaseUiTools;
+import fr.amapj.view.engine.tools.table.complex.ComplexTableBuilder;
 import fr.amapj.view.engine.ui.AppConfiguration;
 
 /**
@@ -83,6 +84,13 @@ abstract public class AbstractFormPopup extends CorePopup
 		}
 	}
 	
+	
+	
+	
+	protected <T> void  addComplexTable(ComplexTableBuilder<T> ctb)
+	{
+		ctb.buildComponent(form);
+	}
 	
 	protected Label addLabel(String content,ContentMode mode)
 	{

@@ -38,7 +38,6 @@ import fr.amapj.view.engine.widgets.CurrencyTextFieldConverter;
  * Popup pour la saisie des quantites pour un contrat
  *  
  */
-@SuppressWarnings("serial")
 public class BarrerDateContratEditorPart extends PopupBooleanGrid
 {
 	private final static Logger logger = LogManager.getLogger();

@@ -77,12 +77,11 @@ public class BulletinAdhesionEditorPart extends WizardFormPopup
 		{
 			popupTitle = "Création d'un modèle de bulletin d'adhésion";
 			this.etiquetteDTO = new BulletinAdhesionJson();
-			this.etiquetteDTO.setTypEditionSpecifique(TypEditionSpecifique.BULLETIN_ADHESION);
 		}
 		else
 		{
 			popupTitle = "Modification d'un modèle de bulletin d'adhésion";
-			this.etiquetteDTO = (BulletinAdhesionJson) AbstractEditionSpeJson.load(p);
+			this.etiquetteDTO = (BulletinAdhesionJson) new EditionSpeService().load(p.id);
 		}	
 		
 		item = new BeanItem<BulletinAdhesionJson>(this.etiquetteDTO);
@@ -189,8 +188,7 @@ public class BulletinAdhesionEditorPart extends WizardFormPopup
 	@Override
 	protected void performSauvegarder()
 	{
-		EditionSpeDTO editionSpeDTO = etiquetteDTO.save();
-		new EditionSpeService().update(editionSpeDTO, create);
+		new EditionSpeService().update(etiquetteDTO, create);
 	}
 
 	@Override

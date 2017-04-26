@@ -93,14 +93,13 @@ public class FeuilleEmargementEditorPart extends WizardFormPopup
 			this.etiquetteDTO.setNomDuContrat(ChoixOuiNon.OUI);
 			this.etiquetteDTO.setNomDuProducteur(ChoixOuiNon.NON);
 			
-			this.etiquetteDTO.setTypEditionSpecifique(TypEditionSpecifique.FEUILLE_EMARGEMENT);
 		}
 		else
 		{
 			popupTitle = "Modification d'une feuille d'émargement (mensuelle ou hebdomadaire)";
 			
 			
-			this.etiquetteDTO = (FeuilleEmargementJson) AbstractEditionSpeJson.load(p);
+			this.etiquetteDTO = (FeuilleEmargementJson) new EditionSpeService().load(p.id);
 			
 		}	
 			
@@ -218,6 +217,8 @@ public class FeuilleEmargementEditorPart extends WizardFormPopup
 		addComboEnumField("Imprimer le nom du contrat au dessus des produits", "nomDuContrat",  new NotNullValidator());
 		
 		addComboEnumField("Imprimer le nom du producteur au dessus des produits", "nomDuProducteur",  new NotNullValidator());
+		
+		addComboEnumField("Imprimer la liste des produits", "detailProduits",  new NotNullValidator());
 	}
 
 
@@ -225,8 +226,7 @@ public class FeuilleEmargementEditorPart extends WizardFormPopup
 	@Override
 	protected void performSauvegarder()
 	{
-		EditionSpeDTO editionSpeDTO = etiquetteDTO.save(); 
-		new EditionSpeService().update(editionSpeDTO, create);
+		new EditionSpeService().update(etiquetteDTO, create);
 	}
 
 	@Override

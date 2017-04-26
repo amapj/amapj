@@ -39,6 +39,7 @@ import fr.amapj.model.models.fichierbase.Utilisateur;
 import fr.amapj.service.engine.generator.pdf.PdfGeneratorTool;
 import fr.amapj.service.engine.generator.pdf.TestablePdfGenerator;
 import fr.amapj.service.services.edgenerator.velocity.VCBuilder;
+import fr.amapj.service.services.editionspe.EditionSpeService;
 import fr.amapj.service.services.mescontrats.MesContratsService;
 import fr.amapj.service.services.producteur.ProdUtilisateurDTO;
 import fr.amapj.service.services.producteur.ProducteurService;
@@ -95,7 +96,7 @@ public class PGEngagement extends TestablePdfGenerator
 	{
 		ModeleContrat mc =  em.find(ModeleContrat.class, modeleContratId);
 		EditionSpecifique editionSpecifique = mc.getProducteur().engagement;
-		EngagementJson engagement = (EngagementJson) AbstractEditionSpeJson.load(editionSpecifique);
+		EngagementJson engagement = (EngagementJson)  new EditionSpeService().load(editionSpecifique.id);
 		return engagement;
 	}
 	

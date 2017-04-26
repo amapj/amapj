@@ -25,11 +25,15 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import fr.amapj.common.GzipUtils;
+import fr.amapj.model.engine.tools.SpecificDbUtils;
+import fr.amapj.model.engine.transaction.DbUtil;
 import fr.amapj.model.engine.transaction.DbWrite;
 import fr.amapj.model.engine.transaction.TransactionHelper;
 import fr.amapj.model.models.contrat.modele.ModeleContrat;
 import fr.amapj.model.models.contrat.reel.Contrat;
 import fr.amapj.model.models.contrat.reel.Paiement;
+import fr.amapj.model.models.editionspe.EditionSpecifique;
 import fr.amapj.model.models.remise.RemiseProducteur;
 import fr.amapj.service.services.gestioncontrat.GestionContratService;
 import fr.amapj.service.services.mescontrats.MesContratsService;
@@ -136,6 +140,56 @@ public class MaintenanceService
 	{
 		EntityManager em = TransactionHelper.getEm();
 		em.getEntityManagerFactory().getCache().evictAll();
+	}
+
+
+	/**
+	 * Application du patch V019
+	 */
+	public String applyPatchV019()
+	{
+		StringBuffer str = new StringBuffer();
+		SpecificDbUtils.executeInAllDb(()->patch(str),false);
+		return str.toString();
+	}
+	
+	@DbWrite
+	private Void patch(StringBuffer str)
+	{
+		EntityManager em = TransactionHelper.getEm();
+		
+		String dbName = DbUtil.getCurrentDb().getDbName();
+		
+		Query q = em.createQuery("select p from EditionSpecifique p");
+
+		List<EditionSpecifique> ps = q.getResultList();
+		for (EditionSpecifique p : ps)
+		{
+			zipContent(p);
+		}
+		
+		str.append("ok pour "+dbName+"<br/>");
+		
+		return null;
+	}
+
+
+	/**
+	 * On zippe uniquement si cela n'a pas déja été fait 
+	 * @param p
+	 */
+	private void zipContent(EditionSpecifique p)
+	{
+		if (p.content==null)
+		{
+			return ;
+		}
+		if (p.content.startsWith("{")==false)
+		{
+			return;
+		}
+		
+		p.content = GzipUtils.compress(p.content);
 	}
 
 	

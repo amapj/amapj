@@ -30,6 +30,7 @@ import fr.amapj.service.services.parametres.ParametresDTO;
 import fr.amapj.service.services.parametres.ParametresService;
 import fr.amapj.service.services.utilisateur.UtilisateurDTO;
 import fr.amapj.service.services.utilisateur.UtilisateurService;
+import fr.amapj.service.services.utilisateur.UtilisateurService.UtilisateurInfo;
 import fr.amapj.service.services.utilisateur.util.UtilisateurUtil;
 import fr.amapj.view.engine.popup.formpopup.WizardFormPopup;
 import fr.amapj.view.engine.popup.formpopup.validator.EmailValidator;
@@ -172,10 +173,10 @@ public class CreationUtilisateurEditorPart extends WizardFormPopup
 	@Override
 	protected void performSauvegarder()
 	{
-		String clearPassword = new UtilisateurService().createNewUser(utilisateurDTO,true,sendMail);
+		UtilisateurInfo info = new UtilisateurService().createNewUser(utilisateurDTO,true,sendMail);
 		if (sendMail==false)
 		{
-			MessagePopup popup = new MessagePopup("Mot de passe", ColorStyle.GREEN , "Le mot de passe est "+clearPassword);
+			MessagePopup popup = new MessagePopup("Mot de passe", ColorStyle.GREEN , "Le mot de passe est "+info.password);
 			MessagePopup.open(popup);
 		}
 	}

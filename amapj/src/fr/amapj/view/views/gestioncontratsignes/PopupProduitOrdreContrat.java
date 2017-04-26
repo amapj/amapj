@@ -18,44 +18,63 @@
  * 
  * 
  */
- package fr.amapj.view.views.gestioncontrat.editorpart;
+ package fr.amapj.view.views.gestioncontratsignes;
 
 import com.vaadin.data.util.BeanItem;
 
 import fr.amapj.service.services.gestioncontrat.GestionContratService;
 import fr.amapj.service.services.gestioncontrat.LigneContratDTO;
 import fr.amapj.service.services.gestioncontrat.ModeleContratDTO;
+import fr.amapj.service.services.gestioncontratsigne.GestionContratSigneService;
 import fr.amapj.view.engine.collectioneditor.CollectionEditor;
 import fr.amapj.view.engine.collectioneditor.FieldType;
-import fr.amapj.view.engine.popup.formpopup.FormPopup;
+import fr.amapj.view.engine.popup.formpopup.WizardFormPopup;
 import fr.amapj.view.engine.searcher.Searcher;
 import fr.amapj.view.views.searcher.SearcherList;
 
 /**
- * Permet de modifier les produits d'un contrat 
+ * Permet de modifier l'ordre des produits, même quand des constrats sont signés  
+ * 
+ *
  */
-public class ModifProduitContratEditorPart extends FormPopup
+public class PopupProduitOrdreContrat extends WizardFormPopup
 {
+
 	private ModeleContratDTO modeleContrat;
 	
+	public enum Step
+	{
+		SAISIE_PRODUIT;
+	}
+
 	/**
 	 * 
 	 */
-	public ModifProduitContratEditorPart(Long id)
+	public PopupProduitOrdreContrat(Long mcId)
 	{
-		popupTitle = "Modification des produits d'un contrat";
 		setWidth(80);
-				
+		popupTitle = "Ordre des produits dans un contrat";
+
 		// Chargement de l'objet  à modifier
-		modeleContrat = new GestionContratService().loadModeleContrat(id);
-		
+		modeleContrat = new GestionContratService().loadModeleContrat(mcId);
 		item = new BeanItem<ModeleContratDTO>(modeleContrat);
-		
-		
+				
+	
 	}
 	
-	protected void addFields()
+	@Override
+	protected void configure()
 	{
+		add(Step.SAISIE_PRODUIT,()->addFieldOrdreProduit());
+	}
+
+	
+
+	private void addFieldOrdreProduit()
+	{
+		// Titre
+		setStepTitle("changer l'ordre des produits");
+		
 		// Le producteur
 		Searcher prod = new Searcher(SearcherList.PRODUCTEUR);
 		prod.bind(binder, "producteur");
@@ -64,42 +83,31 @@ public class ModifProduitContratEditorPart extends FormPopup
 		
 		// Les produits
 		CollectionEditor<LigneContratDTO> f1 = new CollectionEditor<LigneContratDTO>("Produits", (BeanItem) item, "produits", LigneContratDTO.class);
-		f1.addSearcherColumn("produitId", "Nom du produit",FieldType.SEARCHER, null,SearcherList.PRODUIT,prod);
-		f1.addColumn("prix", "Prix du produit", FieldType.CURRENCY, null);
+		f1.addSearcherColumn("produitId", "Nom du produit",FieldType.SEARCHER, false,null,SearcherList.PRODUIT,prod);
+		f1.addColumn("prix", "Prix du produit", FieldType.CURRENCY, false,null);
+		f1.addBeanIdToPreserve("idModeleContratProduit");
+			
+		f1.activeButton(false, false, true, true);
 		binder.bind(f1, "produits");
 		form.addComponent(f1);
+		
 	}
 	
 	
+	
 
-
+	@Override
 	protected void performSauvegarder()
 	{
-		// Sauvegarde du contrat
-		new GestionContratService().updateProduitModeleContrat(modeleContrat);
+		new GestionContratSigneService().performModifProduitOrdreContrat(modeleContrat);
+	}
+
+	@Override
+	protected Class getEnumClass()
+	{
+		return Step.class;
 	}
 	
-	/**
-	 * Vérifie si il n'y a pas déjà des contrats signés, qui vont empecher de modifier les produits
-	 */
-	@Override
-	protected String checkInitialCondition()
-	{
-		int nbInscrits = new GestionContratService().getNbInscrits(modeleContrat.id);
-		if (nbInscrits!=0)
-		{
-			String str = "Vous ne pouvez plus modifier directement les produits ou les prix de ce contrat<br/>"+
-						 "car "+nbInscrits+" adhérents ont déjà souscrits à ce contrat.<br/>"+
-						 "Si vous souhaitez vraiment modifier les prix ou les produits , vous devez aller dans \"Gestion des contrats signés\", puis vous cliquez sur le bouton \"Modifier en masse\".<br/>"+
-						 "Vous avez alors 3 possibilités :<ul>"+
-						 "<li>Vous pouvez ajouter des produits</li>"+
-						 "<li>Vous pouvez supprimer des produits</li>"+
-						 "<li>Vous pouvez modifier les prix</li>"+
-						 "</ul>";
-			return str;
-		}
-		
-		return null;
-	}
+	
 	
 }

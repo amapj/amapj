@@ -40,6 +40,7 @@ import com.vaadin.ui.TextField;
 import fr.amapj.common.AmapjRuntimeException;
 import fr.amapj.service.engine.generator.CoreGenerator;
 import fr.amapj.view.engine.excelgenerator.LinkCreator;
+import fr.amapj.view.engine.tools.BaseUiTools;
 import fr.amapj.view.engine.tools.table.TableColumnInfo;
 import fr.amapj.view.engine.tools.table.TableColumnType;
 import fr.amapj.view.engine.widgets.CurrencyTextFieldConverter;
@@ -76,6 +77,8 @@ public class ComplexTableBuilder<T>
 	
 	private List<T> beans;
 	
+	private int pageLength = 15;
+	
 	public ComplexTableBuilder(List<T> beans)
 	{
 		this.beans = beans;
@@ -87,46 +90,46 @@ public class ComplexTableBuilder<T>
 	//
 	public void addString(String title, boolean editable,int width,ToValue<T> toVal)
 	{
-		addColumn(title, null, false,width, TableColumnType.STRING, toVal,null, null);
+		addColumn(title, null, editable,width, TableColumnType.STRING, toVal,null, null);
 	}
 	
 	public void addString(String title, String property,boolean editable,int width,ToValue<T> toVal)
 	{
-		addColumn(title, property,false,width, TableColumnType.STRING, toVal,null, null);
+		addColumn(title, property,editable,width, TableColumnType.STRING, toVal,null, null);
 	}
 	
 	//
 	public void addCurrency(String title, boolean editable,int width,ToValue<T> toVal)
 	{
-		addColumn(title, null, false,width, TableColumnType.CURRENCY, toVal,null, null);
+		addColumn(title, null, editable,width, TableColumnType.CURRENCY, toVal,null, null);
 	}
 	
 	public void addCurrency(String title, String property,boolean editable,int width,ToValue<T> toVal)
 	{
-		addColumn(title, property,false,width, TableColumnType.CURRENCY, toVal,null, null);
+		addColumn(title, property,editable,width, TableColumnType.CURRENCY, toVal,null, null);
 	}
 	
 	//
 	public void addDate(String title, boolean editable,int width,ToValue<T> toVal)
 	{
-		addColumn(title, null, false,width, TableColumnType.DATE, toVal,null, null);
+		addColumn(title, null, editable,width, TableColumnType.DATE, toVal,null, null);
 	}
 	
 	public void addDate(String title, String property,boolean editable,int width,ToValue<T> toVal)
 	{
-		addColumn(title, property,false,width, TableColumnType.DATE, toVal,null, null);
+		addColumn(title, property,editable,width, TableColumnType.DATE, toVal,null, null);
 	}
 	
 	
 	//
 	public void addCheckBox(String title, boolean editable,int width,ToValue<T> toVal,CallBack<T> onClic)
 	{
-		addColumn(title, null,false,width, TableColumnType.CHECK_BOX, toVal,onClic, null);
+		addColumn(title, null,editable,width, TableColumnType.CHECK_BOX, toVal,onClic, null);
 	}
 		
 	public void addCheckBox(String title, String property,boolean editable,int width,ToValue<T> toVal,CallBack<T> onClic)
 	{
-		addColumn(title, property,false,width, TableColumnType.CHECK_BOX, toVal,onClic, null);
+		addColumn(title, property,editable,width, TableColumnType.CHECK_BOX, toVal,onClic, null);
 	}
 	
 	
@@ -178,7 +181,7 @@ public class ComplexTableBuilder<T>
 			{
 				property = "property"+index;
 			}
-			t.addContainerProperty(property, getClass(col.type), null);
+			t.addContainerProperty(property, getClass(col.type,col.editable), null);
 			index++;
 		}
 		
@@ -195,12 +198,12 @@ public class ComplexTableBuilder<T>
 		t.setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
 		t.setSelectable(true);
 		t.setSortEnabled(false);
-		t.setPageLength(15);
+		t.setPageLength(pageLength);
 		
 		contentLayout.addComponent(t);
 	}
 	
-	private Class<?> getClass(TableColumnType type)
+	private Class<?> getClass(TableColumnType type,boolean editable)
 	{
 		switch (type)
 		{
@@ -208,7 +211,14 @@ public class ComplexTableBuilder<T>
 		case INTEGER:
 		case DATE:
 		case CURRENCY:
-			return Label.class;
+			if (editable)
+			{
+				return TextField.class;
+			}
+			else
+			{
+				return Label.class;
+			}
 			
 		case CHECK_BOX:
 			return CheckBox.class;
@@ -260,7 +270,15 @@ public class ComplexTableBuilder<T>
 			return createLabel( Integer.toString( (Integer) col.toVal.toValue(bean)),col.width);
 			
 		case CURRENCY:
-			return createLabel( new CurrencyTextFieldConverter().convertToString( (Integer) col.toVal.toValue(bean)),col.width);
+			Integer currentVal = (Integer) col.toVal.toValue(bean);
+			if (col.editable)
+			{
+				return createCurrencyEditableField(currentVal,col.width);
+			}
+			else
+			{
+				return createLabel( new CurrencyTextFieldConverter().convertToString(currentVal),col.width);
+			}
 			
 		case CHECK_BOX:
 			return createCheckBox((Boolean) col.toVal.toValue(bean), col.width);
@@ -277,6 +295,18 @@ public class ComplexTableBuilder<T>
 
 	}
 
+
+	private TextField createCurrencyEditableField(Integer currentVal,int taille)
+	{
+		TextField tf = new TextField();
+		tf.addStyleName("align-center");
+		tf.setConverter(new CurrencyTextFieldConverter(true));
+		tf.setConvertedValue(currentVal);
+		tf.setNullRepresentation("");
+		tf.setWidth(taille+"px");
+		tf.setImmediate(true);
+		return tf;
+	}
 
 	private Label createLabel(String msg,int taille)
 	{
@@ -389,6 +419,11 @@ public class ComplexTableBuilder<T>
 			index++;
 		}
 		
+	}
+
+	public void setPageLength(int pageLength)
+	{
+		this.pageLength = pageLength;
 	}
 	
 

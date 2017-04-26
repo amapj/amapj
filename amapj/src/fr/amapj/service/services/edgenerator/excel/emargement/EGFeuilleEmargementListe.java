@@ -248,10 +248,13 @@ public class EGFeuilleEmargementListe
 				buf.append("\n");
 			}
 			
-			for (QteProdDTO cell : producteurLiv.produits)
+			if (feuilleEmargementJson.getDetailProduits()==ChoixOuiNon.OUI)
 			{
-				String content = cell.qte+" "+cell.nomProduit+" , "+cell.conditionnementProduit;
-				buf.append(" "+BULLET_CHARACTER+" "+content+"\n");
+				for (QteProdDTO cell : producteurLiv.produits)
+				{
+					String content = cell.qte+" "+cell.nomProduit+" , "+cell.conditionnementProduit;
+					buf.append(" "+BULLET_CHARACTER+" "+content+"\n");
+				}
 			}
 		}	
 		

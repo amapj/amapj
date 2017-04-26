@@ -154,6 +154,9 @@ public class EGFeuilleDistributionProducteur extends AbstractExcelGenerator
 		// Ajustement pour tenir sur une seule page
 		et.adjustSheetForOnePage();
 		
+		// On repete les lignes produits conditionnement  à toutes les pages lors de l'impression
+		et.setRepeatingRow(6, 9);
+		
 	}
 
 	/**

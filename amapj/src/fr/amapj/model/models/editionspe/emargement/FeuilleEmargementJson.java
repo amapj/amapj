@@ -86,6 +86,8 @@ public class FeuilleEmargementJson extends AbstractEditionSpeJson
 	
 	private ChoixOuiNon nomDuProducteur = ChoixOuiNon.NON;
 	
+	private ChoixOuiNon detailProduits = ChoixOuiNon.OUI;
+	
 	
 	public FeuilleEmargementJson()
 	{
@@ -271,6 +273,18 @@ public class FeuilleEmargementJson extends AbstractEditionSpeJson
 	public void setNomDuProducteur(ChoixOuiNon nomDuProducteur)
 	{
 		this.nomDuProducteur = nomDuProducteur;
+	}
+
+
+
+	public ChoixOuiNon getDetailProduits()
+	{
+		return detailProduits;
+	}
+
+	public void setDetailProduits(ChoixOuiNon detailProduits)
+	{
+		this.detailProduits = detailProduits;
 	}
 	
 	

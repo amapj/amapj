@@ -24,7 +24,10 @@ import fr.amapj.model.models.editionspe.TypEditionSpecifique;
 import fr.amapj.view.engine.tools.TableItem;
 
 /**
- * Gestion des étiquettes
+ * Gestion des Editions specifiques 
+ * 
+ * Permet de charger les informations d'entete des editions specifiques, sans le contenu 
+ * 
  */
 public class EditionSpeDTO implements TableItem
 {
@@ -33,9 +36,6 @@ public class EditionSpeDTO implements TableItem
 	public String nom;
 	
 	public TypEditionSpecifique typEditionSpecifique;
-
-	// Contenu au format JSON
-	public String content;
 
 	public Long getId()
 	{
@@ -55,16 +55,6 @@ public class EditionSpeDTO implements TableItem
 	public void setNom(String nom)
 	{
 		this.nom = nom;
-	}
-
-	public String getContent()
-	{
-		return content;
-	}
-
-	public void setContent(String content)
-	{
-		this.content = content;
 	}
 
 	public TypEditionSpecifique getTypEditionSpecifique()

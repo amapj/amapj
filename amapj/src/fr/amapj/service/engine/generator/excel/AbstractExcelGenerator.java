@@ -97,5 +97,27 @@ abstract public class AbstractExcelGenerator implements CoreGenerator
 		System.out.println("Your excel file has been generated!");
 	}
 	
+	/**
+	 * Pour les tests unitaires 
+	 * 
+	 */
+	public UnitTestInfo unitTest() throws IOException
+	{
+		UnitTestInfo res = new UnitTestInfo();
+		
+		res.fileExtension = this.getFormat().name().toLowerCase();
+		Workbook workbook = new CoreGeneratorService().getFichierExcel(this); 
+		
+		res.baos = new ByteArrayOutputStream();
+		workbook.write(res.baos);
+		
+		return res;
+	}
 	
+	
+	public class UnitTestInfo
+	{
+		public ByteArrayOutputStream baos;
+		public String fileExtension;
+	}
 }

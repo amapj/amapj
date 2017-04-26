@@ -30,17 +30,12 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.event.Action;
-import com.vaadin.event.FieldEvents.FocusEvent;
-import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.event.FieldEvents.FocusNotifier;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.PopupDateField;
@@ -48,6 +43,7 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import fr.amapj.common.AmapjRuntimeException;
 import fr.amapj.view.engine.collectioneditor.columns.ColumnInfo;
 import fr.amapj.view.engine.collectioneditor.columns.SearcherColumn;
 import fr.amapj.view.engine.enumselector.EnumSearcher;
@@ -58,6 +54,10 @@ import fr.amapj.view.engine.tools.BaseUiTools;
 /**
  * Permet la saisie de multi valeur  dans un tableau
  * en lien avec un BeanItem 
+ * 
+ * A noter : la collection donnée en sortie est totalement independante de la collection 
+ * donnée en entrée 
+ * Tous les objets sont re créés , et les champs affichés sont copiés  
  * 
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -72,7 +72,6 @@ public class CollectionEditor<BEANTYPE> extends CustomField implements Action.Ha
 	final private Action up = new Action(getMasterDetailUpItemCaption());
 	final private Action down = new Action(getMasterDetailDownItemCaption());
 	
-	final private Action[] actions = new Action[] { add, remove , up , down};
 	
 
 	private Table table;
@@ -86,10 +85,15 @@ public class CollectionEditor<BEANTYPE> extends CustomField implements Action.Ha
 	// La liste des colonnes à afficher
 	private List<ColumnInfo> columns;
 
-	// Permet de desactiver tous les boutons monter, descendre,ajouter, supprimer
-	private boolean disableButton = false;
+	// Permet de desactiver les boutons monter, descendre,ajouter, supprimer
+	private boolean btnAjouter = true;
+	private boolean btnSupprimer = true;
+	private boolean btnMonter = true;
+	private boolean btnDescendre = true;
 	
-
+ 
+	
+	
 	/**
 	 * 
 	 * 
@@ -110,12 +114,24 @@ public class CollectionEditor<BEANTYPE> extends CustomField implements Action.Ha
 	
 	public void addColumn(String propertyId, String title,FieldType fieldType,Object defaultValue)
 	{
-		columns.add(new ColumnInfo(propertyId, title, fieldType, defaultValue));
+		columns.add(new ColumnInfo(propertyId, title, fieldType, true,defaultValue));
 	}
+	
+	
+	public void addColumn(String propertyId, String title,FieldType fieldType,boolean editable,Object defaultValue)
+	{
+		columns.add(new ColumnInfo(propertyId, title, fieldType, editable,defaultValue));
+	}
+
 	
 	public void addSearcherColumn(String propertyId, String title, FieldType fieldType, Object defaultValue,SearcherDefinition searcher,Searcher linkedSearcher)
 	{
-		columns.add(new SearcherColumn(propertyId, title, fieldType, defaultValue,searcher,linkedSearcher));
+		columns.add(new SearcherColumn(propertyId, title, fieldType, true,defaultValue,searcher,linkedSearcher));
+	}
+	
+	public void addSearcherColumn(String propertyId, String title, FieldType fieldType, boolean editable,Object defaultValue,SearcherDefinition searcher,Searcher linkedSearcher)
+	{
+		columns.add(new SearcherColumn(propertyId, title, fieldType, editable,defaultValue,searcher,linkedSearcher));
 	}
 	
 	
@@ -128,11 +144,6 @@ public class CollectionEditor<BEANTYPE> extends CustomField implements Action.Ha
 		table.addStyleName("no-vertical-lines");
 		table.addStyleName("no-horizontal-lines");
 		
-		
-		/*
-		 * Define the names and data types of columns. The "default value"
-		 * parameter is meaningless here.
-		 */
 		for (ColumnInfo col : columns)
 		{
 			Class clazz = getFieldAsClass(col.fieldType);
@@ -140,19 +151,19 @@ public class CollectionEditor<BEANTYPE> extends CustomField implements Action.Ha
 		}
 		
 		
-		/* Add  items in the table. */
-	
+		// Ajout des lignes 
 		List<BEANTYPE> beans = (List<BEANTYPE>) item.getItemProperty(propertyId).getValue();
 		for (BEANTYPE bean : beans)
 		{
 			addRow(bean);		
 		}
 		
-		getTable().setPageLength(10);
-		getTable().addActionHandler(this);
+		table.setPageLength(10);
+		table.addActionHandler(this);
 
-		getTable().setEditable(true);
-		getTable().setSelectable(true);
+		table.setEditable(true);
+		table.setSelectable(true);
+		table.setImmediate(true);
 		table.setSortEnabled(false);
 	}
 	
@@ -189,7 +200,7 @@ public class CollectionEditor<BEANTYPE> extends CustomField implements Action.Ha
 			
 		}
 		
-		throw new RuntimeException("Erreur inattendue");
+		throw new AmapjRuntimeException();
 	
 	}
 	
@@ -252,7 +263,7 @@ public class CollectionEditor<BEANTYPE> extends CustomField implements Action.Ha
 
 		}
 		
-		throw new RuntimeException("Erreur inattendue");
+		throw new AmapjRuntimeException();
 		
 	}
 
@@ -291,26 +302,21 @@ public class CollectionEditor<BEANTYPE> extends CustomField implements Action.Ha
 					
 			AbstractField f = getField(col.fieldType,col);
 			f.setConvertedValue(val1);
+			f.setReadOnly(!col.editable);
+			
 			
 			// GESTION DU FOCUS : on sélectionne la ligne dont un élement a le focus
-			if (f instanceof FocusNotifier)
+			if (shouldHaveFocusNotifier(f,col.editable))
 			{
 				FocusNotifier tf = (FocusNotifier) f;
-				tf.addFocusListener(new FocusListener()
-				{	
-					@Override
-					public void focus(FocusEvent event)
-					{
-						table.select(row.getItemId());
-					}
-				});
+				tf.addFocusListener(e->table.select(row.getItemId()));
 			}
-			
 			row.addField(f);
 		}
 		
-		// Ajout de la ligne et calcul de l'item id		 
-		rows.add(row);
+		// Ajout de la ligne et calcul de l'item id	et memorisation de l'id eventuel
+		Object idInfo = getIdBeanInfo(beanItem);
+		rows.add(row,idInfo);
 		
 		//
 		table.addItem(row.getColumnTable(),row.getItemId());
@@ -320,6 +326,43 @@ public class CollectionEditor<BEANTYPE> extends CustomField implements Action.Ha
 	
 	
 	
+
+
+
+	/**
+	 * Point delicat et etrange 
+	 * 
+	 * Pour les textfield avec setreadonly = true, il ne faut pas mettre le listener sur le focus
+	 * Par contre, il faut bien le mettre sur les autres, comme par exemple les combo 
+	 * 
+	 */
+	private boolean shouldHaveFocusNotifier(AbstractField f, boolean editable)
+	{
+		// 
+		if ((f instanceof FocusNotifier)==false)
+		{
+			return false;
+		}
+		
+		// Si c'est editable : on ajoute toujours le listener
+		if (editable)
+		{
+			return true;
+		}
+		
+		// Si text field non editable : pas de listener 
+		if (f instanceof TextField)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+
+
+
 	private void remove(Object itemId)
 	{
 		if (itemId==null)
@@ -421,17 +464,30 @@ public class CollectionEditor<BEANTYPE> extends CustomField implements Action.Ha
 	}
 
 
-
+	@Override
 	public Action[] getActions(Object target, Object sender)
 	{
-		if (disableButton)
+		List<Action> acts = new ArrayList<Action>();
+		
+		if (btnAjouter)
 		{
-			return new Action[0];
+			acts.add(add);
 		}
-		else
+		if (btnSupprimer)
 		{
-			return actions;
+			acts.add(remove);
 		}
+		if (btnMonter)
+		{
+			acts.add(up);
+		}
+		if (btnDescendre)
+		{
+			acts.add(down);
+		}
+		
+		return acts.toArray(new Action[acts.size()]);
+		
 	}
 
 	
@@ -455,6 +511,8 @@ public class CollectionEditor<BEANTYPE> extends CustomField implements Action.Ha
 					beanItem.getItemProperty(col.propertyId).setValue(val);
 					i++;
 				}
+				
+				setIdBeanInfo(beanItem,row.getIdBeanInfo());
 				
 				ls.add(elt);
 			}
@@ -489,7 +547,7 @@ public class CollectionEditor<BEANTYPE> extends CustomField implements Action.Ha
 		vl.addComponent(getTable());
 		
 		
-		if (disableButton==false)
+		if (hasOneButtonOrMore())
 		{
 			addButtons(vl);
 		}
@@ -502,24 +560,90 @@ public class CollectionEditor<BEANTYPE> extends CustomField implements Action.Ha
 	private void addButtons(VerticalLayout vl)
 	{
 		HorizontalLayout buttons = new HorizontalLayout();
-		buttons.addComponent(new Button(getMasterDetailAddItemCaption(), e->addRow(null)));
-		buttons.addComponent(new Button(getMasterDetailRemoveItemCaption(), e->remove(getTable().getValue())));
-		buttons.addComponent(new Button(getMasterDetailUpItemCaption(), e->	up(getTable().getValue())));
-		buttons.addComponent(new Button(getMasterDetailDownItemCaption(), e->down(getTable().getValue())));
+		if (btnAjouter)
+		{
+			buttons.addComponent(new Button(getMasterDetailAddItemCaption(), e->addRow(null)));
+		}
+		if (btnSupprimer)
+		{
+			buttons.addComponent(new Button(getMasterDetailRemoveItemCaption(), e->remove(getTable().getValue())));
+		}
+		if (btnMonter)
+		{
+			buttons.addComponent(new Button(getMasterDetailUpItemCaption(), e->	up(getTable().getValue())));
+		}
+		if (btnDescendre)
+		{
+			buttons.addComponent(new Button(getMasterDetailDownItemCaption(), e->down(getTable().getValue())));
+		}
 			
 		vl.addComponent(buttons);
 		
 	}
 
 
+	
+	private boolean hasOneButtonOrMore()
+	{
+		return btnAjouter || btnSupprimer || btnMonter || btnDescendre;
+	}
+	
+	
 
 	/**
-	 * Permet de desactiver tous les boutons monter, descendre,ajouter, supprimer
+	 * Permet de desactiver/activer les boutons monter, descendre,ajouter, supprimer
 	 */
+	public void activeButton(boolean btnAjouter,boolean btnSupprimer,boolean btnMonter,boolean btnDescendre)
+	{
+		this.btnAjouter = btnAjouter;
+		this.btnSupprimer = btnSupprimer;
+		this.btnMonter = btnMonter;
+		this.btnDescendre = btnDescendre;
+	}
+	
+	
 	public void disableAllButtons()
 	{
-		disableButton = true;
-		
+		activeButton(false, false, false, false);
+	}
+	
+	
+	
+	
+	private String propertyIdBeanToPreserve;
+	
+	
+	/**
+	 * Permet de gerer un identifiant qui sera préservé lors du déplacement des lignes par monter / descendre 
+	 * 
+	 * Dans le cas des lignes ajoutés, cet identifiant reste null 
+	 */
+	public void addBeanIdToPreserve(String propertyIdBeanToPreserve)
+	{
+		this.propertyIdBeanToPreserve = propertyIdBeanToPreserve;
+	}
+	
+	private Object getIdBeanInfo(BeanItem beanItem)
+	{
+		if (propertyIdBeanToPreserve==null)
+		{
+			return null;
+		}
+		if (beanItem==null)
+		{
+			return null;
+		}
+		return beanItem.getItemProperty(propertyIdBeanToPreserve).getValue();
+	}
+	
+	
+	private void setIdBeanInfo(BeanItem beanItem, Object idBeanInfo)
+	{
+		if (propertyIdBeanToPreserve==null)
+		{
+			return;
+		}
+		beanItem.getItemProperty(propertyIdBeanToPreserve).setValue(idBeanInfo);
 	}
 
 }

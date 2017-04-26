@@ -72,14 +72,13 @@ public class EtiquetteProducteurEditorPart extends WizardFormPopup
 		{
 			popupTitle = "Création d'une étiquette";
 			this.etiquetteDTO = new EtiquetteProducteurJson();
-			this.etiquetteDTO.setTypEditionSpecifique(TypEditionSpecifique.ETIQUETTE_PRODUCTEUR);
 		}
 		else
 		{
 			popupTitle = "Modification d'une étiquette";
 			
 			
-			this.etiquetteDTO = (EtiquetteProducteurJson) AbstractEditionSpeJson.load(p);
+			this.etiquetteDTO = (EtiquetteProducteurJson) new EditionSpeService().load(p.id);
 			
 		}	
 		
@@ -184,8 +183,7 @@ public class EtiquetteProducteurEditorPart extends WizardFormPopup
 	@Override
 	protected void performSauvegarder()
 	{
-		EditionSpeDTO editionSpeDTO = etiquetteDTO.save();
-		new EditionSpeService().update(editionSpeDTO, create);
+		new EditionSpeService().update(etiquetteDTO, create);
 	}
 
 	@Override

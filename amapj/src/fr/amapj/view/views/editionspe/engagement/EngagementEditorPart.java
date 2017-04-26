@@ -77,12 +77,11 @@ public class EngagementEditorPart extends WizardFormPopup
 		{
 			popupTitle = "Création d'un modèle de contrat d'engagement";
 			this.etiquetteDTO = new EngagementJson();
-			this.etiquetteDTO.setTypEditionSpecifique(TypEditionSpecifique.CONTRAT_ENGAGEMENT);
 		}
 		else
 		{
 			popupTitle = "Modification d'un modèle de contrat d'engagement";
-			this.etiquetteDTO = (EngagementJson) AbstractEditionSpeJson.load(p);
+			this.etiquetteDTO = (EngagementJson) new EditionSpeService().load(p.id);
 		}	
 		
 		item = new BeanItem<EngagementJson>(this.etiquetteDTO);
@@ -190,8 +189,7 @@ public class EngagementEditorPart extends WizardFormPopup
 	@Override
 	protected void performSauvegarder()
 	{
-		EditionSpeDTO editionSpeDTO = etiquetteDTO.save();
-		new EditionSpeService().update(editionSpeDTO, create);
+		new EditionSpeService().update(etiquetteDTO, create);
 	}
 
 	@Override

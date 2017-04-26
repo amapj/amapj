@@ -25,8 +25,7 @@ import fr.amapj.view.engine.popup.swicthpopup.SwitchPopup;
 /**
  * Permet de choisir son action 
  */
-@SuppressWarnings("serial")
-public class ChoixActionContratSigne extends SwitchPopup
+public class ChoixModifContratSigne extends SwitchPopup
 {
 	
 	private Long mcId;
@@ -34,9 +33,9 @@ public class ChoixActionContratSigne extends SwitchPopup
 	/**
 	 * 
 	 */
-	public ChoixActionContratSigne(Long mcId)
+	public ChoixModifContratSigne(Long mcId)
 	{
-		popupTitle = "Autres actions sur les contrats signés";
+		popupTitle = "Modifications en masse sur les contrats signés";
 		setWidth(50);
 		this.mcId = mcId;
 
@@ -47,7 +46,16 @@ public class ChoixActionContratSigne extends SwitchPopup
 	{
 		line1 = "Veuillez indiquer ce que vous souhaitez faire :";
 
-		addLine("Envoyer un e mail à tous les adhérents de ce contrat", new PopupCopyAllMailForContrat(mcId));
+		addLine("Déplacer une date de livraison", new PopupDeplacerDateLivraison(mcId));
+		addLine("Mettre à zéro les quantités commandées sur une ou plusieurs dates de livraison", new PopupAnnulationDateLivraison(mcId));
+		
+		
+		
+		addLine("Ajouter des produits", new PopupProduitAjout(mcId));
+		addLine("Supprimer des produits", new PopupProduitSuppression(mcId));
+		addLine("Modifier les prix des produits", new PopupProduitModifPrix(mcId));
+		addLine("Modifier l'ordre des produits dans le contrat", new PopupProduitOrdreContrat(mcId));
+		
 		
 
 	}

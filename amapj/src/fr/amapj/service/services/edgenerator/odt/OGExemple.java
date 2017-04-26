@@ -37,6 +37,7 @@ import fr.amapj.model.models.fichierbase.Utilisateur;
 import fr.amapj.service.engine.generator.odt.AbstractOdtGenerator;
 import fr.amapj.service.engine.generator.odt.OdtGeneratorTool;
 import fr.amapj.service.services.edgenerator.velocity.VCBuilder;
+import fr.amapj.service.services.editionspe.EditionSpeService;
 import fr.amapj.service.services.mescontrats.MesContratsService;
 import fr.amapj.service.services.producteur.ProdUtilisateurDTO;
 import fr.amapj.service.services.producteur.ProducteurService;
@@ -61,7 +62,7 @@ public class OGExemple extends AbstractOdtGenerator
 	{
 		ModeleContrat mc = em.find(ModeleContrat.class, modeleContratId);
 		EditionSpecifique editionSpecifique = mc.getProducteur().engagement;
-		EngagementJson engagement = (EngagementJson) AbstractEditionSpeJson.load(editionSpecifique);
+		EngagementJson engagement = (EngagementJson)  new EditionSpeService().load(editionSpecifique.id);
 		String htmlContent = engagement.getText();
 		
 		// Avec une sous requete, on obtient la liste de tous les utilisateur ayant commandé au moins un produit

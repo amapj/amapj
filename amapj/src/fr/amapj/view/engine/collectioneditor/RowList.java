@@ -23,6 +23,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.amapj.common.AmapjRuntimeException;
 
 /**
  * Liste des lignes dans la table
@@ -42,10 +43,11 @@ public class RowList
 		rows = new ArrayList<Row>();
 	}
 	
-	public void add(Row row)
+	public void add(Row row, Object idBeanInfo)
 	{
 		Integer itemId = new Integer(nbLignes);
 		row.setItemId(itemId);
+		row.setIdBeanInfo(idBeanInfo);
 		rows.add(row);
 		nbLignes++;
 	}
@@ -90,7 +92,7 @@ public class RowList
 		}
 		
 		// On aurait du trouver la ligne
-		throw new RuntimeException("Erreur inattendue");
+		throw new AmapjRuntimeException();
 	}
 
 	public List<Row> getRows()
@@ -155,6 +157,8 @@ public class RowList
 			r2.setFieldValue(col, val1);
 		}
 		
+		switchIdBeanInfo(r1,r2);
+		
 		return r2.getItemId();
 		
 		
@@ -179,6 +183,7 @@ public class RowList
 	/**
 	 * Retourne le itemId de la ligne qui a été montée
 	 * @param index
+	 * @param idToPreserveInfo 
 	 * @return
 	 */
 	public Object upRow(int index)
@@ -196,9 +201,23 @@ public class RowList
 			r2.setFieldValue(col, val1);
 		}
 		
+		switchIdBeanInfo(r1,r2);
+		
 		return r2.getItemId();
 		
 		
+	}
+
+	/**
+	 * Realise la permutation des idBeanInfo
+	 */
+	private void switchIdBeanInfo(Row r1, Row r2)
+	{
+		Object idBeanInfo1 = r1.getIdBeanInfo();
+		Object idBeanInfo2 = r2.getIdBeanInfo();
+		
+		r1.setIdBeanInfo(idBeanInfo2);
+		r2.setIdBeanInfo(idBeanInfo1);
 	}
 	
 }

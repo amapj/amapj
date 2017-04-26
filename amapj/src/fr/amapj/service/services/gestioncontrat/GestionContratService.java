@@ -292,6 +292,7 @@ public class GestionContratService
 			l.prix = new Integer(0);
 			l.produitId = prod.getId();
 			l.produitNom = prod.getNom();
+			l.produitConditionnement = prod.getConditionnement();
 			res.add(l);
 		}
 		return res;
@@ -345,8 +346,10 @@ public class GestionContratService
 		for (ModeleContratProduit prod : prods)
 		{
 			LigneContratDTO lig = new LigneContratDTO();
+			lig.idModeleContratProduit = prod.getId();
 			lig.produitId = prod.getProduit().getId();
 			lig.produitNom = prod.getProduit().getNom();
+			lig.produitConditionnement = prod.getProduit().getConditionnement();
 			lig.prix = prod.getPrix();
 
 			info.produits.add(lig);

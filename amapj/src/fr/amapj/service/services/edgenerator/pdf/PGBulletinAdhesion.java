@@ -44,6 +44,7 @@ import fr.amapj.model.models.fichierbase.Utilisateur;
 import fr.amapj.service.engine.generator.pdf.PdfGeneratorTool;
 import fr.amapj.service.engine.generator.pdf.TestablePdfGenerator;
 import fr.amapj.service.services.edgenerator.velocity.VCBuilder;
+import fr.amapj.service.services.editionspe.EditionSpeService;
 import fr.amapj.service.services.gestioncotisation.GestionCotisationService;
 import fr.amapj.service.services.mescontrats.MesContratsService;
 import fr.amapj.service.services.producteur.ProdUtilisateurDTO;
@@ -101,7 +102,7 @@ public class PGBulletinAdhesion extends TestablePdfGenerator
 	{
 		PeriodeCotisation pc =  em.find(PeriodeCotisation.class, idPeriode);
 		EditionSpecifique editionSpecifique = pc.getBulletinAdhesion();
-		AbstractPdfEditionSpeJson bulletin = (AbstractPdfEditionSpeJson) AbstractEditionSpeJson.load(editionSpecifique);
+		AbstractPdfEditionSpeJson bulletin = (AbstractPdfEditionSpeJson)  new EditionSpeService().load(editionSpecifique.id);
 		return bulletin;
 	}
 	

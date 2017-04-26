@@ -32,17 +32,16 @@ public class ColumnInfo
 	public FieldType fieldType;
 	
 	public Object defaultValue;
-
-	public ColumnInfo(String propertyId, String title,FieldType fieldType,Object defaultValue)
+	
+	public boolean editable;
+	
+	public ColumnInfo(String propertyId, String title,FieldType fieldType,boolean editable,Object defaultValue)
 	{
 		this.propertyId = propertyId;
 		this.title = title;
 		this.fieldType = fieldType;
+		this.editable = editable;
 		this.defaultValue = defaultValue;
+		this.editable = editable;
 	}
-	
-	
-	
-	
-	
 }

@@ -33,10 +33,22 @@ public class GenericUtils
 		public Object getField(T t);
 	}
 	
+	static public interface SetField<T>
+	{
+		public void setField(T t,Object val);
+	}
+	
+	
 	static public interface VoidAction
 	{
 		public void action();
 	}
+	
+	static public interface VoidActionException
+	{
+		public void action() throws Exception;
+	}
+	
 	
 	static public interface StringAction
 	{

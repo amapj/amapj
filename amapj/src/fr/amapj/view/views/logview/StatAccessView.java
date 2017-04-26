@@ -22,6 +22,12 @@
 
 import java.util.List;
 
+import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+
+import fr.amapj.service.services.authentification.PasswordManager;
 import fr.amapj.service.services.edgenerator.excel.EGStatAccess;
 import fr.amapj.service.services.logview.LogViewService;
 import fr.amapj.service.services.logview.StatAccessDTO;
@@ -29,6 +35,8 @@ import fr.amapj.view.engine.excelgenerator.TelechargerPopup;
 import fr.amapj.view.engine.listpart.ButtonType;
 import fr.amapj.view.engine.listpart.StandardListPart;
 import fr.amapj.view.engine.popup.corepopup.CorePopup;
+import fr.amapj.view.engine.popup.corepopup.CorePopup.ColorStyle;
+import fr.amapj.view.engine.popup.messagepopup.MessagePopup;
 import fr.amapj.view.engine.tools.DateToStringConverter;
 
 
@@ -62,6 +70,21 @@ public class StatAccessView extends StandardListPart<StatAccessDTO>
 	{
 		addButton("Rafraichir",ButtonType.ALWAYS,()->refreshTable());
 		addButton("Télécharger",ButtonType.ALWAYS,()->handleTelecharger());
+		addButton("Authentification",ButtonType.ALWAYS,()->handleInfoAuthentification());
+	}
+	
+	@Override
+	protected void addExtraComponent()
+	{
+		addComponent(new Label("Authentification : "+PasswordManager.authentificationCounter.getLastInfo()));
+	}
+
+
+	private void handleInfoAuthentification()
+	{
+		String msg = PasswordManager.authentificationCounter.getAllInfos();
+		MessagePopup p = new MessagePopup("Info authentification",ContentMode.HTML,ColorStyle.GREEN,msg);
+		MessagePopup.open(p, this);
 	}
 
 

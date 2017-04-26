@@ -32,17 +32,17 @@ public class SearcherColumn extends ColumnInfo
 	public Searcher linkedSearcher;
 	
 
-	public SearcherColumn(String propertyId, String title, FieldType fieldType, Object defaultValue, SearcherDefinition searcher,Object params)
+	public SearcherColumn(String propertyId, String title, FieldType fieldType, boolean editable,Object defaultValue, SearcherDefinition searcher,Object params)
 	{
-		super(propertyId, title, fieldType, defaultValue);
+		super(propertyId, title, fieldType, editable,defaultValue);
 		this.searcher = searcher;
 		this.params = params;
 	}
 	
 	
-	public SearcherColumn(String propertyId, String title, FieldType fieldType, Object defaultValue, SearcherDefinition searcher,Searcher linkedSearcher)
+	public SearcherColumn(String propertyId, String title, FieldType fieldType, boolean editable,Object defaultValue, SearcherDefinition searcher,Searcher linkedSearcher)
 	{
-		super(propertyId, title, fieldType, defaultValue);
+		super(propertyId, title, fieldType, editable,defaultValue);
 		this.searcher = searcher;
 		this.linkedSearcher = linkedSearcher;
 	}

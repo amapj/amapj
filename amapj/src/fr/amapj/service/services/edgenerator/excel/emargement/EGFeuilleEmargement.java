@@ -35,6 +35,7 @@ import fr.amapj.model.models.editionspe.emargement.TypFeuilleEmargement;
 import fr.amapj.service.engine.generator.excel.AbstractExcelGenerator;
 import fr.amapj.service.engine.generator.excel.ExcelFormat;
 import fr.amapj.service.engine.generator.excel.ExcelGeneratorTool;
+import fr.amapj.service.services.editionspe.EditionSpeService;
 
 
 /**
@@ -60,7 +61,7 @@ public class EGFeuilleEmargement extends AbstractExcelGenerator
 	{
 		//
 		EditionSpecifique editionSpe = em.find(EditionSpecifique.class, editionSpecifiqueId);
-		FeuilleEmargementJson planningJson = (FeuilleEmargementJson) AbstractEditionSpeJson.load(editionSpe);
+		FeuilleEmargementJson planningJson = (FeuilleEmargementJson) new EditionSpeService().load(editionSpe.id);
 		
 		LibInfo libInfo = getLibForName(em);
 
@@ -107,7 +108,7 @@ public class EGFeuilleEmargement extends AbstractExcelGenerator
 		
 		
 		EditionSpecifique editionSpe = em.find(EditionSpecifique.class, editionSpecifiqueId);
-		FeuilleEmargementJson planningJson = (FeuilleEmargementJson) AbstractEditionSpeJson.load(editionSpe);
+		FeuilleEmargementJson planningJson = (FeuilleEmargementJson) new EditionSpeService().load(editionSpe.id);
 		
 		if (planningJson.getTypPlanning()==TypFeuilleEmargement.MENSUEL)
 		{

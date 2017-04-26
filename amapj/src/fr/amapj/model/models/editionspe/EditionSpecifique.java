@@ -33,7 +33,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import fr.amapj.model.engine.Identifiable;
-import fr.amapj.model.engine.Mdm;
 
 @Entity
 @Table( uniqueConstraints=
@@ -45,109 +44,31 @@ public class EditionSpecifique implements Identifiable
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+	public Long id;
 
 	@NotNull
 	@Size(min = 1, max = 100)
 	@Column(length = 100)
-	private String nom;
+	public String nom;
 	
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	// Permet de savoir l'état du modele de contrat
-    private TypEditionSpecifique typEditionSpecifique;
+	public TypEditionSpecifique typEditionSpecifique;
 	
 	@NotNull
 	@Size(min = 1, max = 20480)
 	@Column(length = 20480)
-	private String content;
+	public String content;
 	
 	
-	
-
-	public enum P implements Mdm
-	{ 
-		ID("id") ,  NOM("nom") ; 
-	
-		private String propertyId;   
-	   
-	    P(String propertyId) 
-	    {
-	        this.propertyId = propertyId;
-	    }
-	    public String prop() 
-	    { 
-	    	return propertyId; 
-	    }
-	}
-
-
-
-
 	public Long getId()
 	{
 		return id;
 	}
 
-
-
-
 	public void setId(Long id)
 	{
 		this.id = id;
 	}
-
-
-
-
-	public String getNom()
-	{
-		return nom;
-	}
-
-
-
-
-	public void setNom(String nom)
-	{
-		this.nom = nom;
-	}
-
-
-
-
-	public TypEditionSpecifique getTypEditionSpecifique()
-	{
-		return typEditionSpecifique;
-	}
-
-
-
-
-	public void setTypEditionSpecifique(TypEditionSpecifique typEditionSpecifique)
-	{
-		this.typEditionSpecifique = typEditionSpecifique;
-	}
-
-
-
-
-	public String getContent()
-	{
-		return content;
-	}
-
-
-
-
-	public void setContent(String content)
-	{
-		this.content = content;
-	}
-
-
-	
-
-
-	
 }

@@ -37,6 +37,9 @@ public class Row
 	
 	private List<AbstractField> fields = new ArrayList<AbstractField>();
 	
+	// Optionnel - correspond a un identifiant eventuel du bean qui sera préservé 
+	private Object idBeanInfo;
+	
 	
 	public Row()
 	{
@@ -70,7 +73,20 @@ public class Row
 	
 	public void setFieldValue(int columns,Object val)
 	{
-		fields.get(columns).setConvertedValue(val);
+		AbstractField f = fields.get(columns);
+		
+		if (f.isReadOnly())
+		{
+			f.setReadOnly(false);
+			f.setConvertedValue(val);
+			f.setReadOnly(true);
+		}
+		else
+		{
+			f.setConvertedValue(val);
+		}
+		
+		
 	}
 	
 	
@@ -91,8 +107,15 @@ public class Row
 		this.itemId = itemId;
 	}
 
-	
+	public Object getIdBeanInfo()
+	{
+		return idBeanInfo;
+	}
 
+	public void setIdBeanInfo(Object idBeanInfo)
+	{
+		this.idBeanInfo = idBeanInfo;
+	}
 
 	
 	

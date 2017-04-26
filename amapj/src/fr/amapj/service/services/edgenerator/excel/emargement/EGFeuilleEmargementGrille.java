@@ -147,7 +147,8 @@ public class EGFeuilleEmargementGrille
 		et.mergeCellsUp(index, 3);
 		et.setColumnWidthInMm(index, planningJson.getLgColCommentaire());
 		
-		
+		// On indique ensuite que les 3 premières lignes sont à garder sur chaque page à l'impression 
+		et.setRepeatingRow(1, 3);
 		
 		//
 		int numLigne = 0;

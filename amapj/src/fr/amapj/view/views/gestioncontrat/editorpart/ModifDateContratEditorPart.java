@@ -185,8 +185,8 @@ public class ModifDateContratEditorPart extends WizardFormPopup
 			String str = "Vous ne pouvez plus modifier les dates de livraison de ce contrat<br/>"+
 						 "car "+nbInscrits+" adhérents ont déjà souscrits à ce contrat.<br/>"+
 						 "Deux cas sont possibles :<br/><ul>"+
-						 "<li>Vous souhaitez déplacer une date. Dans ce cas, vous allez dans \"Gestion des contrats signés\", puis vous cliquez sur le bouton \"Autre\", puis sur \"Déplacer une date de livraison\".</li>"+						 
-						 "<li>Une date a été réellement annulée suite à un problème avec le producteur par exemple. Dans ce cas, vous allez dans \"Gestion des contrats signés\", puis vous cliquez sur le bouton \"Autre\", puis sur \"Mettre à zéro les quantités commandées sur une ou plusieurs dates de livraison\"."+
+						 "<li>Vous souhaitez déplacer une date. Dans ce cas, vous allez dans \"Gestion des contrats signés\", puis vous cliquez sur le bouton \"Modifier en masse\", puis sur \"Déplacer une date de livraison\".</li>"+						 
+						 "<li>Une date a été réellement annulée suite à un problème avec le producteur par exemple. Dans ce cas, vous allez dans \"Gestion des contrats signés\", puis vous cliquez sur le bouton \"Modifier en masse\", puis sur \"Mettre à zéro les quantités commandées sur une ou plusieurs dates de livraison\"."+
 						 "Un assistant vous aidera à gérer le cas où une ou plusieurs livraisons sont annulées.</li>"+					
 						 "</ul>";
 			return str;

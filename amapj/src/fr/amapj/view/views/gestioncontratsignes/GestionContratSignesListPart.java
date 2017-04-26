@@ -81,6 +81,7 @@ public class GestionContratSignesListPart extends StandardListPart<ContratSigneD
 		addButton("Visualiser",ButtonType.EDIT_MODE,()->handleVoir());
 		addButton("Modifier les quantités",ButtonType.EDIT_MODE,()->handleEditer());
 		addButton("Supprimer",ButtonType.EDIT_MODE,()->handleSupprimer());
+		addButton("Modifier en masse ...",ButtonType.ALWAYS,()->handleModifMasse());
 		addButton("Autre...",ButtonType.ALWAYS,()->handleMore());
 		addButton("Télécharger ...",ButtonType.ALWAYS,()->handleTelecharger());
 		
@@ -147,7 +148,11 @@ public class GestionContratSignesListPart extends StandardListPart<ContratSigneD
 	}
 	
 	
-
+	private void handleModifMasse()
+	{
+		Long idModeleContrat = contratSelectorPart.getModeleContratId();
+		ChoixModifContratSigne.open(new ChoixModifContratSigne(idModeleContrat), this);
+	}
 
 	
 	private void handleMore()

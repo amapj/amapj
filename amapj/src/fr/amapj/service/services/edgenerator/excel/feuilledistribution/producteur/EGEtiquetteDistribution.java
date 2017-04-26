@@ -39,6 +39,7 @@ import fr.amapj.model.models.fichierbase.Produit;
 import fr.amapj.model.models.fichierbase.Utilisateur;
 import fr.amapj.model.models.param.ChoixOuiNon;
 import fr.amapj.service.engine.generator.excel.ExcelGeneratorTool;
+import fr.amapj.service.services.editionspe.EditionSpeService;
 
 
 /**
@@ -64,7 +65,7 @@ public class EGEtiquetteDistribution
 		
 		ModeleContratDate mcd = em.find(ModeleContratDate.class, modeleContratDateId);
 		EditionSpecifique editionSpe = mcd.getModeleContrat().getProducteur().etiquette;
-		EtiquetteProducteurJson etiquette = (EtiquetteProducteurJson) AbstractEditionSpeJson.load(editionSpe);
+		EtiquetteProducteurJson etiquette = (EtiquetteProducteurJson) new EditionSpeService().load(editionSpe.id);
 		
 		// Recherche de toutes les quantités à livrer 
 		List<ContratCellNumber> cells = getContratCell(em);

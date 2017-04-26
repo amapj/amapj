@@ -1156,4 +1156,16 @@ public class ExcelGeneratorTool
 		sheet.setColumnHidden(columnIndex, hidden);
 	}
 
+	
+	/**
+	 * Permet d'indiquer que toutes les lignes de l1 à l2 seront imprimés sur toutes les pages
+	 * 
+	 *  Attention : l1 et l2 sont 1-based index 
+	 */
+	public void setRepeatingRow(int l1,int l2)
+	{
+		sheet.setRepeatingRows(CellRangeAddress.valueOf(l1+":"+l2));
+	}
+	
+	
 }

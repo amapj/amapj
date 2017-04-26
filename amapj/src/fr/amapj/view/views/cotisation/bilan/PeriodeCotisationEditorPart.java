@@ -27,6 +27,8 @@ import fr.amapj.service.services.gestioncotisation.GestionCotisationService;
 import fr.amapj.service.services.gestioncotisation.PeriodeCotisationDTO;
 import fr.amapj.view.engine.popup.formpopup.OnSaveException;
 import fr.amapj.view.engine.popup.formpopup.WizardFormPopup;
+import fr.amapj.view.engine.popup.formpopup.validator.IValidator;
+import fr.amapj.view.engine.popup.formpopup.validator.NotNullValidator;
 import fr.amapj.view.views.searcher.SearcherList;
 
 /**
@@ -79,12 +81,14 @@ public class PeriodeCotisationEditorPart extends WizardFormPopup
 		// Titre
 		setStepTitle("les informations générales de la période de cotisation");
 		
+		IValidator notNull = new NotNullValidator();
+		
 		// Champ 1
-		addTextField("Nom de la période", "nom");
+		addTextField("Nom de la période", "nom",notNull);
 		
-		addDateField("Date de début de la période","dateDebut");
+		addDateField("Date de début de la période","dateDebut",notNull);
 		
-		addDateField("Date de fin de la période","dateFin");
+		addDateField("Date de fin de la période","dateFin",notNull);
 		
 		
 		
@@ -92,6 +96,8 @@ public class PeriodeCotisationEditorPart extends WizardFormPopup
 	
 	private void addFieldPaiement()
 	{
+		IValidator notNull = new NotNullValidator();
+		
 		// Titre
 		setStepTitle("les informations sur le paiement de l'adhésion");
 		
@@ -103,9 +109,9 @@ public class PeriodeCotisationEditorPart extends WizardFormPopup
 		
 		addTextAeraField("Texte explicatif pour le paiement","textPaiement");
 		
-		addDateField("Date de début des inscription","dateDebutInscription");
+		addDateField("Date de début des inscription","dateDebutInscription",notNull);
 		
-		addDateField("Date de fin des inscription","dateFinInscription");
+		addDateField("Date de fin des inscription","dateFinInscription",notNull);
 		
 		addDateField("Date de remise des chèques","dateRemiseCheque");
 		

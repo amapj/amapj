@@ -20,7 +20,6 @@
  */
  package fr.amapj.service.services.authentification;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -62,6 +61,8 @@ public class PasswordManager
 {
 	private static final Logger logger = LogManager.getLogger();
 	
+	public static final AuthentificationCounter authentificationCounter = new AuthentificationCounter();
+	
 	public PasswordEncryptionService passwordEncryptionService = new PasswordEncryptionService();
 	
 	public PasswordManager()
@@ -90,6 +91,7 @@ public class PasswordManager
 		
 		if (u==null)
 		{
+			authentificationCounter.addUnknow();
 			return "Adresse e-mail ou mot de passe incorrect";
 		}
 		
@@ -108,6 +110,7 @@ public class PasswordManager
 		// Si authentification incorrect
 		if (msg!=null)
 		{
+			authentificationCounter.addBadPassword();
 			logger.info("Authentification en echec pour ip={} browser={} dbName={} msg={}",ip,browser,dbName,msg);
 			return msg;
 		}

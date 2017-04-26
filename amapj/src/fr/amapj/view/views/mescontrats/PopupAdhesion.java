@@ -182,9 +182,17 @@ public class PopupAdhesion extends OKCancelPopup
 	
 	private String getBasPage()
 	{
-		String str = "Ordre du chèque : "+dto.periodeCotisationDTO.libCheque+"<br/>";
+		String str = "";
 		
-		str = str + "Date de remise des chèques : "+df.format(dto.periodeCotisationDTO.dateRemiseCheque)+"<br/>";
+		if (dto.periodeCotisationDTO.libCheque!=null)
+		{
+			str = str + "Ordre du chèque : "+dto.periodeCotisationDTO.libCheque+"<br/>";
+		}
+		
+		if (dto.periodeCotisationDTO.dateRemiseCheque!=null)
+		{
+			str = str + "Date de remise des chèques : "+df.format(dto.periodeCotisationDTO.dateRemiseCheque)+"<br/>";
+		}
 		
 		if (dto.periodeCotisationDTO.textPaiement!=null)
 		{

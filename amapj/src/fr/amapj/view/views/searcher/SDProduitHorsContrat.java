@@ -23,57 +23,44 @@
 import java.util.List;
 
 import fr.amapj.model.engine.Identifiable;
-import fr.amapj.model.models.editionspe.EditionSpecifique;
-import fr.amapj.model.models.editionspe.TypEditionSpecifique;
-import fr.amapj.service.services.editionspe.EditionSpeService;
+import fr.amapj.model.models.fichierbase.Produit;
+import fr.amapj.model.models.fichierbase.Utilisateur;
+import fr.amapj.service.services.gestioncontratsigne.GestionContratSigneService;
 import fr.amapj.view.engine.searcher.SearcherDefinition;
 
-/**
- * Liste des editions specifiques
- *
- */
-public class SDEditionSpe implements SearcherDefinition
-{
-	
-	private TypEditionSpecifique typEditionSpecifique;
-	
-	public SDEditionSpe(TypEditionSpecifique typEditionSpecifique)
-	{
-		this.typEditionSpecifique = typEditionSpecifique;
-	}
 
+/**
+ * Permet de lister tous les produits que l'on pourrait ajouter à ce contrat  
+ */
+public class SDProduitHorsContrat implements SearcherDefinition
+{
+	private Long idModelContrat;
+	
+	public SDProduitHorsContrat(Long idModelContrat)
+	{
+		this.idModelContrat = idModelContrat;
+	}
+	
 	@Override
 	public String getTitle()
 	{
-		switch (typEditionSpecifique)
-		{
-		case ETIQUETTE_PRODUCTEUR:
-			return "Etiquette";
-			
-		case CONTRAT_ENGAGEMENT:
-			return "Contrat d'engagement";
-			
-		case BULLETIN_ADHESION:
-			return "Bulletin d'adhésion";
-
-		default:
-			return "Edition spécifique";
-		}
+		return "Produit";
 	}
 
 	@Override
 	public List<? extends Identifiable> getAllElements(Object params)
 	{
-		return  new EditionSpeService().getEtiquetteByType(typEditionSpecifique);
+		return  new GestionContratSigneService().getProduitHorsContrat(idModelContrat);
 	}
 
 
 	@Override
 	public String toString(Identifiable identifiable)
 	{
-		EditionSpecifique spe = (EditionSpecifique) identifiable;
-		return spe.nom;
+		Produit u = (Produit) identifiable;
+		return u.getNom()+","+u.getConditionnement();
 	}
+	
 
 	@Override
 	public boolean needParams()

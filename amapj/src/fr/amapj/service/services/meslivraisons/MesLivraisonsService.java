@@ -247,10 +247,10 @@ public class MesLivraisonsService
 				String suffix = "";
 				if (editions.size()!=1)
 				{
-					suffix = editionSpecifique.getNom();
+					suffix = editionSpecifique.nom;
 				}
 				
-				FeuilleEmargementJson planningJson = (FeuilleEmargementJson) AbstractEditionSpeJson.load(editionSpecifique);
+				FeuilleEmargementJson planningJson = (FeuilleEmargementJson) new EditionSpeService().load(editionSpecifique.id);
 				
 				if(planningJson.getTypPlanning()==TypFeuilleEmargement.MENSUEL)
 				{
@@ -283,7 +283,7 @@ public class MesLivraisonsService
 	 */
 	private boolean canAccess(List<RoleList> roles, EditionSpecifique editionSpecifique)
 	{
-		FeuilleEmargementJson planningJson = (FeuilleEmargementJson) AbstractEditionSpeJson.load(editionSpecifique);
+		FeuilleEmargementJson planningJson = (FeuilleEmargementJson) new EditionSpeService().load(editionSpecifique.id);
 		return roles.contains(planningJson.getAccessibleBy());
 	}
 

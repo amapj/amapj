@@ -139,7 +139,7 @@ public class UtilisateurService
 	 * 
 	 */
 	@DbWrite
-	public String createNewUser(UtilisateurDTO utilisateurDTO,boolean generatePassword,boolean sendMail)
+	public UtilisateurInfo createNewUser(UtilisateurDTO utilisateurDTO,boolean generatePassword,boolean sendMail)
 	{
 		EntityManager em = TransactionHelper.getEm();
 		
@@ -161,9 +161,13 @@ public class UtilisateurService
 
 		em.persist(u);
 		
+		UtilisateurInfo res = new UtilisateurInfo();
+		res.id = u.getId();
+		
+		
 		if (generatePassword==false)
 		{
-			return null;
+			return res;
 		}
 
 		// Génère un mot de passe de 8 caractères majuscules
@@ -202,14 +206,20 @@ public class UtilisateurService
 			
 			new MailerService().sendHtmlMail( new MailerMessage(email, "Bienvenue à "+param.nomAmap, buf.toString()));
 			
-			return null;
+			return res;
 		}
 		else
 		{
-			return clearPassword;
+			res.password = clearPassword;
+			return res;
 		}
 	}
 
+	static public class UtilisateurInfo
+	{
+		public String password;
+		public Long id;
+	}
 	
 	
 	// PARTIE SUPPRESSION

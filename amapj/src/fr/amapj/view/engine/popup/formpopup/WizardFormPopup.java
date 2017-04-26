@@ -47,7 +47,6 @@ import fr.amapj.view.engine.popup.messagepopup.MessagePopup;
  * avec la gestion couplée d'un wizard
  *  
  */
-@SuppressWarnings("serial")
 abstract public class WizardFormPopup extends AbstractFormPopup
 {
 	protected String nextButtonTitle = "Etape suivante ...";
@@ -55,6 +54,8 @@ abstract public class WizardFormPopup extends AbstractFormPopup
 	
 	protected String previousButtonTitle = "Etape précédente ...";
 	protected Button previousButton;
+	
+	protected Button cancelButton;
 	
 	protected String saveButtonTitle = "Sauvegarder";
 		
@@ -167,12 +168,12 @@ abstract public class WizardFormPopup extends AbstractFormPopup
 	{
 		if (errorInInitialCondition)
 		{
-			addButton("OK", e->close());
+			addDefaultButton("OK", e->close());
 			return ;
 		}
 		
 		//	
-		addButton("Annuler", e->handleAnnuler());
+		cancelButton = addButton("Annuler", e->handleAnnuler());
 		
 		//
 		previousButton = addButton(previousButtonTitle, e->handlePrevious());
@@ -367,4 +368,25 @@ abstract public class WizardFormPopup extends AbstractFormPopup
 	{
 		hTitre.setValue("Etape "+(pageNumber+1)+" : "+message);
 	}
+	
+	/**
+	 * Permet de changer le bouton "Etape suivante" en "Sauvegarder" 
+	 */
+	protected void setNextButtonAsSave()
+	{
+		nextButton.setCaption(saveButtonTitle);
+	}
+	
+	
+	/**
+	 * Permet de changer tous les boutons du bas en un seul bouton OK 
+	 */
+	protected void setAllButtonsAsOK()
+	{
+		nextButton.setCaption("OK");
+		previousButton.setVisible(false);
+		cancelButton.setVisible(false);
+	}
+	
+	
 }

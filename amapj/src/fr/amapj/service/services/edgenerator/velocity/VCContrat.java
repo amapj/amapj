@@ -53,6 +53,8 @@ public class VCContrat
 	
 	public String dateFin;
 	
+	public String dateFinInscription;
+	
 	public String nbLivraison;
 	
 	public String saison;
@@ -94,6 +96,11 @@ public class VCContrat
 		description = s(dto.description);
 		dateDebut = df.format(dto.dateDebut);
 		dateFin = df.format(dto.dateFin);
+		dateFinInscription = "";
+		if (dto.dateFinInscription!=null)
+		{
+			dateFinInscription = df.format(dto.dateFinInscription);
+		}
 		saison = getSaison(dto.dateDebut,dto.dateFin);
 		nbLivraison = ""+sum.nbLivraison;
 		libCheque = s(dto.libCheque);
@@ -591,5 +598,14 @@ public class VCContrat
 		this.listeDateChequeCompact = listeDateChequeCompact;
 	}
 
+	public String getDateFinInscription()
+	{
+		return dateFinInscription;
+	}
+
+	public void setDateFinInscription(String dateFinInscription)
+	{
+		this.dateFinInscription = dateFinInscription;
+	}
 	
 }

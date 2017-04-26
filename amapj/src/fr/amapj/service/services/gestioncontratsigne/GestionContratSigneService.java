@@ -22,7 +22,6 @@
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -39,6 +38,7 @@ import fr.amapj.model.engine.transaction.DbWrite;
 import fr.amapj.model.engine.transaction.TransactionHelper;
 import fr.amapj.model.models.contrat.modele.ModeleContrat;
 import fr.amapj.model.models.contrat.modele.ModeleContratDate;
+import fr.amapj.model.models.contrat.modele.ModeleContratExclude;
 import fr.amapj.model.models.contrat.modele.ModeleContratProduit;
 import fr.amapj.model.models.contrat.reel.Contrat;
 import fr.amapj.model.models.contrat.reel.ContratCell;
@@ -47,60 +47,58 @@ import fr.amapj.model.models.fichierbase.Producteur;
 import fr.amapj.model.models.fichierbase.Produit;
 import fr.amapj.model.models.fichierbase.Utilisateur;
 import fr.amapj.service.services.gestioncontrat.GestionContratService;
-import fr.amapj.service.services.mescontrats.MesContratsService;
+import fr.amapj.service.services.gestioncontrat.LigneContratDTO;
+import fr.amapj.service.services.gestioncontrat.ModeleContratDTO;
 import fr.amapj.service.services.utilisateur.util.UtilisateurUtil;
-
+import fr.amapj.view.engine.widgets.CurrencyTextFieldConverter;
 
 /**
  * Permet la gestion des modeles de contrat
  * 
- *  
+ * 
  *
  */
 public class GestionContratSigneService
 {
-	
+
 	public GestionContratSigneService()
 	{
-		
+
 	}
-	
+
 	// PARTIE REQUETAGE POUR AVOIR LA LISTE DES CONTRATS SIGNE
-	
-	
+
 	/**
-	 * Permet de charger la liste de tous les contrat signes
-	 * dans une transaction en lecture
+	 * Permet de charger la liste de tous les contrat signes dans une
+	 * transaction en lecture
 	 */
 	@DbRead
 	public List<ContratSigneDTO> getAllContratSigne(Long idModeleContrat)
 	{
 		EntityManager em = TransactionHelper.getEm();
-		
+
 		ModeleContrat mc = em.find(ModeleContrat.class, idModeleContrat);
 		List<ContratSigneDTO> res = new ArrayList<ContratSigneDTO>();
-		
-		Query q = em.createQuery("select c from Contrat c "+
-							"where c.modeleContrat=:mc "+
-							"order by c.utilisateur.nom, c.utilisateur.prenom");
-		q.setParameter("mc",mc);				
-	
+
+		Query q = em.createQuery("select c from Contrat c " + "where c.modeleContrat=:mc " + "order by c.utilisateur.nom, c.utilisateur.prenom");
+		q.setParameter("mc", mc);
+
 		List<Contrat> mcs = q.getResultList();
-		
+
 		for (Contrat contrat : mcs)
 		{
-			ContratSigneDTO mcInfo = createContratSigneInfo(em,contrat);
+			ContratSigneDTO mcInfo = createContratSigneInfo(em, contrat);
 			res.add(mcInfo);
 		}
-		
+
 		return res;
-		
+
 	}
 
 	public ContratSigneDTO createContratSigneInfo(EntityManager em, Contrat contrat)
 	{
 		ContratSigneDTO info = new ContratSigneDTO();
-		
+
 		info.nomUtilisateur = contrat.getUtilisateur().getNom();
 		info.prenomUtilisateur = contrat.getUtilisateur().getPrenom();
 		info.idUtilisateur = contrat.getUtilisateur().getId();
@@ -108,39 +106,36 @@ public class GestionContratSigneService
 		info.idModeleContrat = contrat.getModeleContrat().getId();
 		info.dateCreation = contrat.getDateCreation();
 		info.dateModification = contrat.getDateModification();
-		info.mntCommande = getMontant(em,contrat);
-		
-		info.nbChequePromis = getNbCheque(em,contrat,EtatPaiement.A_FOURNIR);
-		info.nbChequeRecus = getNbCheque(em,contrat,EtatPaiement.AMAP);
-		info.nbChequeRemis = getNbCheque(em,contrat,EtatPaiement.PRODUCTEUR);
-		
-		int mntChequeRemis = getMontantChequeRemis(em,contrat);
+		info.mntCommande = getMontant(em, contrat);
+
+		info.nbChequePromis = getNbCheque(em, contrat, EtatPaiement.A_FOURNIR);
+		info.nbChequeRecus = getNbCheque(em, contrat, EtatPaiement.AMAP);
+		info.nbChequeRemis = getNbCheque(em, contrat, EtatPaiement.PRODUCTEUR);
+
+		int mntChequeRemis = getMontantChequeRemis(em, contrat);
 		info.mntAvoirInitial = contrat.getMontantAvoir();
-		info.mntSolde = info.mntAvoirInitial+mntChequeRemis-info.mntCommande;
-		
-		
-				
+		info.mntSolde = info.mntAvoirInitial + mntChequeRemis - info.mntCommande;
+
 		return info;
 	}
-	
+
 	private int getMontantChequeRemis(EntityManager em, Contrat contrat)
 	{
 		Query q = em.createQuery("select sum(p.montant) from Paiement p WHERE p.etat=:etat and p.contrat=:c");
 		q.setParameter("c", contrat);
 		q.setParameter("etat", EtatPaiement.PRODUCTEUR);
-		
+
 		return LongUtils.toInt(q.getSingleResult());
 	}
 
-	private int getNbCheque(EntityManager em, Contrat contrat,EtatPaiement etatPaiement)
+	private int getNbCheque(EntityManager em, Contrat contrat, EtatPaiement etatPaiement)
 	{
 		Query q = em.createQuery("select count(p) from Paiement p WHERE p.etat=:etat and p.contrat=:c");
 		q.setParameter("etat", etatPaiement);
 		q.setParameter("c", contrat);
-		
+
 		return ((Long) q.getSingleResult()).intValue();
 	}
-
 
 	/**
 	 * Récupère le montant du contrat en une seule requete
@@ -152,46 +147,39 @@ public class GestionContratSigneService
 		q.setParameter("contrat", contrat);
 		return SQLUtils.toInt(q.getSingleResult());
 	}
-	
-	
-	
-	
-	
-	
+
 	// PARTIE REQUETAGE POUR AVOIR LA LISTE DES CONTRATS MODLEE D'UN PRODUCTEUR
-	
-	
+
 	/**
-	 * Permet de charger la liste de tous les modeles de contrats
-	 * dans une transaction en lecture
+	 * Permet de charger la liste de tous les modeles de contrats dans une
+	 * transaction en lecture
 	 */
 	@DbRead
 	public List<ModeleContrat> getModeleContrat(Long idProducteur)
 	{
 		EntityManager em = TransactionHelper.getEm();
-		
+
 		Producteur prod = em.find(Producteur.class, idProducteur);
-		
+
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<ModeleContrat> cq = cb.createQuery(ModeleContrat.class);
-		
+
 		Root<ModeleContrat> root = cq.from(ModeleContrat.class);
-		
-		// On ajoute la condition where 
-		cq.where(cb.equal(root.get(ModeleContrat.P.PRODUCTEUR.prop()),prod));	
-		
-				
+
+		// On ajoute la condition where
+		cq.where(cb.equal(root.get(ModeleContrat.P.PRODUCTEUR.prop()), prod));
+
 		List<ModeleContrat> mcs = em.createQuery(cq).getResultList();
-		
+
 		return mcs;
 	}
-	
-	
-	// PARTIE REQUETAGE POUR AVOIR LA LISTE DES UTILISATEURS QUI N'ONT PAS DE CONTRAT SUR UN MODELE 
-	
+
+	// PARTIE REQUETAGE POUR AVOIR LA LISTE DES UTILISATEURS QUI N'ONT PAS DE
+	// CONTRAT SUR UN MODELE
+
 	/**
-	 * Permet de charger la liste des utilisateurs sans ce contrat
-	 * dans une transaction en lecture
+	 * Permet de charger la liste des utilisateurs sans ce contrat dans une
+	 * transaction en lecture
 	 */
 	@DbRead
 	public List<Utilisateur> getUtilisateurSansContrat(Long idModeleContrat)
@@ -199,51 +187,49 @@ public class GestionContratSigneService
 		EntityManager em = TransactionHelper.getEm();
 
 		ModeleContrat mc = em.find(ModeleContrat.class, idModeleContrat);
-		
-		Query q = em.createQuery("select u from Utilisateur u WHERE NOT EXISTS (select c from Contrat c where c.utilisateur = u and c.modeleContrat=:mc) ORDER BY u.nom,u.prenom");
-		q.setParameter("mc",mc);
+
+		Query q = em
+				.createQuery("select u from Utilisateur u WHERE NOT EXISTS (select c from Contrat c where c.utilisateur = u and c.modeleContrat=:mc) ORDER BY u.nom,u.prenom");
+		q.setParameter("mc", mc);
 		List<Utilisateur> us = q.getResultList();
 		return us;
 	}
-	
-	
+
 	// PARTIE REQUETAGE POUR AVOIR UNIQUEMENT LES INFORMATIONS SUR LES AVOIRS
 	/**
 	 * Retourne la liste des avoirs
+	 * 
 	 * @return
 	 */
-	public List<ContratSigneDTO> getAvoirsInfo(EntityManager em,Long idModeleContrat)
+	public List<ContratSigneDTO> getAvoirsInfo(EntityManager em, Long idModeleContrat)
 	{
 		ModeleContrat mc = em.find(ModeleContrat.class, idModeleContrat);
 		List<ContratSigneDTO> res = new ArrayList<ContratSigneDTO>();
-		
-		Query q = em.createQuery("select c from Contrat c "+
-							"where c.modeleContrat=:mc and "+
-							" c.montantAvoir>0 "+
-							"order by c.utilisateur.nom, c.utilisateur.prenom");
-		q.setParameter("mc",mc);				
-	
+
+		Query q = em.createQuery("select c from Contrat c " + "where c.modeleContrat=:mc and " + " c.montantAvoir>0 "
+				+ "order by c.utilisateur.nom, c.utilisateur.prenom");
+		q.setParameter("mc", mc);
+
 		List<Contrat> mcs = q.getResultList();
-		
+
 		for (Contrat contrat : mcs)
 		{
-			ContratSigneDTO mcInfo = createAvoirInfo(em,contrat);
+			ContratSigneDTO mcInfo = createAvoirInfo(em, contrat);
 			res.add(mcInfo);
 		}
-		
+
 		return res;
-		
+
 	}
 
 	public ContratSigneDTO createAvoirInfo(EntityManager em, Contrat contrat)
 	{
 		ContratSigneDTO info = new ContratSigneDTO();
-		
+
 		info.nomUtilisateur = contrat.getUtilisateur().getNom();
 		info.prenomUtilisateur = contrat.getUtilisateur().getPrenom();
 		info.mntAvoirInitial = contrat.getMontantAvoir();
-		
-				
+
 		return info;
 	}
 
@@ -254,16 +240,16 @@ public class GestionContratSigneService
 	public AnnulationDateLivraisonDTO getAnnulationDateLivraisonDTO(Long mcId)
 	{
 		EntityManager em = TransactionHelper.getEm();
-		
+
 		AnnulationDateLivraisonDTO dto = new AnnulationDateLivraisonDTO();
 		dto.mcId = mcId;
-		
+
 		ModeleContrat mc = em.find(ModeleContrat.class, mcId);
-		
+
 		List<ModeleContratDate> dates = new GestionContratService().getAllDates(em, mc);
 
-		
-		// La premiere date proposée est la première date du contrat dans le futur
+		// La premiere date proposée est la première date du contrat dans le
+		// futur
 		for (ModeleContratDate modeleContratDate : dates)
 		{
 			if (modeleContratDate.getDateLiv().after(DateUtils.getDate()))
@@ -272,122 +258,89 @@ public class GestionContratSigneService
 				break;
 			}
 		}
-		
 
-		// La dernière date proposée est la dernière date du contrat , si on est arrivé à calculer une date de début
-		if ( (dto.dateDebut!=null) && (dates.size() >= 1))
+		// La dernière date proposée est la dernière date du contrat , si on est
+		// arrivé à calculer une date de début
+		if ((dto.dateDebut != null) && (dates.size() >= 1))
 		{
 			dto.dateFin = dates.get(dates.size() - 1).getDateLiv();
 		}
 		return dto;
 	}
-	
+
 	@DbRead
 	public String getAnnulationInfo(final AnnulationDateLivraisonDTO annulationDto)
 	{
 		EntityManager em = TransactionHelper.getEm();
-		
+
 		StringBuffer buf = new StringBuffer();
-		
+
 		ModeleContrat mc = em.find(ModeleContrat.class, annulationDto.mcId);
-		
+
 		// On selectionne toutes les dates de livraison
-		Query q = em.createQuery("select d from ModeleContratDate d where "+
-				" d.modeleContrat=:mc and "+
-				" d.dateLiv >= :debut and "+
-				" d.dateLiv <= :fin");
-		
-		
-		q.setParameter("mc",mc);	
-		q.setParameter("debut",annulationDto.dateDebut);
-		q.setParameter("fin",annulationDto.dateFin);
-		
+		Query q = em.createQuery("select d from ModeleContratDate d where " + " d.modeleContrat=:mc and " + " d.dateLiv >= :debut and " + " d.dateLiv <= :fin");
+
+		q.setParameter("mc", mc);
+		q.setParameter("debut", annulationDto.dateDebut);
+		q.setParameter("fin", annulationDto.dateFin);
+
 		List<ModeleContratDate> mcds = q.getResultList();
-		
+
 		SimpleDateFormat df = new SimpleDateFormat("EEEEE dd MMMMM yyyy");
-		buf.append("Les quantités des "+mcds.size()+" dates de livraisons suivantes vont être mises à zéro:<br/>");
+		buf.append("Les quantités des " + mcds.size() + " dates de livraisons suivantes vont être mises à zéro:<br/>");
 		for (ModeleContratDate modeleContratDate : mcds)
 		{
-			buf.append(" - "+df.format(modeleContratDate.getDateLiv())+"<br/>");	
+			buf.append(" - " + df.format(modeleContratDate.getDateLiv()) + "<br/>");
 		}
 		buf.append("<br/>");
-		
-		q = em.createQuery("select sum(c.qte),c.modeleContratProduit from ContratCell c where "+
-				" c.contrat.modeleContrat=:mc and "+
-				" c.modeleContratDate.dateLiv >= :debut and "+
-				" c.modeleContratDate.dateLiv <= :fin "+
-				" group by c.modeleContratProduit "+
-				" order by c.modeleContratProduit.indx");
-		
-		
-		q.setParameter("mc",mc);	
-		q.setParameter("debut",annulationDto.dateDebut);
-		q.setParameter("fin",annulationDto.dateFin);
-		
+
+		q = em.createQuery("select sum(c.qte),c.modeleContratProduit from ContratCell c where " + " c.contrat.modeleContrat=:mc and "
+				+ " c.modeleContratDate.dateLiv >= :debut and " + " c.modeleContratDate.dateLiv <= :fin " + " group by c.modeleContratProduit "
+				+ " order by c.modeleContratProduit.indx");
+
+		q.setParameter("mc", mc);
+		q.setParameter("debut", annulationDto.dateDebut);
+		q.setParameter("fin", annulationDto.dateFin);
+
 		List<Object[]> qtes = q.getResultList();
-		buf.append("Les quantités suivantes vont être mises à zéro: ( "+qtes.size()+" produits)<br/>");
+		buf.append("Les quantités suivantes vont être mises à zéro: ( " + qtes.size() + " produits)<br/>");
 		for (Object[] qte : qtes)
 		{
 			Produit prod = ((ModeleContratProduit) qte[1]).getProduit();
-			buf.append(" - "+qte[0]+" "+prod.getNom()+" , "+prod.getConditionnement()+"<br/>");
+			buf.append(" - " + qte[0] + " " + prod.getNom() + " , " + prod.getConditionnement() + "<br/>");
 		}
 		buf.append("<br/>");
-		
-		
-		
-		q = em.createQuery("select distinct(c.contrat.utilisateur) from ContratCell c where "+
-				" c.contrat.modeleContrat=:mc and "+
-				" c.modeleContratDate.dateLiv >= :debut and "+
-				" c.modeleContratDate.dateLiv <= :fin "+
-				" order by c.contrat.utilisateur.nom, c.contrat.utilisateur.prenom");
-		
-		
-		q.setParameter("mc",mc);	
-		q.setParameter("debut",annulationDto.dateDebut);
-		q.setParameter("fin",annulationDto.dateFin);
-		
+
+		q = em.createQuery("select distinct(c.contrat.utilisateur) from ContratCell c where " + " c.contrat.modeleContrat=:mc and "
+				+ " c.modeleContratDate.dateLiv >= :debut and " + " c.modeleContratDate.dateLiv <= :fin "
+				+ " order by c.contrat.utilisateur.nom, c.contrat.utilisateur.prenom");
+
+		q.setParameter("mc", mc);
+		q.setParameter("debut", annulationDto.dateDebut);
+		q.setParameter("fin", annulationDto.dateFin);
+
 		List<Utilisateur> utilisateurs = q.getResultList();
-		buf.append("Les "+utilisateurs.size()+" utilisateurs suivants sont impactés par cette suppression:<br/>");
-		for (Utilisateur utilisateur : utilisateurs)
-		{
-			buf.append(" - "+utilisateur.getNom()+" "+utilisateur.getPrenom()+"<br/>");	
-		}
-		buf.append("<br/>");
-		
-		buf.append("Liste des adresses e-mail :<br/>");
-		for (Utilisateur utilisateur : utilisateurs)
-		{
-			buf.append(utilisateur.getEmail()+";");	
-		}
-		buf.append("<br/><br/>");
-		
-		
-		
-		
+
+		buf.append(getUtilisateurImpactes(utilisateurs));
 		return buf.toString();
+
 	}
-	
-	
-	
+
 	@DbWrite
 	public void performAnnulationDateLivraison(final AnnulationDateLivraisonDTO annulationDto)
 	{
 		EntityManager em = TransactionHelper.getEm();
-		
+
 		ModeleContrat mc = em.find(ModeleContrat.class, annulationDto.mcId);
-		
+
 		// On selectionne toutes les cellules, puis on les supprime
-		Query q = em.createQuery("select c from ContratCell c where "+
-				" c.contrat.modeleContrat=:mc and "+
-				" c.modeleContratDate.dateLiv >= :debut and "+
-				" c.modeleContratDate.dateLiv <= :fin");
-		
-		
-		q.setParameter("mc",mc);		
-		q.setParameter("debut",annulationDto.dateDebut);
-		q.setParameter("fin",annulationDto.dateFin);
-		
-		
+		Query q = em.createQuery("select c from ContratCell c where " + " c.contrat.modeleContrat=:mc and " + " c.modeleContratDate.dateLiv >= :debut and "
+				+ " c.modeleContratDate.dateLiv <= :fin");
+
+		q.setParameter("mc", mc);
+		q.setParameter("debut", annulationDto.dateDebut);
+		q.setParameter("fin", annulationDto.dateFin);
+
 		List<ContratCell> mcs = q.getResultList();
 		for (ContratCell contratCell : mcs)
 		{
@@ -395,10 +348,9 @@ public class GestionContratSigneService
 			em.remove(contratCell);
 		}
 	}
-	
-	
-	
-	// PARTIE REQUETAGE POUR AVOIR LA LISTE DES MAILS DES UTILISATEURS QUI ONT UN CONTRAT 
+
+	// PARTIE REQUETAGE POUR AVOIR LA LISTE DES MAILS DES UTILISATEURS QUI ONT
+	// UN CONTRAT
 	/**
 	 * 
 	 */
@@ -406,15 +358,15 @@ public class GestionContratSigneService
 	public List<String> getAllMails(Long idModeleContrat)
 	{
 		EntityManager em = TransactionHelper.getEm();
-		
+
 		ModeleContrat mc = em.find(ModeleContrat.class, idModeleContrat);
-		
+
 		Query q = em.createQuery("select c.utilisateur.email from Contrat c WHERE c.modeleContrat=:mc ORDER BY c.utilisateur.nom, c.utilisateur.prenom");
-		q.setParameter("mc",mc);
+		q.setParameter("mc", mc);
 		List<String> mails = q.getResultList();
 		return mails;
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -422,133 +374,348 @@ public class GestionContratSigneService
 	public List<Utilisateur> getAllUtilisateur(Long idModeleContrat)
 	{
 		EntityManager em = TransactionHelper.getEm();
-		
+
 		ModeleContrat mc = em.find(ModeleContrat.class, idModeleContrat);
-		
+
 		Query q = em.createQuery("select c.utilisateur from Contrat c WHERE c.modeleContrat=:mc ORDER BY c.utilisateur.nom, c.utilisateur.prenom");
-		q.setParameter("mc",mc);
+		q.setParameter("mc", mc);
 		List<Utilisateur> mails = q.getResultList();
 		return mails;
 	}
 
-	
-	// Déplacement des dates de livraisons 
-	
+	// Déplacement des dates de livraisons
+
 	@DbRead
 	public DeplacerDateLivraisonDTO getDeplacerDateLivraisonDTO(Long mcId)
 	{
 		DeplacerDateLivraisonDTO dto = new DeplacerDateLivraisonDTO();
-		
+
 		EntityManager em = TransactionHelper.getEm();
 		ModeleContrat mc = em.find(ModeleContrat.class, mcId);
-		
-		
-		List<ModeleContratDate> mcds = new GestionContratService().getAllDates(em,mc);
+
+		List<ModeleContratDate> mcds = new GestionContratService().getAllDates(em, mc);
 		for (ModeleContratDate mcd : mcds)
 		{
 			DeplacerDateLivraisonDTO.ModifDateLivraisonDTO mdl = new DeplacerDateLivraisonDTO.ModifDateLivraisonDTO();
 			mdl.dateLiv = mcd.getDateLiv();
 			mdl.idModeleContratDate = mcd.getId();
-			
+
 			dto.dateLivraisonDTOs.add(mdl);
 		}
-		
+
 		return dto;
 	}
-	
+
 	@DbWrite
 	public void performDeplacerDateLivraison(DeplacerDateLivraisonDTO deplacerDto)
 	{
 		EntityManager em = TransactionHelper.getEm();
-		
+
 		ModeleContratDate mcd = em.find(ModeleContratDate.class, deplacerDto.selected.idModeleContratDate);
 		mcd.setDateLiv(deplacerDto.actualDate);
-		
+
 	}
 
-
 	/**
-	 * Retourne la liste de tous les amapiens concernés par cette date de livraison
-	 * 
-	 * @param annulationDto
-	 * @return
+	 * Retourne la liste de tous les amapiens concernés par cette date de
+	 * livraison
 	 */
 	@DbRead
 	public String getDeplacerInfo(Long idModeleContratDate)
 	{
 		EntityManager em = TransactionHelper.getEm();
-		
+
 		ModeleContratDate mcd = em.find(ModeleContratDate.class, idModeleContratDate);
-		
+
 		// On selectionne toutes les dates de livraison
-		Query q = em.createQuery("select distinct(c.contrat.utilisateur) from ContratCell c where "+
-				" c.modeleContratDate = :mcd "+
-				" order by c.contrat.utilisateur.nom, c.contrat.utilisateur.prenom");
-		
-		
-		q.setParameter("mcd",mcd);	
+		Query q = em.createQuery("select distinct(c.contrat.utilisateur) from ContratCell c where " + " c.modeleContratDate = :mcd "
+				+ " order by c.contrat.utilisateur.nom, c.contrat.utilisateur.prenom");
+
+		q.setParameter("mcd", mcd);
 		List<Utilisateur> utilisateurs = q.getResultList();
-		
+
+		return getUtilisateurImpactes(utilisateurs);
+	}
+
+	// Modification d'un prix de produit
+
+	/**
+	 * Retourne la liste de tous les amapiens concernés par cette date de
+	 * livraison
+	 * 
+	 * @param annulationDto
+	 * @return
+	 */
+	@DbRead
+	public String getModifPrixInfo(ModeleContratDTO modeleContrat)
+	{
+		EntityManager em = TransactionHelper.getEm();
+
+		StringBuffer buf1 = new StringBuffer();
+
+		// On recherche la liste des prix réellement modifiés
+		List<Long> mcps = new ArrayList<Long>();
+		CurrencyTextFieldConverter ctc = new CurrencyTextFieldConverter();
+		for (LigneContratDTO lig : modeleContrat.produits)
+		{
+			ModeleContratProduit mcp = em.find(ModeleContratProduit.class, lig.idModeleContratProduit);
+			if (mcp.getPrix() != lig.prix)
+			{
+				buf1.append("<li>Le prix du \"" + mcp.getProduit().getNom() + "," + mcp.getProduit().getConditionnement() + "\" passe de "
+						+ ctc.convertToString(mcp.getPrix()) + " € à  " + ctc.convertToString(lig.prix) + " €</li>");
+				mcps.add(mcp.getId());
+			}
+		}
+
+		//
 		StringBuffer buf = new StringBuffer();
-		buf.append("Les "+utilisateurs.size()+" utilisateurs suivants sont impactés par ce déplacement:<br/>");
+		if (mcps.size() == 0)
+		{
+			buf.append("Aucun prix n'a été modifié.");
+			return buf.toString();
+		}
+
+		buf.append("Les prix de " + mcps.size() + " produits ont été modifiés.<br/>Voici le détail des modifications :<ul>");
+		buf.append(buf1);
+		buf.append("</ul><br/><br/>");
+
+		// On recherches les utilisateurs impactés
+		Query q = em.createQuery("select distinct(c.contrat.utilisateur) from ContratCell c where " + " c.modeleContratProduit.id IN :mcps "
+				+ " order by c.contrat.utilisateur.nom, c.contrat.utilisateur.prenom");
+
+		q.setParameter("mcps", mcps);
+		List<Utilisateur> utilisateurs = q.getResultList();
+
+		buf.append(getUtilisateurImpactes(utilisateurs));
+		return buf.toString();
+
+	}
+
+	@DbWrite
+	public void performModifPrix(ModeleContratDTO modeleContrat)
+	{
+		EntityManager em = TransactionHelper.getEm();
+
+		for (LigneContratDTO lig : modeleContrat.produits)
+		{
+			ModeleContratProduit mcp = em.find(ModeleContratProduit.class, lig.idModeleContratProduit);
+			mcp.setPrix(lig.prix);
+		}
+	}
+
+	// AJOUT DE PRODUITS SUR UN CONTRAT
+
+	/**
+	 * Permet de charger la liste des produits hors de ce contrat dans une
+	 * transaction en lecture
+	 */
+	@DbRead
+	public List<Produit> getProduitHorsContrat(Long idModeleContrat)
+	{
+		EntityManager em = TransactionHelper.getEm();
+
+		ModeleContrat mc = em.find(ModeleContrat.class, idModeleContrat);
+
+		Query q = em
+				.createQuery("select p from Produit p WHERE p.producteur=:prod and NOT EXISTS (select mcp from ModeleContratProduit mcp where mcp.produit = p and mcp.modeleContrat=:mc) ORDER BY p.nom,p.conditionnement");
+		q.setParameter("mc", mc);
+		q.setParameter("prod", mc.getProducteur());
+		List<Produit> us = q.getResultList();
+		return us;
+	}
+
+	@DbWrite
+	public void performAjoutProduit(ModeleContratDTO modeleContrat)
+	{
+		EntityManager em = TransactionHelper.getEm();
+
+		//
+		ModeleContrat mc = em.find(ModeleContrat.class, modeleContrat.id);
+
+		// On calcule l'index le plus grand, qui servira pour numeroter les
+		// produits ajoutés
+		Query q = em.createQuery("select max(mcp.indx) from ModeleContratProduit mcp WHERE mcp.modeleContrat=:mc");
+		q.setParameter("mc", mc);
+		int index = SQLUtils.toInt(q.getSingleResult()) + 1;
+
+		// Création de toutes les lignes pour chacun des produits
+		for (LigneContratDTO lig : modeleContrat.getProduits())
+		{
+			ModeleContratProduit mcp = new ModeleContratProduit();
+			mcp.setIndx(index);
+			mcp.setModeleContrat(mc);
+			mcp.setPrix(lig.getPrix().intValue());
+			mcp.setProduit(em.find(Produit.class, lig.produitId));
+
+			em.persist(mcp);
+
+			index++;
+		}
+	}
+
+	// Suppression de produits sur un contrat
+
+	/**
+	 * 
+	 * 
+	 */
+	@DbRead
+	public String getSuppressProduitInfo(Long idModeleContrat, List<Long> modeleContratProduitsToSuppress)
+	{
+		EntityManager em = TransactionHelper.getEm();
+
+		StringBuffer buf = new StringBuffer();
+
+		// On affiche la liste des produits supprimés
+		buf.append(" " + modeleContratProduitsToSuppress.size() + " produits vont être supprimés.<br/>Voici la liste des produits supprimés :<ul>");
+		for (Long idModeleContratProduit : modeleContratProduitsToSuppress)
+		{
+			ModeleContratProduit mcp = em.find(ModeleContratProduit.class, idModeleContratProduit);
+			Produit produit = mcp.getProduit();
+
+			buf.append("<li>" + produit.getNom() + "," + produit.getConditionnement() + "</li>");
+		}
+		buf.append("</ul><br/>");
+
+		// On recherches les utilisateurs impactés
+		Query q = em.createQuery("select distinct(c.contrat.utilisateur) from ContratCell c where " + " c.modeleContratProduit.id IN :ps "
+				+ " order by c.contrat.utilisateur.nom, c.contrat.utilisateur.prenom");
+
+		q.setParameter("ps", modeleContratProduitsToSuppress);
+		List<Utilisateur> utilisateurs = q.getResultList();
+
+		buf.append(getUtilisateurImpactes(utilisateurs));
+		return buf.toString();
+	}
+
+	@DbWrite
+	public void performSupressProduit(Long idModeleContrat, List<Long> modeleContratProduitsToSuppress)
+	{
+		EntityManager em = TransactionHelper.getEm();
+
+		//
+		for (Long mcpId : modeleContratProduitsToSuppress)
+		{
+
+			ModeleContratProduit mcp = em.find(ModeleContratProduit.class, mcpId);
+
+			// On supprime toutes les commandes de ce produit
+			Query q = em.createQuery("select cc from ContratCell cc where cc.modeleContratProduit=:mcp");
+			q.setParameter("mcp", mcp);
+			List<ContratCell> ccs = q.getResultList();
+			for (ContratCell contratCell : ccs)
+			{
+				em.remove(contratCell);
+			}
+
+			// On supprime les dates barrées de ce produit
+			q = em.createQuery("select mce from ModeleContratExclude mce where mce.produit=:mcp");
+			q.setParameter("mcp", mcp);
+			List<ModeleContratExclude> mces = q.getResultList();
+			for (ModeleContratExclude mce : mces)
+			{
+				em.remove(mce);
+			}
+
+			// Enfin, on supprime le produit du contrat
+			em.remove(mcp);
+		}
+
+	}
+
+	//
+	@DbWrite
+	public void performModifProduitOrdreContrat(ModeleContratDTO modeleContrat)
+	{
+		EntityManager em = TransactionHelper.getEm();
+
+		int index = 0;
+		//
+		for (LigneContratDTO lig : modeleContrat.getProduits())
+		{
+			ModeleContratProduit mcp = em.find(ModeleContratProduit.class, lig.idModeleContratProduit);
+			mcp.setIndx(index);
+
+			index++;
+		}
+	}
+
+	// Méthodes utilitaires sur les modifications en masse
+
+	/**
+	 * Retourne la liste des utilisateurs impactés sous un format facilement
+	 * utilisable
+	 */
+	private String getUtilisateurImpactes(List<Utilisateur> utilisateurs)
+	{
+		StringBuffer buf = new StringBuffer();
+		if (utilisateurs.size() == 0)
+		{
+			buf.append("Aucun utilisateur n'est impacté par cette modification.<br/>");
+			return buf.toString();
+		}
+
+		buf.append("Les " + utilisateurs.size() + " utilisateurs suivants sont impactés par cette modification :<br/>");
 		for (Utilisateur utilisateur : utilisateurs)
 		{
 			String warning = "";
-			if (UtilisateurUtil.canSendMailTo(utilisateur)==false)
+			if (UtilisateurUtil.canSendMailTo(utilisateur) == false)
 			{
 				warning = "<b>Utilisateur sans e mail !</b>";
 			}
-			buf.append(" - "+utilisateur.getNom()+" "+utilisateur.getPrenom()+warning+"<br/>");	
+			buf.append(" - " + utilisateur.getNom() + " " + utilisateur.getPrenom() + warning + "<br/>");
 		}
 		buf.append("<br/>");
-		
+
 		buf.append("Liste des adresses e-mail :<br/>");
 		for (Utilisateur utilisateur : utilisateurs)
 		{
 			if (UtilisateurUtil.canSendMailTo(utilisateur))
 			{
-				buf.append(utilisateur.getEmail()+";");
+				buf.append(utilisateur.getEmail() + ";");
 			}
 		}
 		return buf.toString();
 	}
-	
-	
+
 	// REQUETAGE DIVERS
-	
-	
+
 	/**
-	 * Permet de connaitre le nombre de livraison réelle pour un contrat d'un amapien donné
+	 * Permet de connaitre le nombre de livraison réelle pour un contrat d'un
+	 * amapien donné
 	 * 
-	 * Exemple : il y a 42 livraisons sur un contrats, mais l'amapien a commandé uniquement sur 10 livraisons
+	 * Exemple : il y a 42 livraisons sur un contrats, mais l'amapien a commandé
+	 * uniquement sur 10 livraisons
 	 * 
 	 */
 	@DbRead
-	public int getNbLivraisonContrat(Contrat contrat,EntityManager em)
+	public int getNbLivraisonContrat(Contrat contrat, EntityManager em)
 	{
 		Query q = em.createQuery("select count(distinct(c.modeleContratDate.id)) from ContratCell c WHERE c.contrat=:cc");
 		q.setParameter("cc", contrat);
-		
+
 		return SQLUtils.toInt(q.getSingleResult());
 	}
-	
 
 	/**
-	 * Permet de connaitre le nombre de produits total pour un contrat d'un amapien donné
+	 * Permet de connaitre le nombre de produits total pour un contrat d'un
+	 * amapien donné
 	 * 
 	 * 
 	 */
 	@DbRead
-	public int getNbProduitContrat(Contrat contrat,EntityManager em)
+	public int getNbProduitContrat(Contrat contrat, EntityManager em)
 	{
 		Query q = em.createQuery("select sum(c.qte) from ContratCell c WHERE c.contrat=:cc");
 		q.setParameter("cc", contrat);
-		
+
 		return SQLUtils.toInt(q.getSingleResult());
 	}
 
 	/**
-	 * Vérifie si cet utilisateur posséde ou non un contrat pour ce modele de contrat 
+	 * Vérifie si cet utilisateur posséde ou non un contrat pour ce modele de
+	 * contrat
+	 * 
 	 * @param idModeleContrat
 	 * @param userId
 	 * @return
@@ -557,14 +724,12 @@ public class GestionContratSigneService
 	public boolean checkIfUserHasContrat(Long idModeleContrat, Long userId)
 	{
 		EntityManager em = TransactionHelper.getEm();
-		
+
 		Query q = em.createQuery("select count(c) from Contrat c WHERE c.utilisateur.id=:uId and c.modeleContrat.id=:mId");
 		q.setParameter("uId", userId);
 		q.setParameter("mId", idModeleContrat);
-		
-		return SQLUtils.toInt(q.getSingleResult())>0;
+
+		return SQLUtils.toInt(q.getSingleResult()) > 0;
 	}
 
-	
-		
 }

@@ -86,6 +86,7 @@ abstract public class PopupBooleanGrid extends CorePopup
 		if (str!=null)
 		{
 			errorInInitialCondition = true;
+			popupTitle = "Impossible";
 			displayErrorOnInitialCondition(str,mainLayout);
 			return;
 		}

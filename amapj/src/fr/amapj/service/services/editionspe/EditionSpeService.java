@@ -26,13 +26,23 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import fr.amapj.common.AmapjRuntimeException;
+import fr.amapj.common.GzipUtils;
 import fr.amapj.common.LongUtils;
 import fr.amapj.model.engine.transaction.DbRead;
 import fr.amapj.model.engine.transaction.DbWrite;
 import fr.amapj.model.engine.transaction.TransactionHelper;
 import fr.amapj.model.models.contrat.modele.ModeleContrat;
+import fr.amapj.model.models.editionspe.AbstractEditionSpeJson;
 import fr.amapj.model.models.editionspe.EditionSpecifique;
 import fr.amapj.model.models.editionspe.TypEditionSpecifique;
+import fr.amapj.model.models.editionspe.adhesion.BulletinAdhesionJson;
+import fr.amapj.model.models.editionspe.emargement.FeuilleEmargementJson;
+import fr.amapj.model.models.editionspe.engagement.EngagementJson;
+import fr.amapj.model.models.editionspe.etiquette.EtiquetteProducteurJson;
 import fr.amapj.view.engine.popup.suppressionpopup.UnableToSuppressException;
 
 /**
@@ -181,14 +191,13 @@ public class EditionSpeService
 
 	}
 
-	public EditionSpeDTO createEtiquetteDTO(EntityManager em, EditionSpecifique p)
+	private EditionSpeDTO createEtiquetteDTO(EntityManager em, EditionSpecifique p)
 	{
 		EditionSpeDTO dto = new EditionSpeDTO();
 
 		dto.id = p.getId();
-		dto.nom = p.getNom();
-		dto.typEditionSpecifique = p.getTypEditionSpecifique();
-		dto.content = p.getContent();
+		dto.nom = p.nom;
+		dto.typEditionSpecifique = p.typEditionSpecifique;
 
 		return dto;
 	}
@@ -197,7 +206,7 @@ public class EditionSpeService
 
 	// PARTIE MISE A JOUR DES ETIQUETTES
 	@DbWrite
-	public void update(final EditionSpeDTO dto, final boolean create)
+	public Long update(AbstractEditionSpeJson speJson, boolean create)
 	{
 		EntityManager em = TransactionHelper.getEm();
 
@@ -205,24 +214,37 @@ public class EditionSpeService
 
 		if (create)
 		{
+			TypEditionSpecifique typEditionSpecifique = findTypEditionSpecifique(speJson);
+
 			p = new EditionSpecifique();
-			p.setTypEditionSpecifique(dto.typEditionSpecifique);
+			p.typEditionSpecifique = typEditionSpecifique;
 		} 
 		else
 		{
-			p = em.find(EditionSpecifique.class, dto.id);
+			p = em.find(EditionSpecifique.class, speJson.getId());
 		}
 
-		p.setNom(dto.nom);
-		p.setContent(dto.content);
+		p.nom = speJson.getNom();
+		
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		String content = gson.toJson(speJson);
+		p.content = GzipUtils.compress(content); 
 		
 
 		if (create)
 		{
 			em.persist(p);
 		}
+		
+		return p.id;
 
 	}
+
+
+	
+
+
+
 
 
 	// PARTIE SUPPRESSION
@@ -279,15 +301,89 @@ public class EditionSpeService
 	{
 		EntityManager em = TransactionHelper.getEm();
 		
+		// On conserve le nom qui a été saisi
+		EditionSpecifique to = new EditionSpecifique();
+		to.nom = dto.nom;
+		
+		// On charge le reste par rapport à l'enregistrement en base
 		EditionSpecifique from = em.find(EditionSpecifique.class, dto.id);
 		
-		EditionSpecifique to = new EditionSpecifique();
-		to.setContent(from.getContent());
-		to.setNom(dto.nom);
-		to.setTypEditionSpecifique(from.getTypEditionSpecifique());
+		to.content = from.content;
+		to.typEditionSpecifique = from.typEditionSpecifique;
 		
 		em.persist(to);
 		
+	}
+	
+	
+	// Chargement 
+	
+	/**
+	 * Permet de charger un objet JSON à partir d'un id de EditionSpecifique  
+	 */
+	@DbRead
+	public AbstractEditionSpeJson load(Long id)
+	{
+		EntityManager em = TransactionHelper.getEm();
+		
+		EditionSpecifique editionSpecifique = em.find(EditionSpecifique.class, id);
+		
+		Class<? extends AbstractEditionSpeJson> clazz = findClazz(editionSpecifique.typEditionSpecifique);
+	
+		String content  = GzipUtils.uncompress(editionSpecifique.content);
+		
+		AbstractEditionSpeJson etiquetteDTO = (AbstractEditionSpeJson) new Gson().fromJson(content, clazz); 
+		etiquetteDTO.setId(editionSpecifique.id);
+		etiquetteDTO.setNom(editionSpecifique.nom);
+			
+		return etiquetteDTO;
+	}
+	
+	
+	// Conversion entre  TypEditionSpecifique et les classes 
+	
+	private Class<? extends AbstractEditionSpeJson> findClazz(TypEditionSpecifique typ)
+	{
+		switch (typ)
+		{
+		case ETIQUETTE_PRODUCTEUR:
+			return EtiquetteProducteurJson.class;
+			
+		case FEUILLE_EMARGEMENT:
+			return FeuilleEmargementJson.class;
+			
+		case CONTRAT_ENGAGEMENT:
+			return EngagementJson.class;
+			
+		case BULLETIN_ADHESION:
+			return BulletinAdhesionJson.class;
+		
+		default:
+			throw new AmapjRuntimeException("Type non pris en compte");
+		}
+	}
+	
+	
+	private TypEditionSpecifique findTypEditionSpecifique(AbstractEditionSpeJson speJson)
+	{
+		if (speJson instanceof EtiquetteProducteurJson)
+		{
+			return TypEditionSpecifique.ETIQUETTE_PRODUCTEUR;
+		}
+		else if (speJson instanceof FeuilleEmargementJson)
+		{
+			return TypEditionSpecifique.FEUILLE_EMARGEMENT;
+		} 
+		else if (speJson instanceof EngagementJson)
+		{
+			return TypEditionSpecifique.CONTRAT_ENGAGEMENT;
+		}
+		else if (speJson instanceof BulletinAdhesionJson)
+		{
+			return TypEditionSpecifique.BULLETIN_ADHESION;
+		}
+		
+		throw new AmapjRuntimeException();
 	}
 
 }

@@ -28,9 +28,13 @@
  */
 public class LigneContratDTO
 {
+	public Long idModeleContratProduit;
+	
 	public Long produitId;
 	
 	public String produitNom;
+	
+	public String produitConditionnement;
 	
 	public Integer prix;
 	
@@ -62,6 +66,16 @@ public class LigneContratDTO
 	public void setProduitNom(String produitNom)
 	{
 		this.produitNom = produitNom;
+	}
+
+	public Long getIdModeleContratProduit()
+	{
+		return idModeleContratProduit;
+	}
+
+	public void setIdModeleContratProduit(Long idModeleContratProduit)
+	{
+		this.idModeleContratProduit = idModeleContratProduit;
 	}
 	
 }

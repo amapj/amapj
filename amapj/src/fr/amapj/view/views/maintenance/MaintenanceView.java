@@ -57,6 +57,8 @@ import fr.amapj.view.engine.popup.corepopup.CorePopup.ColorStyle;
 import fr.amapj.view.engine.popup.messagepopup.MessagePopup;
 import fr.amapj.view.engine.template.BackOfficeLongView;
 import fr.amapj.view.engine.ui.AppConfiguration;
+import fr.amapj.view.views.maintenance.devtools.DevToolsSelectionTable;
+import fr.amapj.view.views.maintenance.devtools.DevToolsTabDemo;
 
 public class MaintenanceView extends BackOfficeLongView implements View
 {
@@ -119,9 +121,15 @@ public class MaintenanceView extends BackOfficeLongView implements View
 		suppressionPanel.addStyleName("action");
 		suppressionPanel.setContent(getSuppressionPanel());
 		
-		Panel diversPanel = new Panel("Outils divers");
+		Panel diversPanel = new Panel("Outils d'admin");
 		diversPanel.addStyleName("action");
 		diversPanel.setContent(getDiversPanel());
+		
+		
+		Panel devToolsPanel = new Panel("Outils de développement");
+		devToolsPanel.addStyleName("action");
+		devToolsPanel.setContent(getDevToolsPanel());
+		
 		
 		addComponent(backupPanel);
 		addEmptyLine(this);
@@ -132,6 +140,8 @@ public class MaintenanceView extends BackOfficeLongView implements View
 		if (adminFull)
 		{
 			addComponent(diversPanel);
+			addEmptyLine(this);
+			addComponent(devToolsPanel);
 		}
 		
 	}
@@ -230,11 +240,7 @@ public class MaintenanceView extends BackOfficeLongView implements View
 		
 
 		addEmptyLine(layout);
-		
-		Button b1 = new Button("Cascading", e->cascading());
-		layout.addComponent(b1);
-		addEmptyLine(layout);
-		
+				
 
 		Button b2 = new Button("Remise à zéro du cache (obligatoire après requete SQL)", new ClickListener()
 		{
@@ -255,30 +261,53 @@ public class MaintenanceView extends BackOfficeLongView implements View
 				CorePopup.open(popup);
 			}
 		});
-		
-		
-		Button b6 = new Button("Générer une erreur", new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				String str = null;
-				String s = 	str.trim();
-			}
-		});
-		
-		
-		Button b8 = new Button("Test des tab", e->CorePopup.open(new PopupTabDemo()));
-			
+				
 		
 		
 		layout.addComponent(b2);
 		addEmptyLine(layout);
 		layout.addComponent(b4);
 		addEmptyLine(layout);
-		layout.addComponent(b6);
+		
+				
 		addEmptyLine(layout);
-		layout.addComponent(b8);
+		
+		return layout;
+	}
+	
+	
+	
+	private Component getDevToolsPanel()
+	{
+		VerticalLayout layout = new VerticalLayout();
+		layout.setMargin(true);
+		
+		addEmptyLine(layout);
+		addLabel(layout, "Outils divers réservés aux experts.");
+		addEmptyLine(layout);
+		addLabel(layout, "ATTENTION !!! Ne pas utiliser sur une base en production !!! ATTENTION !!!!.");
+		
+
+		
+		
+		Button b0 = new Button("Générer une erreur", e->generateEror());
+				
+		Button b1 = new Button("Test du cascading de popup ", e->cascading());
+		layout.addComponent(b1);
+		addEmptyLine(layout);
+		
+		Button b2 = new Button("Test des popup de type tab", e->CorePopup.open(new DevToolsTabDemo()));
+			
+		
+		Button b3 = new Button("La selection dans une table", e->CorePopup.open(new DevToolsSelectionTable()));
+		
+		layout.addComponent(b0);
+		addEmptyLine(layout);
+		layout.addComponent(b1);
+		addEmptyLine(layout);
+		layout.addComponent(b2);
+		addEmptyLine(layout);
+		layout.addComponent(b3);
 		
 				
 		addEmptyLine(layout);
@@ -290,6 +319,14 @@ public class MaintenanceView extends BackOfficeLongView implements View
 	
 	
 	
+	private void generateEror()
+	{
+		String str = null;
+		String s = 	str.trim();
+	}
+
+
+
 	private void cascading()
 	{
 		ABCSample sample = new ABCSample();

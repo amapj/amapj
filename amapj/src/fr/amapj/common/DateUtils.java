@@ -89,7 +89,7 @@ public class DateUtils
 		c.set(Calendar.MILLISECOND, 0);
 		c.set(Calendar.SECOND, 0);
 		c.set(Calendar.MINUTE, 0);
-		c.set(Calendar.HOUR, 0);
+		c.set(Calendar.HOUR_OF_DAY, 0);
 
 		return c.getTime();
 	}
@@ -107,7 +107,7 @@ public class DateUtils
 		c.set(Calendar.MILLISECOND, 0);
 		c.set(Calendar.SECOND, 0);
 		c.set(Calendar.MINUTE, 0);
-		c.set(Calendar.HOUR, 0);
+		c.set(Calendar.HOUR_OF_DAY, 0);
 
 		// Retourne 1 pour dimanche, 2 pour lundi, ...
 		int delta = c.get(Calendar.DAY_OF_WEEK);
@@ -136,7 +136,7 @@ public class DateUtils
 		c.set(Calendar.MILLISECOND, 0);
 		c.set(Calendar.SECOND, 0);
 		c.set(Calendar.MINUTE, 0);
-		c.set(Calendar.HOUR, 0);
+		c.set(Calendar.HOUR_OF_DAY, 0);
 
 		// Retourne 1 pour dimanche, 2 pour lundi, ...
 		int delta = c.get(Calendar.DAY_OF_MONTH);
@@ -243,6 +243,45 @@ public class DateUtils
 		return (int) ((d2.getTime()-d1.getTime())/(1000L*3600L*24L));
 	}
 
+	
+	public static boolean equals(Date d1,Date d2)
+	{
+		if ( (d1==null) && (d2==null) )
+		{
+			return true;
+		}
+		
+		if ( (d1==null) || (d2==null) )
+		{
+			return false;
+		}
+		
+		return d1.equals(d2);
+	}
+	
+	
+	/**
+	 * Retourne true si la date est dans l'intervalle
+	 * 
+	 * Les bornes de l'intervalles sont des dates valides
+	 * 
+	 */
+	public static boolean isInIntervalle(Date ref, Date debut, Date fin)
+	{
+		if (ref.after(fin))
+		{
+			return false;
+		}
+		
+		if (ref.before(debut))
+		{
+			return false;
+		}
+
+		return true;
+	}
+	
+	
 
 	/**
 	 * Permet de fixer la date 
@@ -253,5 +292,7 @@ public class DateUtils
 
 		System.out.println("d=" + addMonth(d,1));
 	}
+
+	
 
 }

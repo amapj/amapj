@@ -20,6 +20,8 @@
  */
  package fr.amapj.common;
 
+import java.util.Date;
+
 
 public class GenericUtils
 {
@@ -27,6 +29,23 @@ public class GenericUtils
 	{
 		public String toString(T t);
 	}
+	
+	static public interface ToDate<T>
+	{
+		public Date toDate(T t);
+	}
+	
+	static public interface ToBoolean<T>
+	{
+		public boolean toBoolean(T t);
+	}
+	
+	static public interface ToLong<T>
+	{
+		public boolean toLong(T t);
+	}
+	
+	
 	
 	static public interface GetField<T>
 	{

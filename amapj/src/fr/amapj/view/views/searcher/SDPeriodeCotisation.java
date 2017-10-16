@@ -23,7 +23,6 @@
 import java.util.List;
 
 import fr.amapj.model.engine.Identifiable;
-import fr.amapj.model.models.contrat.modele.ModeleContrat;
 import fr.amapj.model.models.cotisation.PeriodeCotisation;
 import fr.amapj.service.services.searcher.SearcherService;
 import fr.amapj.view.engine.searcher.SearcherDefinition;

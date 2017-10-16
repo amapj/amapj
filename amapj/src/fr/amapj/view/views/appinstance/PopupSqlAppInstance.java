@@ -29,6 +29,7 @@ import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.TextArea;
 
+import fr.amapj.common.CollectionUtils;
 import fr.amapj.service.services.appinstance.AppInstanceDTO;
 import fr.amapj.service.services.appinstance.AppInstanceService;
 import fr.amapj.service.services.appinstance.SqlRequestDTO;
@@ -66,6 +67,7 @@ public class PopupSqlAppInstance extends WizardFormPopup
 		setWidth(90);
 		saveButtonTitle = "OK";
 		this.appInstanceDTOs = appInstanceDTOs;
+		CollectionUtils.sort(this.appInstanceDTOs,e->e.nomInstance);
 		
 		
 		// Contruction de l'item

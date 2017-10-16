@@ -138,11 +138,28 @@ public class BaseUiTools
 	}
 	
 	
+	/**
+	 * 
+	 * @param width en pixel 
+	 * @return
+	 */
 	public static boolean isWidthBelow(int width)
 	{
 		Page page = UI.getCurrent().getPage();
 		int currentWidth = page.getBrowserWindowWidth();
 		return currentWidth<width;
+	}
+	
+	
+	
+	/**
+	 * Calcule la taille en pixel du popup, en prenant en compte le ratio du popup 
+	 */
+	public static int computePopupWidth(int widthRatio)
+	{
+		Page page = UI.getCurrent().getPage();
+		int currentWidth = page.getBrowserWindowWidth();
+		return (currentWidth*widthRatio)/100;
 	}
 	
 	

@@ -110,7 +110,7 @@ public class HsqlInternalDbms implements DBMS
 		argProps.setProperty("server.no_system_exit", "true");
 		argProps.setProperty("server.port", conf.getPort());
 		argProps.setProperty("server.remote_open", true);
-		argProps.setProperty("server.maxdatabases", 100);
+		argProps.setProperty("server.maxdatabases", 200);
 		
 
 		ServerConfiguration.translateAddressProperty(argProps);
@@ -143,6 +143,9 @@ public class HsqlInternalDbms implements DBMS
 	@Override
 	public void startOneBase(String dbName)
 	{
+		
+		logger.info("Demarrage de la base "+dbName);
+		
 		// Ajout de la base dans HSQL
 		// Voir la doc ici : http://hsqldb.org/doc/guide/listeners-chapt.html#lsc_remote_open 
 		
@@ -167,6 +170,8 @@ public class HsqlInternalDbms implements DBMS
 	@Override
 	public void stopOneBase(String dbName)
 	{	
+		logger.info("Arret de la base "+dbName);
+		
 		String url = conf.createUrl(dbName);
 		try
 		{

@@ -27,10 +27,12 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
 import fr.amapj.model.engine.tools.TestTools;
 import fr.amapj.model.engine.transaction.DbRead;
+import fr.amapj.model.engine.transaction.DbWrite;
 import fr.amapj.model.engine.transaction.TransactionHelper;
 import fr.amapj.model.models.fichierbase.Utilisateur;
 
@@ -153,14 +155,43 @@ public class SelectDbUtilisateurHsql
 	
 	
 	
+	/**
+	 * Test du select for update
+	 * @throws InterruptedException 
+	 */
+	@DbWrite
+	public void selectForUpdate() throws InterruptedException
+	{
+		EntityManager em = TransactionHelper.getEm();
+		
+		Query q = em.createQuery("select u from Utilisateur u WHERE u.id=:id");
+		q.setParameter("id",1052L);
+		q.setLockMode(LockModeType.PESSIMISTIC_READ);
+		List<Utilisateur> us = q.getResultList();
+		for (Utilisateur u : us)
+		{
+			System.out.println("Utilisateur: Nom ="+u.getNom()+" Prenom ="+u.getPrenom());
+		}
+		
+		for (int i = 0; i < 10; i++)
+		{
+			System.out.println("Attente "+i);
+			Thread.sleep(1000);;
+		}
+		
+		
+	}
+	
+	
+	
 
-	public static void main(String[] args)
+	public static void main(String[] args) throws InterruptedException
 	{
 		TestTools.init();
 		
 		SelectDbUtilisateurHsql selectUtilisateur = new SelectDbUtilisateurHsql();
 		System.out.println("Requete dans la base avec HSQL..");
-		selectUtilisateur.tochar_request();
+		selectUtilisateur.selectForUpdate();
 		System.out.println("Fin de la requete");
 
 	}

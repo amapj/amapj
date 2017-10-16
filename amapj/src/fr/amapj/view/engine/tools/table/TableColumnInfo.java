@@ -21,6 +21,7 @@
  package fr.amapj.view.engine.tools.table;
 
 import fr.amapj.service.engine.generator.CoreGenerator;
+import fr.amapj.view.engine.searcher.SearcherDefinition;
 import fr.amapj.view.engine.tools.table.complex.ComplexTableBuilder.CallBack;
 import fr.amapj.view.engine.tools.table.complex.ComplexTableBuilder.ToGenerator;
 import fr.amapj.view.engine.tools.table.complex.ComplexTableBuilder.ToValue;
@@ -42,8 +43,10 @@ public class TableColumnInfo<T>
 	public CallBack<T> onClic;
 	
 	public ToGenerator<T> generator;
+	
+	public SearcherDefinition searcher;
 
-	public TableColumnInfo(String title, String property,boolean editable,int width,TableColumnType type, ToValue<T> toVal,CallBack<T> onClic,ToGenerator<T> generator)
+	public TableColumnInfo(String title, String property,boolean editable,int width,TableColumnType type, ToValue<T> toVal,CallBack<T> onClic,ToGenerator<T> generator,SearcherDefinition searcher)
 	{
 		super();
 		this.title = title;
@@ -54,6 +57,7 @@ public class TableColumnInfo<T>
 		this.toVal = toVal;
 		this.onClic = onClic;
 		this.generator = generator;
+		this.searcher = searcher;
 	}
 	
 	

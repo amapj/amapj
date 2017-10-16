@@ -43,8 +43,8 @@ import fr.amapj.service.services.meslivraisons.MesLivraisonsDTO;
 import fr.amapj.service.services.meslivraisons.MesLivraisonsService;
 import fr.amapj.service.services.meslivraisons.ProducteurLivraisonsDTO;
 import fr.amapj.service.services.meslivraisons.QteProdDTO;
-import fr.amapj.service.services.saisiepermanence.PermanenceDTO;
-import fr.amapj.service.services.saisiepermanence.PermanenceService;
+import fr.amapj.service.services.permanence.periode.PeriodePermanenceDateDTO;
+import fr.amapj.service.services.permanence.periode.PeriodePermanenceService;
 
 
 /**
@@ -295,7 +295,7 @@ public class EGFeuilleEmargementListe
 		Entete entete = new Entete();
 		
 		// Recherche des distributions dans ce mois
-		List<PermanenceDTO> permanenceDTOs = getPermanence(em,libInfo);
+		List<PeriodePermanenceDateDTO> permanenceDTOs = getPermanence(em,libInfo);
 		
 		// On recherche toutes les dates de livraisons sur ce mois, ordonnées par ordre croissant
 		List<Date> dateLivs = getDateLivs(em,libInfo);
@@ -314,9 +314,9 @@ public class EGFeuilleEmargementListe
 		return entete;
 	}
 	
-	private List<PermanenceDTO> getPermanence(EntityManager em,LibInfo libInfo)
+	private List<PeriodePermanenceDateDTO> getPermanence(EntityManager em,LibInfo libInfo)
 	{
-		return new PermanenceService().getAllDistributions(em, libInfo.debut, libInfo.fin);
+		return new PeriodePermanenceService().getAllDistributionsActif(em, libInfo.debut, libInfo.fin);
 	}
 	
 	
@@ -339,13 +339,13 @@ public class EGFeuilleEmargementListe
 	 * @param dateLiv
 	 * @return
 	 */
-	private String findPermanence(List<PermanenceDTO> permanenceDTOs, Date dateLiv)
+	private String findPermanence(List<PeriodePermanenceDateDTO> permanenceDTOs, Date dateLiv)
 	{
-		for (PermanenceDTO permanenceDTO : permanenceDTOs)
+		for (PeriodePermanenceDateDTO permanenceDTO : permanenceDTOs)
 		{
-			if (permanenceDTO.datePermanence.equals(dateLiv))
+			if (permanenceDTO.datePerm.equals(dateLiv))
 			{
-				return permanenceDTO.getUtilisateurs("\n");
+				return permanenceDTO.getNomInscrit("\n");
 			}
 		}
 		

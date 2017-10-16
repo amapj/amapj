@@ -24,14 +24,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;import org.apache.logging.log4j.Logger;
-
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import fr.amapj.common.DateUtils;
 import fr.amapj.model.engine.tools.TestTools;
@@ -46,8 +43,6 @@ import fr.amapj.model.models.fichierbase.Producteur;
 import fr.amapj.model.models.fichierbase.Utilisateur;
 import fr.amapj.model.models.stats.NotificationDone;
 import fr.amapj.model.models.stats.TypNotificationDone;
-import fr.amapj.service.engine.deamons.DeamonsImpl;
-import fr.amapj.service.engine.deamons.DeamonsUtils;
 import fr.amapj.service.engine.generator.excel.AbstractExcelGenerator;
 import fr.amapj.service.services.edgenerator.excel.feuilledistribution.producteur.EGFeuilleDistributionProducteur;
 import fr.amapj.service.services.mailer.MailerAttachement;
@@ -187,15 +182,14 @@ public class ProducteurNotificationService
 	{
 		// On mémorise dans la base de données que l'on va envoyer le message
 		NotificationDone notificationDone = new NotificationDone();
-		notificationDone.setTypNotificationDone(TypNotificationDone.FEUILLE_LIVRAISON_PRODUCTEUR);
-		notificationDone.setModeleContratDate(em.find(ModeleContratDate.class, modeleContratDateId));
-		notificationDone.setUtilisateur(em.find(Utilisateur.class, utilisateurId));
-		notificationDone.setDateEnvoi(DateUtils.getDate());
+		notificationDone.typNotificationDone = TypNotificationDone.FEUILLE_LIVRAISON_PRODUCTEUR;
+		notificationDone.modeleContratDate = em.find(ModeleContratDate.class, modeleContratDateId);
+		notificationDone.utilisateur = em.find(Utilisateur.class, utilisateurId);
+		notificationDone.dateEnvoi = DateUtils.getDate();
 		em.persist(notificationDone);
 		
 		// On envoie le message
 		new MailerService().sendHtmlMail(message);
-		//System.out.println("titre="+message.getTitle()+" email="+message.getEmail());
 	}
 
 	private String getMessageContent(ModeleContratDate modeleContratDate, ParametresDTO param, SimpleDateFormat df)

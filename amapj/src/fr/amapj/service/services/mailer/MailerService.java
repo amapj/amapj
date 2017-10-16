@@ -43,6 +43,7 @@ import fr.amapj.common.AmapjRuntimeException;
 import fr.amapj.model.engine.tools.TestTools;
 import fr.amapj.service.services.parametres.ParametresDTO;
 import fr.amapj.service.services.parametres.ParametresService;
+import fr.amapj.view.engine.ui.AppConfiguration;
 
 /**
  * Permet d'envoyer des mails
@@ -175,8 +176,19 @@ public class MailerService
 	        }
 			
 			message.setContent(mp);
-			Transport.send(message);
-			logger.info("Envoi d'un message a : "+mailerMessage.getEmail());
+			
+			if (AppConfiguration.getConf().isAllowMailControl()==false)
+			{
+				// Le cas standard : le mail est envoyé 
+				Transport.send(message);
+				logger.info("Envoi d'un message a : "+mailerMessage.getEmail());
+			}
+			else
+			{
+				// Le cas debug : le mail est stocké 
+				MailerStorage.store(message);
+				logger.info("STOCKAGE d'un message destiné a : "+mailerMessage.getEmail());
+			}
 		}
 		catch (MessagingException | UnsupportedEncodingException e)
 		{

@@ -18,7 +18,7 @@
  * 
  * 
  */
- package fr.amapj.view.views.saisiepermanence;
+ package fr.amapj.view.views.permanence.detailperiode.mail;
 
 import com.vaadin.data.util.ObjectProperty;
 import com.vaadin.server.Sizeable.Unit;
@@ -27,16 +27,18 @@ import com.vaadin.ui.RichTextArea;
 
 import fr.amapj.service.services.parametres.ParametresDTO;
 import fr.amapj.service.services.parametres.ParametresService;
-import fr.amapj.service.services.saisiepermanence.PermanenceService;
+import fr.amapj.service.services.permanence.periode.mail.PeriodePermanenceEnvoiMailService;
 import fr.amapj.view.engine.popup.formpopup.WizardFormPopup;
 
 /**
- * Popup pour la planification des permanences
+ * Popup pour l'envoi d'un mail avec le planning de permanence
  * 
  *
  */
-public class PopupRappelPermanence extends WizardFormPopup
+public class PopupEnvoiMailPlanningPermanence extends WizardFormPopup
 {
+	
+	private Long idPeriodePermanence;
 
 	public enum Step
 	{
@@ -46,10 +48,11 @@ public class PopupRappelPermanence extends WizardFormPopup
 	/**
 	 * 
 	 */
-	public PopupRappelPermanence()
+	public PopupEnvoiMailPlanningPermanence(Long idPeriodePermanence)
 	{
 		setWidth(80);
-		popupTitle = "Envoi d'un mail de rappel des permanences";
+		popupTitle = "Envoi d'un mail avec le planning des permanences";
+		this.idPeriodePermanence = idPeriodePermanence;
 
 		// 
 		// Contruction de l'item
@@ -69,9 +72,9 @@ public class PopupRappelPermanence extends WizardFormPopup
 	private void addFieldInfoGenerales()
 	{
 		// Titre
-		setStepTitle("le rappel de permanence");
+		setStepTitle("l'envoi d'un mail avec le planning  des permanences");
 		
-		addLabel("Avec cet outil,  vous allez pouvoir envoyer un mail de rappel pour toutes les personnes de permanence dans le futur",ContentMode.HTML);
+		addLabel("Avec cet outil,  vous allez pouvoir envoyer un mail avec le planning pour toutes les personnes ayant des permanences dans le futur",ContentMode.HTML);
 
 	}
 
@@ -96,7 +99,7 @@ public class PopupRappelPermanence extends WizardFormPopup
 	protected void performSauvegarder()
 	{
 		String texte = (String) item.getItemProperty("texte").getValue();
-		new PermanenceService().performRappel(texte);
+		new PeriodePermanenceEnvoiMailService().sendMailAvecPlanning(texte, idPeriodePermanence);
 	}
 
 	@Override

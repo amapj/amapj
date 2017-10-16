@@ -134,7 +134,7 @@ public class SpecificDbUtils
 				
 				if ((continueOnFail==false) && (result.throwable!=null))
 				{
-					throw new AmapjRuntimeException("Une erreur est survenue dans la base <"+dataBaseInfo.getDbName()+">",result.throwable);
+					throw new AmapjRuntimeException("Une erreur est survenue dans la base -"+dataBaseInfo.getDbName()+"-",result.throwable);
 				}
 				
 				res.add(result);

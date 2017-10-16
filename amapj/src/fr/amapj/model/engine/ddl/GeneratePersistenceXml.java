@@ -24,16 +24,16 @@ import java.text.DecimalFormat;
 
 
 /**
- * Cette classe permet de cr�er des roles dans la base de donn�es
+ * Cette classe permet de créer le fichier persistence.xml
  */
 public class GeneratePersistenceXml
 {
 
 	public void createData()
 	{
-		DecimalFormat df = new DecimalFormat("00");
+		DecimalFormat df = new DecimalFormat("000");
 		
-		for (int i = 0; i < 100; i++)
+		for (int i = 0; i < 1000; i++)
 		{	
 			System.out.println("<persistence-unit name=\"pu"+df.format(i)+"\"> <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>  <exclude-unlisted-classes>false</exclude-unlisted-classes>  <properties> 	</properties> 	</persistence-unit> ");
 		}

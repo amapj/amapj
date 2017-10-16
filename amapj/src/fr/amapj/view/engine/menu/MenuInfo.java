@@ -50,8 +50,11 @@ import fr.amapj.view.views.maintenance.MaintenanceView;
 import fr.amapj.view.views.mescontrats.MesContratsView;
 import fr.amapj.view.views.meslivraisons.MesLivraisonsView;
 import fr.amapj.view.views.mespaiements.MesPaiementsView;
-import fr.amapj.view.views.mespermanences.PlanningPermanenceView;
 import fr.amapj.view.views.parametres.ParametresView;
+import fr.amapj.view.views.permanence.detailperiode.DetailPeriodePermanenceListPart;
+import fr.amapj.view.views.permanence.mespermanences.MesPermanencesView;
+import fr.amapj.view.views.permanence.periode.PeriodePermanenceListPart;
+import fr.amapj.view.views.permanence.permanencerole.PermanenceRoleListPart;
 import fr.amapj.view.views.producteur.basicform.ProducteurListPart;
 import fr.amapj.view.views.producteur.contrats.ProducteurContratListPart;
 import fr.amapj.view.views.producteur.livraison.ProducteurLivraisonsView;
@@ -95,7 +98,7 @@ public class MenuInfo
 		menus.add(new MenuDescription(MenuList.MON_COMPTE,  MonCompteView.class));
 		menus.add(new MenuDescription(MenuList.LISTE_PRODUCTEUR_REFERENT,  ListeProducteurReferentView.class));
 		menus.add(new MenuDescription(MenuList.LISTE_ADHERENTS,  ListeAdherentsView.class));
-		menus.add(new MenuDescription(MenuList.PLANNING_DISTRIBUTION,  PlanningPermanenceView.class , RoleList.ADHERENT , ModuleList.PLANNING_DISTRIBUTION));
+		menus.add(new MenuDescription(MenuList.MES_PERMANENCES,  MesPermanencesView.class , RoleList.ADHERENT , ModuleList.PLANNING_DISTRIBUTION));
 		
 		
 		// Partie historique
@@ -112,10 +115,14 @@ public class MenuInfo
 		menus.add(new MenuDescription(MenuList.RECEPTION_CHEQUES, ReceptionChequeListPart.class, RoleList.REFERENT));
 		menus.add(new MenuDescription(MenuList.REMISE_PRODUCTEUR, RemiseProducteurListPart.class, RoleList.REFERENT));
 		menus.add(new MenuDescription(MenuList.PRODUIT, ProduitListPart.class , RoleList.REFERENT));
-		menus.add(new MenuDescription(MenuList.SAISIE_PLANNING_DISTRIBUTION, SaisiePermanenceListPart.class , RoleList.REFERENT , ModuleList.PLANNING_DISTRIBUTION ));
+		// menus.add(new MenuDescription(MenuList.SAISIE_PLANNING_DISTRIBUTION, SaisiePermanenceListPart.class , RoleList.REFERENT , ModuleList.PLANNING_DISTRIBUTION ));
 		menus.add(new MenuDescription(MenuList.CONTRATS_AMAPIEN,  ContratsAmapienListPart.class , RoleList.REFERENT ));
 		menus.add(new MenuDescription(MenuList.LIVRAISON_AMAPIEN,  LivraisonAmapienView.class , RoleList.REFERENT ));
 		
+		// Partie permanence
+		menus.add(new MenuDescription(MenuList.PERIODE_PERMANENCE, PeriodePermanenceListPart.class , RoleList.REFERENT , ModuleList.PLANNING_DISTRIBUTION ).setCategorie("PERMANENCES"));
+		menus.add(new MenuDescription(MenuList.DETAIL_PERIODE_PERMANENCE, DetailPeriodePermanenceListPart.class , RoleList.REFERENT , ModuleList.PLANNING_DISTRIBUTION ));
+		menus.add(new MenuDescription(MenuList.ROLE_PERMANENCE, PermanenceRoleListPart.class , RoleList.REFERENT , ModuleList.PLANNING_DISTRIBUTION ));
 		
 		// Partie tésorier
 		menus.add(new MenuDescription(MenuList.UTILISATEUR, UtilisateurListPart.class, RoleList.TRESORIER ).setCategorie("TRESORIER"));

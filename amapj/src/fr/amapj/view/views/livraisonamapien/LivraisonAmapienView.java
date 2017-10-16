@@ -32,6 +32,7 @@ import fr.amapj.service.services.meslivraisons.MesLivraisonsDTO;
 import fr.amapj.service.services.meslivraisons.MesLivraisonsService;
 import fr.amapj.service.services.meslivraisons.ProducteurLivraisonsDTO;
 import fr.amapj.service.services.meslivraisons.QteProdDTO;
+import fr.amapj.service.services.meslivraisons.JourLivraisonsDTO.InfoPermanence;
 import fr.amapj.service.services.session.SessionManager;
 import fr.amapj.view.engine.excelgenerator.LinkCreator;
 import fr.amapj.view.engine.popup.PopupListener;
@@ -131,13 +132,16 @@ public class LivraisonAmapienView extends FrontOfficeView implements PopupListen
 			String dateMessage = df1.format(jour.date);
 			BaseUiTools.addStdLabel(vl, dateMessage, LABEL_DATEJOURLIV);
 			
-			if (jour.distribution!=null)
+			if (jour.permanences!=null)
 			{
-				String msg = "<br/><h2><i><b>"+
-							"Cet amapien est de permanence ce "+df1.format(jour.date)+"</br>"+
-							"Liste des personnes de permanence : "+jour.distribution.getUtilisateurs()+
-							"</i></b></h2>";
-				BaseUiTools.addHtmlLabel(vl, msg, "");
+				for (InfoPermanence info : jour.permanences)
+				{
+					String msg = "<br/><h2><i><b>"+
+								"Cet amapien est de permanence ce "+df1.format(jour.date)+" ("+info.periodePermanenceDTO.nom+")</br>"+
+								"Liste des personnes de permanence : "+info.dateDTO.getNomInscrit()+
+								"</i></b></h2>";
+					BaseUiTools.addHtmlLabel(vl, msg, "");
+				}
 			}
 			
 			

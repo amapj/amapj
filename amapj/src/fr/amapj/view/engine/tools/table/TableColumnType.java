@@ -43,6 +43,9 @@ public enum TableColumnType
 	BUTTON ,
 	
 	// Un lien 
-	LINK
+	LINK , 
+	
+	// Un searcher 
+	SEARCHER 
 	
 } ;

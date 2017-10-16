@@ -37,6 +37,8 @@ public class SearcherList
 	
 	static public SearcherDefinition PERIODE_COTISATION = new SDPeriodeCotisation();
 	
+	static public SearcherDefinition PERIODE_PERMANENCE = new SDPeriodePermanence();
+	
 	static public SearcherDefinition ETIQUETTE = new SDEditionSpe(TypEditionSpecifique.ETIQUETTE_PRODUCTEUR);
 	
 	static public SearcherDefinition ENGAGEMENT = new SDEditionSpe(TypEditionSpecifique.CONTRAT_ENGAGEMENT);
@@ -57,5 +59,9 @@ public class SearcherList
 	static public SearcherDefinition UTILISATEUR_ACTIF = new SDUtilisateur();
 	
 	static public SearcherDefinition UTILISATEUR_TOUS = new SDUtilisateurTous();
+	
+	static public SearcherDefinition PERIODE_PERMANENCE_ROLE = new SDPeriodePermanenceRole();
+	
+	
 		
 }

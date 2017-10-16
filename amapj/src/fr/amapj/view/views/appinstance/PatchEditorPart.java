@@ -67,12 +67,12 @@ public class PatchEditorPart extends WizardFormPopup
 		setStepTitle("les informations générales");
 		
 		// Champ 1
-		addLabel("Vous allez appliquer sur toutes les bases le patch V019. Cliquer sur OK pour Suivant pour continuer ...", ContentMode.HTML);
+		addLabel("Vous allez appliquer sur toutes les bases le patch V020. Cliquer sur OK pour Suivant pour continuer ...", ContentMode.HTML);
 	}
 	
 	private void addResultat()
 	{
-		String resultat = new MaintenanceService().applyPatchV019();
+		String resultat = new MaintenanceService().applyPatchV020();
 		
 		// Titre
 		setStepTitle("le résultat");

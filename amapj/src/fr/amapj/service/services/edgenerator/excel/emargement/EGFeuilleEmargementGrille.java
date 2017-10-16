@@ -38,8 +38,8 @@ import fr.amapj.model.models.fichierbase.Produit;
 import fr.amapj.model.models.fichierbase.Utilisateur;
 import fr.amapj.service.engine.generator.excel.ExcelGeneratorTool;
 import fr.amapj.service.services.edgenerator.excel.emargement.EGFeuilleEmargement.LibInfo;
-import fr.amapj.service.services.saisiepermanence.PermanenceDTO;
-import fr.amapj.service.services.saisiepermanence.PermanenceService;
+import fr.amapj.service.services.permanence.periode.PeriodePermanenceDateDTO;
+import fr.amapj.service.services.permanence.periode.PeriodePermanenceService;
 
 
 /**
@@ -297,7 +297,7 @@ public class EGFeuilleEmargementGrille
 		Entete entete = new Entete();
 		
 		// Recherche des distributions dans ce mois
-		List<PermanenceDTO> permanenceDTOs = getPermanence(em,libInfo);
+		List<PeriodePermanenceDateDTO> permanenceDTOs = getPermanence(em,libInfo);
 		
 		// On recherche toutes les dates de livraisons sur ce mois, ordonnées par ordre croissant
 		List<Date> dateLivs = getDateLivs(em,libInfo);
@@ -312,9 +312,9 @@ public class EGFeuilleEmargementGrille
 		return entete;
 	}
 	
-	private List<PermanenceDTO> getPermanence(EntityManager em,LibInfo libInfo)
+	private List<PeriodePermanenceDateDTO> getPermanence(EntityManager em,LibInfo libInfo)
 	{
-		return new PermanenceService().getAllDistributions(em, libInfo.debut, libInfo.fin);
+		return new PeriodePermanenceService().getAllDistributionsActif(em, libInfo.debut, libInfo.fin);
 	}
 	
 	
@@ -329,7 +329,7 @@ public class EGFeuilleEmargementGrille
 		return us;
 	}
 	
-	private void findProduits(EntityManager em, Entete entete, Date dateLiv, FeuilleEmargementJson planningJson, List<PermanenceDTO> permanenceDTOs)
+	private void findProduits(EntityManager em, Entete entete, Date dateLiv, FeuilleEmargementJson planningJson, List<PeriodePermanenceDateDTO> permanenceDTOs)
 	{
 		List<ProduitColonne> cols = computeProdCol(em,dateLiv,planningJson);
 		
@@ -419,13 +419,13 @@ public class EGFeuilleEmargementGrille
 	 * @param dateLiv
 	 * @return
 	 */
-	private String findPermanence(List<PermanenceDTO> permanenceDTOs, Date dateLiv)
+	private String findPermanence(List<PeriodePermanenceDateDTO> permanenceDTOs, Date dateLiv)
 	{
-		for (PermanenceDTO permanenceDTO : permanenceDTOs)
+		for (PeriodePermanenceDateDTO permanenceDTO : permanenceDTOs)
 		{
-			if (permanenceDTO.datePermanence.equals(dateLiv))
+			if (permanenceDTO.datePerm.equals(dateLiv))
 			{
-				return permanenceDTO.getUtilisateurs("\n");
+				return permanenceDTO.getNomInscrit("\n");
 			}
 		}
 		

@@ -321,7 +321,7 @@ public class GestionContratSigneService
 
 		List<Utilisateur> utilisateurs = q.getResultList();
 
-		buf.append(getUtilisateurImpactes(utilisateurs));
+		buf.append(UtilisateurUtil.getUtilisateurImpactes(utilisateurs));
 		return buf.toString();
 
 	}
@@ -434,7 +434,7 @@ public class GestionContratSigneService
 		q.setParameter("mcd", mcd);
 		List<Utilisateur> utilisateurs = q.getResultList();
 
-		return getUtilisateurImpactes(utilisateurs);
+		return UtilisateurUtil.getUtilisateurImpactes(utilisateurs);
 	}
 
 	// Modification d'un prix de produit
@@ -486,7 +486,7 @@ public class GestionContratSigneService
 		q.setParameter("mcps", mcps);
 		List<Utilisateur> utilisateurs = q.getResultList();
 
-		buf.append(getUtilisateurImpactes(utilisateurs));
+		buf.append(UtilisateurUtil.getUtilisateurImpactes(utilisateurs));
 		return buf.toString();
 
 	}
@@ -584,7 +584,7 @@ public class GestionContratSigneService
 		q.setParameter("ps", modeleContratProduitsToSuppress);
 		List<Utilisateur> utilisateurs = q.getResultList();
 
-		buf.append(getUtilisateurImpactes(utilisateurs));
+		buf.append(UtilisateurUtil.getUtilisateurImpactes(utilisateurs));
 		return buf.toString();
 	}
 
@@ -640,43 +640,6 @@ public class GestionContratSigneService
 		}
 	}
 
-	// Méthodes utilitaires sur les modifications en masse
-
-	/**
-	 * Retourne la liste des utilisateurs impactés sous un format facilement
-	 * utilisable
-	 */
-	private String getUtilisateurImpactes(List<Utilisateur> utilisateurs)
-	{
-		StringBuffer buf = new StringBuffer();
-		if (utilisateurs.size() == 0)
-		{
-			buf.append("Aucun utilisateur n'est impacté par cette modification.<br/>");
-			return buf.toString();
-		}
-
-		buf.append("Les " + utilisateurs.size() + " utilisateurs suivants sont impactés par cette modification :<br/>");
-		for (Utilisateur utilisateur : utilisateurs)
-		{
-			String warning = "";
-			if (UtilisateurUtil.canSendMailTo(utilisateur) == false)
-			{
-				warning = "<b>Utilisateur sans e mail !</b>";
-			}
-			buf.append(" - " + utilisateur.getNom() + " " + utilisateur.getPrenom() + warning + "<br/>");
-		}
-		buf.append("<br/>");
-
-		buf.append("Liste des adresses e-mail :<br/>");
-		for (Utilisateur utilisateur : utilisateurs)
-		{
-			if (UtilisateurUtil.canSendMailTo(utilisateur))
-			{
-				buf.append(utilisateur.getEmail() + ";");
-			}
-		}
-		return buf.toString();
-	}
 
 	// REQUETAGE DIVERS
 

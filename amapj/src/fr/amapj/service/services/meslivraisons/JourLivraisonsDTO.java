@@ -25,7 +25,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import fr.amapj.service.services.saisiepermanence.PermanenceDTO;
+import fr.amapj.service.services.permanence.periode.PeriodePermanenceDateDTO;
+import fr.amapj.service.services.permanence.periode.SmallPeriodePermanenceDTO;
 
 /**
  * Informations sur les contrats d'un utilisateur
@@ -37,7 +38,16 @@ public class JourLivraisonsDTO
 	
 	public List<ProducteurLivraisonsDTO> producteurs = new ArrayList<ProducteurLivraisonsDTO>();
 	
-	// Si non null : indique que l'utilisateur doit réaliser la distribution 	
-	public PermanenceDTO distribution;
+	// Si non null : indique que l'utilisateur doit réaliser une ou plusieurs permanences 	
+	public List<InfoPermanence> permanences;
 
+	
+	
+	static public class InfoPermanence
+	{
+		public PeriodePermanenceDateDTO dateDTO;
+		
+		public SmallPeriodePermanenceDTO periodePermanenceDTO;
+	}
+	
 }

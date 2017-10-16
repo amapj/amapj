@@ -63,7 +63,7 @@ public class AppInstanceListPart extends StandardListPart<AppInstanceDTO> implem
 		addButton("Requete SQL", ButtonType.EDIT_MODE, ()->handleSql());
 		addButton("Sauvegarder", ButtonType.EDIT_MODE, ()->handleSave());
 		addButton("Supprimer", ButtonType.EDIT_MODE, ()->handleSupprimer());
-		addButton("PATCH V019", ButtonType.ALWAYS, ()->handlePatchV019());
+		addButton("PATCH V020", ButtonType.ALWAYS, ()->handlePatchV020());
 		addButton("Autre ...", ButtonType.ALWAYS, ()->handleAutre());
 
 		addSearchField("Rechercher par nom");
@@ -108,7 +108,7 @@ public class AppInstanceListPart extends StandardListPart<AppInstanceDTO> implem
 	}
 	
 	
-	private void handlePatchV019()
+	private void handlePatchV020()
 	{
 		PatchEditorPart.open(new PatchEditorPart(), this);
 	}

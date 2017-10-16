@@ -176,7 +176,7 @@ public class DbUtil
 		
 		
 		
-		DecimalFormat df = new DecimalFormat("00");
+		DecimalFormat df = new DecimalFormat("000");
 		int puNumber = entityManagerFactorys.size();
 		String puName = "pu"+df.format(puNumber);
 	

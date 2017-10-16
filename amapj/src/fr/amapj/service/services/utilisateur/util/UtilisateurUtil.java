@@ -108,6 +108,43 @@ public class UtilisateurUtil
 		return str.toString();
 	}
 	
-	
+	// Méthodes utilitaires sur les modifications en masse
+
+	/**
+	 * Retourne la liste des utilisateurs impactés sous un format facilement
+	 * utilisable
+	 */
+	static public String getUtilisateurImpactes(List<Utilisateur> utilisateurs)
+	{
+		StringBuffer buf = new StringBuffer();
+		if (utilisateurs.size() == 0)
+		{
+			buf.append("Aucun utilisateur n'est impacté par cette modification.<br/>");
+			return buf.toString();
+		}
+
+		buf.append("Les " + utilisateurs.size() + " utilisateurs suivants sont impactés par cette modification :<br/>");
+		for (Utilisateur utilisateur : utilisateurs)
+		{
+			String warning = "";
+			if (UtilisateurUtil.canSendMailTo(utilisateur) == false)
+			{
+				warning = "<b>Utilisateur sans e mail !</b>";
+			}
+			buf.append(" - " + utilisateur.getNom() + " " + utilisateur.getPrenom() + warning + "<br/>");
+		}
+		buf.append("<br/>");
+
+		buf.append("Liste des adresses e-mail :<br/>");
+		for (Utilisateur utilisateur : utilisateurs)
+		{
+			if (UtilisateurUtil.canSendMailTo(utilisateur))
+			{
+				buf.append(utilisateur.getEmail() + ";");
+			}
+		}
+		return buf.toString();
+	}
+
 
 }

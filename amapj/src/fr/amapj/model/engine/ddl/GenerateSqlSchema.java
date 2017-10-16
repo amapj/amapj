@@ -69,7 +69,7 @@ public class GenerateSqlSchema
 		
 	
 		
-		EntityManager em = Persistence.createEntityManagerFactory("pu00",mp).createEntityManager();
+		EntityManager em = Persistence.createEntityManagerFactory("pu000",mp).createEntityManager();
 
 		em.getTransaction().begin();
 		em.getTransaction().commit();

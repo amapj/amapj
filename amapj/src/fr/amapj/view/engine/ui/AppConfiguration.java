@@ -89,7 +89,10 @@ public class AppConfiguration
 	private String contextPath;
 	
 	// Inqiue si il est possible de modifier l'heure courante 
-	private boolean allowTimeControl = true;
+	private boolean allowTimeControl = false;
+	
+	// Indique que les mails ne sont pas envoyés mais uniquement stockés en mémoire pour debug  
+	private boolean allowMailControl = false;
 	
 
 	//
@@ -119,6 +122,10 @@ public class AppConfiguration
 		
 		//
 		allowTimeControl = (param.read("allowTimeControl", "FALSE")).equalsIgnoreCase("TRUE");
+		
+		//
+		allowMailControl = (param.read("allowMailControl", "FALSE")).equalsIgnoreCase("TRUE");
+
 		
 		// Lecture des DBMS
 		String dbmsList =  param.read("dbms");
@@ -211,6 +218,13 @@ public class AppConfiguration
 	{
 		return allowTimeControl;
 	}
+	
+
+	public boolean isAllowMailControl()
+	{
+		return allowMailControl;
+	}
+
 
 	public String getBackupCommand()
 	{
@@ -303,15 +317,17 @@ public class AppConfiguration
 
 		Properties prop = new Properties();
 		
-		// On met volontairement he et non hi pour pouvoir faire fonctionner en mode developpement apres une erreur sur les tests unitaires 
-		prop.put("dbms", "he");
-		prop.put("dbms.he.type", "hsql_internal");
-		prop.put("dbms.he.port", "9500");
-		prop.put("dbms.he.dir", "c:/prive/dev/amapj/git/amapj-dev/tests-units/db/data");
+		//  
+		prop.put("dbms", "hi");
+		prop.put("dbms.hi.type", "hsql_internal");
+		prop.put("dbms.hi.port", "9500");
+		prop.put("dbms.hi.dir", "c:/prive/dev/amapj/git/amapj-dev/tests-units/db/data");
 		
 		 
-		prop.put("master.dbms","he");
-		prop.put("master.name","master"); 
+		prop.put("master.dbms","hi");
+		prop.put("master.name","master");
+		
+		prop.put("allowMailControl","true");
 		
 		prop.put("logDir","../../logs/");
 		

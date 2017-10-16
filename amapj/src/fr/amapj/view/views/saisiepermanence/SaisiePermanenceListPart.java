@@ -65,7 +65,6 @@ public class SaisiePermanenceListPart extends StandardListPart<PermanenceDTO> im
 		addButton("Modifier",ButtonType.EDIT_MODE,()->handleEditer());
 		addButton("Supprimer",ButtonType.EDIT_MODE,()->handleSupprimer());
 		addButton("Planifier",ButtonType.ALWAYS,()->handlePlanification());
-		addButton("Envoyer le planning à tous",ButtonType.ALWAYS,()->handleRappel());
 		addButton("Supprimer plusieurs permanences",ButtonType.ALWAYS,()->handleDeleteList());
 		
 		addSearchField("Rechercher par nom");
@@ -76,7 +75,7 @@ public class SaisiePermanenceListPart extends StandardListPart<PermanenceDTO> im
 	@Override
 	protected void addExtraComponent() 
 	{
-		addComponent(LinkCreator.createLink(new EGPlanningPermanence(DateUtils.getDate())));
+		// addComponent(LinkCreator.createLink(new EGPlanningPermanence(DateUtils.getDate())));
 	}
 	
 
@@ -118,10 +117,6 @@ public class SaisiePermanenceListPart extends StandardListPart<PermanenceDTO> im
 		PopupPlanificationPermanence.open(new PopupPlanificationPermanence(),this);		
 	}
 	
-	private void handleRappel()
-	{
-		PopupRappelPermanence.open(new PopupRappelPermanence(),this);		
-	}
 	
 	
 

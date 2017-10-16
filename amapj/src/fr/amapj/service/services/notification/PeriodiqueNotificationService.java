@@ -180,16 +180,14 @@ public class PeriodiqueNotificationService
 	{
 		// On mémorise dans la base de données que l'on va envoyer le message
 		NotificationDone notificationDone = new NotificationDone();
-		notificationDone.setTypNotificationDone(TypNotificationDone.MAIL_PERIODIQUE);
-		notificationDone.setDateMailPeriodique(d);
-		notificationDone.setUtilisateur(em.find(Utilisateur.class, utilisateurId));
-		notificationDone.setDateEnvoi(DateUtils.getDate());
+		notificationDone.typNotificationDone = TypNotificationDone.MAIL_PERIODIQUE;
+		notificationDone.dateMailPeriodique = d;
+		notificationDone.utilisateur = em.find(Utilisateur.class, utilisateurId);
+		notificationDone.dateEnvoi = DateUtils.getDate();
 		em.persist(notificationDone);
 		
 		// On envoie le message
 		new MailerService().sendHtmlMail(message);
-		//System.out.println("titre="+message.getTitle()+" email="+message.getEmail());
-		//System.out.println("content="+message.getContent());
 	}
 
 

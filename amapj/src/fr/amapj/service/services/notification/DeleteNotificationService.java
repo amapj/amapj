@@ -28,6 +28,7 @@ import javax.persistence.Query;
 import fr.amapj.model.models.contrat.modele.ModeleContrat;
 import fr.amapj.model.models.distribution.DatePermanenceUtilisateur;
 import fr.amapj.model.models.fichierbase.Utilisateur;
+import fr.amapj.model.models.permanence.reel.PermanenceCell;
 import fr.amapj.model.models.stats.NotificationDone;
 
 /**
@@ -49,25 +50,6 @@ public class DeleteNotificationService
 		q.setParameter("mc",mc);
 		
 		List<NotificationDone>  notifs = q.getResultList();
-		
-		for (NotificationDone notif : notifs)
-		{
-			em.remove(notif);
-		}
-	}
-	
-	
-	
-	
-	/**
-	 * Methode utilitaire permettant de supprimer toutes les notifications faites sur une permanence utilisateur 
-	 * 
-	 */
-	public void deleteAllNotificationDoneDatePermanenceUtilisateur(EntityManager em, DatePermanenceUtilisateur du)
-	{
-		Query q = em.createQuery("select n from NotificationDone n WHERE n.datePermanenceUtilisateur=:du");
-		q.setParameter("du",du);
-		List<NotificationDone> notifs =  q.getResultList();
 		
 		for (NotificationDone notif : notifs)
 		{

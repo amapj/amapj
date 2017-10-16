@@ -23,10 +23,12 @@
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;import org.apache.logging.log4j.Logger;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import fr.amapj.common.DateUtils;
 import fr.amapj.model.engine.tools.TestTools;
@@ -34,17 +36,17 @@ import fr.amapj.model.engine.transaction.Call;
 import fr.amapj.model.engine.transaction.DbRead;
 import fr.amapj.model.engine.transaction.NewTransaction;
 import fr.amapj.model.engine.transaction.TransactionHelper;
-import fr.amapj.model.models.distribution.DatePermanenceUtilisateur;
 import fr.amapj.model.models.fichierbase.Utilisateur;
 import fr.amapj.model.models.param.ChoixOuiNon;
-import fr.amapj.model.models.stats.NotificationDone;
-import fr.amapj.model.models.stats.TypNotificationDone;
+import fr.amapj.model.models.permanence.periode.EtatPeriodePermanence;
+import fr.amapj.model.models.permanence.reel.PermanenceCell;
 import fr.amapj.service.services.mailer.MailerMessage;
 import fr.amapj.service.services.mailer.MailerService;
 import fr.amapj.service.services.parametres.ParametresDTO;
 import fr.amapj.service.services.parametres.ParametresService;
-import fr.amapj.service.services.saisiepermanence.PermanenceDTO;
-import fr.amapj.service.services.saisiepermanence.PermanenceService;
+import fr.amapj.service.services.permanence.detailperiode.DetailPeriodePermanenceService;
+import fr.amapj.service.services.permanence.periode.PeriodePermanenceDateDTO;
+import fr.amapj.service.services.permanence.periode.PeriodePermanenceService;
 import fr.amapj.service.services.utilisateur.util.UtilisateurUtil;
 
 /**
@@ -76,11 +78,12 @@ public class PermanenceNotificationService
 		
 		// On recherche toutes les dates de permanence dans les x jours qui viennent
 		// et qui n'ont pas encore été notifiées
-		Query q = em.createQuery("select dpu from DatePermanenceUtilisateur dpu where "
-					+ " dpu.datePermanence.datePermanence>=:d1 and "
-					+ " dpu.datePermanence.datePermanence<=:d2 and "
-					+ " NOT EXISTS (select d from NotificationDone d where d.typNotificationDone=:typNotif and d.datePermanenceUtilisateur=dpu) "
-					+ " order by dpu.utilisateur.nom,dpu.utilisateur.prenom");
+		Query q = em.createQuery("select pc from PermanenceCell pc where "
+					+ " pc.periodePermanenceDate.periodePermanence.etat=:etat and " 
+					+ " pc.periodePermanenceDate.datePerm>=:d1 and "
+					+ " pc.periodePermanenceDate.datePerm<=:d2 and "
+					+ " pc.dateNotification is null "
+					+ " order by pc.periodePermanenceUtilisateur.utilisateur.nom,pc.periodePermanenceUtilisateur.utilisateur.prenom");
 		
 		Date d1 = DateUtils.getDate();
 		Date d2 = DateUtils.addDays(d1, param.delaiMailRappelPermanence);
@@ -88,17 +91,22 @@ public class PermanenceNotificationService
 		// Un delta de 4 heures est retirée à d2 pour que le mail parte vers 4h du matin
 		d2 = DateUtils.addHour(d2, -4);
 		
+		q.setParameter("etat", EtatPeriodePermanence.ACTIF);
 		q.setParameter("d1", d1);
 		q.setParameter("d2", d2);
-		q.setParameter("typNotif", TypNotificationDone.RAPPEL_PERMANENCE);
 		
 		
-		List<DatePermanenceUtilisateur> dpus = q.getResultList();
-		for (DatePermanenceUtilisateur dpu : dpus)
+		List<PermanenceCell> pcs = q.getResultList();
+		for (PermanenceCell pc : pcs)
 		{
-			if (UtilisateurUtil.canSendMailTo(dpu.getUtilisateur()))
+			Utilisateur utilisateur = pc.periodePermanenceUtilisateur.utilisateur;
+			if (UtilisateurUtil.canSendMailTo(utilisateur))
 			{
-				sendPermanenceNotification(dpu,em,param);
+				sendPermanenceNotification(pc,em,param);
+			}
+			else
+			{
+				memorize(em,pc.id);  
 			}
 		}
 	}
@@ -111,19 +119,21 @@ public class PermanenceNotificationService
 	 * @param u
 	 * @param em
 	 */
-	private void sendPermanenceNotification(DatePermanenceUtilisateur dpu, EntityManager em,ParametresDTO param)
+	private void sendPermanenceNotification(PermanenceCell pc, EntityManager em,ParametresDTO param)
 	{
 		
 		// Construction du message
 		MailerMessage message  = new MailerMessage();
 		
-		String titre = replaceWithContext(param.titreMailRappelPermanence, dpu, em,dpu.getUtilisateur(),param);
-		String content = replaceWithContext(param.contenuMailRappelPermanence, dpu, em,dpu.getUtilisateur(),param);
+		Utilisateur utilisateur = pc.periodePermanenceUtilisateur.utilisateur;
+		
+		String titre = replaceWithContext(param.titreMailRappelPermanence, pc, em,utilisateur,param);
+		String content = replaceWithContext(param.contenuMailRappelPermanence, pc, em,utilisateur,param);
 		
 		message.setTitle(titre);
 		message.setContent(content);
-		message.setEmail(dpu.getUtilisateur().getEmail());
-		sendMessageAndMemorize(message,dpu.getId(),dpu.getUtilisateur().getId());
+		message.setEmail(utilisateur.getEmail());
+		sendMessageAndMemorize(message,pc.getId());
 		
 	}
 	
@@ -139,53 +149,53 @@ public class PermanenceNotificationService
 	 * @param content
 	 * @param generator
 	 */
-	private void sendMessageAndMemorize(final MailerMessage message, final Long dpuId, final Long utilisateurId)
+	private void sendMessageAndMemorize(final MailerMessage message, final Long idPermanenceCell)
 	{
 		NewTransaction.write(new Call()
 		{
 			@Override
 			public Object executeInNewTransaction(EntityManager em)
 			{
-				sendMessageAndMemorize(em,message,dpuId,utilisateurId);
+				sendMessageAndMemorize(em,message,idPermanenceCell);
 				return null;
 			}
 		});
 		
 	}
 
-	protected void sendMessageAndMemorize(EntityManager em, MailerMessage message, Long dpuId, Long utilisateurId)
+	protected void sendMessageAndMemorize(EntityManager em, MailerMessage message, Long idPermanenceCell)
 	{
 		// On mémorise dans la base de données que l'on va envoyer le message
-		NotificationDone notificationDone = new NotificationDone();
-		notificationDone.setTypNotificationDone(TypNotificationDone.RAPPEL_PERMANENCE);
-		notificationDone.setDatePermanenceUtilisateur(em.find(DatePermanenceUtilisateur.class, dpuId));
-		notificationDone.setUtilisateur(em.find(Utilisateur.class, utilisateurId));
-		notificationDone.setDateEnvoi(DateUtils.getDate());
-		em.persist(notificationDone);
+		memorize(em,idPermanenceCell);
 		
 		// On envoie le message
 		new MailerService().sendHtmlMail(message);
-		//System.out.println("titre="+message.getTitle()+" email="+message.getEmail());
-		//System.out.println("content="+message.getContent());
 	}
 
 
 
 	
-	private String replaceWithContext(String in,DatePermanenceUtilisateur dpu,EntityManager em,Utilisateur u,ParametresDTO param)
+	private void memorize(EntityManager em, Long idPermanenceCell)
+	{
+		PermanenceCell pc = em.find(PermanenceCell.class, idPermanenceCell);
+		pc.dateNotification = DateUtils.getDate();
+	}
+
+
+	private String replaceWithContext(String in,PermanenceCell dpu,EntityManager em,Utilisateur u,ParametresDTO param)
 	{
 		// Calcul du contexte
 		SimpleDateFormat df = new SimpleDateFormat("EEEEE dd MMMMM yyyy");
 		
-		PermanenceDTO permanenceDTO = new PermanenceService().createDistributionDTO(em, dpu.getDatePermanence());
+		PeriodePermanenceDateDTO permanenceDTO = new PeriodePermanenceService().loadOneDatePermanence(dpu.periodePermanenceDate.id);
 		String link = param.getUrl()+"?username="+u.getEmail();
 		
 		in = in.replaceAll("#NOM_AMAP#", param.nomAmap);
 		in = in.replaceAll("#VILLE_AMAP#", param.villeAmap);
 		in = in.replaceAll("#LINK#", link);
 		
-		in = in.replaceAll("#DATE_PERMANENCE#", df.format(dpu.getDatePermanence().getDatePermanence()));
-		in = in.replaceAll("#PERSONNES#", permanenceDTO.getUtilisateurs());
+		in = in.replaceAll("#DATE_PERMANENCE#", df.format(dpu.periodePermanenceDate.datePerm));
+		in = in.replaceAll("#PERSONNES#", permanenceDTO.getNomInscrit());
 		
 		return in;
 		

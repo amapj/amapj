@@ -23,9 +23,10 @@
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.vaadin.data.Container;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.VerticalLayout;
 
@@ -35,7 +36,6 @@ import fr.amapj.view.engine.popup.corepopup.CorePopup;
  * Permet de créer un popup avec une liste de choix, qui ménera ensuite 
  * à un autre popup 
  */
-@SuppressWarnings("serial")
 abstract public class SwitchPopup extends CorePopup
 {	
 	
@@ -46,6 +46,9 @@ abstract public class SwitchPopup extends CorePopup
 	private List<SwitchPopupInfo> infos = new ArrayList<>();
 	
 	protected String line1;
+	
+	// Permet de definir un texte additionnel qui sera affiché en haut 
+	protected String header;
 	
 	
 	static public class SwitchPopupInfo
@@ -68,7 +71,13 @@ abstract public class SwitchPopup extends CorePopup
 		
 		loadFollowingPopups();
 		
+		if (header!=null)
+		{
+			contentLayout.addComponent(new Label(header,ContentMode.HTML));
+		}
+		
 		group = new OptionGroup(line1);
+		group.setHtmlContentAllowed(true);
 		for (SwitchPopupInfo info : infos)
 		{
 			group.addItem(info.lib);
@@ -82,8 +91,21 @@ abstract public class SwitchPopup extends CorePopup
 	
 	protected void addLine(String lib,CorePopup popup)
 	{
-		infos.add(new SwitchPopupInfo(lib,popup));
+		infos.add(new SwitchPopupInfo(SafeHtmlUtils.htmlEscape(lib),popup));
 	}
+	
+	
+	protected void addSeparator()
+	{
+		// On ne fait rien si c'est la première ligne
+		if(infos.size()==0)
+		{
+			return ;
+		}
+		SwitchPopupInfo info = infos.get(infos.size()-1);
+		info.lib = info.lib+"<br/><br/>";
+	}
+	
 	
 
 	protected void createButtonBar()

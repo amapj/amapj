@@ -20,35 +20,18 @@
  */
  package fr.amapj.service.services.saisiepermanence;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.persistence.TemporalType;
 
-import org.apache.commons.lang.time.DateUtils;
-
-import fr.amapj.model.engine.transaction.Call;
 import fr.amapj.model.engine.transaction.DbRead;
 import fr.amapj.model.engine.transaction.DbWrite;
 import fr.amapj.model.engine.transaction.TransactionHelper;
-import fr.amapj.model.engine.transaction.NewTransaction;
 import fr.amapj.model.models.distribution.DatePermanence;
 import fr.amapj.model.models.distribution.DatePermanenceUtilisateur;
 import fr.amapj.model.models.fichierbase.Utilisateur;
-import fr.amapj.model.models.stats.NotificationDone;
-import fr.amapj.service.engine.generator.excel.AbstractExcelGenerator;
-import fr.amapj.service.services.edgenerator.excel.EGPlanningPermanence;
-import fr.amapj.service.services.mailer.MailerAttachement;
-import fr.amapj.service.services.mailer.MailerMessage;
-import fr.amapj.service.services.mailer.MailerService;
-import fr.amapj.service.services.notification.DeleteNotificationService;
-import fr.amapj.service.services.parametres.ParametresDTO;
-import fr.amapj.service.services.parametres.ParametresService;
-import fr.amapj.service.services.session.SessionManager;
 
 /**
  * Permet la saisie des distributions 
@@ -84,7 +67,7 @@ public class PermanenceService
 	}
 
 	
-	public PermanenceDTO createDistributionDTO(EntityManager em, DatePermanence d)
+	private PermanenceDTO createDistributionDTO(EntityManager em, DatePermanence d)
 	{
 		List<PermanenceUtilisateurDTO> idUtilisateurs = new ArrayList<>();
 		
@@ -163,9 +146,6 @@ public class PermanenceService
 	}
 
 	
-	
-
-	
 	// PARTIE SUPPRESSION
 
 	/**
@@ -182,188 +162,11 @@ public class PermanenceService
 		List<DatePermanenceUtilisateur> dus = getAllDateDistriUtilisateur(em,d);
 		for (DatePermanenceUtilisateur du : dus)
 		{
-			new DeleteNotificationService().deleteAllNotificationDoneDatePermanenceUtilisateur(em, du);
+			// new DeleteNotificationService().deleteAllNotificationDoneDatePermanenceUtilisateur(em, du);
 			em.remove(du);
 		}
 		
 		em.remove(d);
 	}
 	
-	
-	// PARTIE VISUALISATION DES DISTRIBUTIONS PAR L'UTILISATEUR FINAL
-
-	/**
-	 * Permet de charger le planning des distributions pour un utilisateur final
-	 */
-	@DbRead
-	public MesPermanencesDTO getMesDistributions(Date d)
-	{
-		EntityManager em = TransactionHelper.getEm();
-
-		MesPermanencesDTO res = new MesPermanencesDTO();
-
-		Utilisateur user = em.find(Utilisateur.class, SessionManager.getUserId());
-
-		res.dateDebut = fr.amapj.common.DateUtils.firstMonday(d);
-		res.dateFin = DateUtils.addDays(res.dateDebut,6);
-		
-		// On récupère ensuite la liste de toutes les distributions dans cet intervalle
-		res.permanencesSemaine = getAllDistributions(em, res.dateDebut,res.dateFin);
-		
-		// On récupère la liste des distributions de cet utilisateur dans le futur
-		res.permanencesFutures = getDistributionsFutures(em, user);
-		
-		return res;
-
-	}
-
-	
-	/**
-	 * 
-	 */
-	private List<PermanenceDTO> getDistributionsFutures(EntityManager em, Utilisateur user )
-	{
-		Date dateDebut = fr.amapj.common.DateUtils.firstMonday(fr.amapj.common.DateUtils.getDate());
-		
-		Query q = em.createQuery("select distinct(du.datePermanence) from DatePermanenceUtilisateur du WHERE " +
-				"du.datePermanence.datePermanence>=:deb and " +
-				"du.utilisateur=:user " +
-				"order by du.datePermanence.datePermanence");
-		q.setParameter("deb", dateDebut, TemporalType.DATE);
-		q.setParameter("user", user);
-		
-		List<DatePermanence> dds = q.getResultList();
-		List<PermanenceDTO> res = new ArrayList<PermanenceDTO>();
-		
-		for (DatePermanence dd : dds)
-		{
-			PermanenceDTO dto = createDistributionDTO(em, dd);
-			res.add(dto);
-		}
-		
-		return res;
-	}
-	
-	
-
-	/**
-	 * 
-	 */
-	public List<PermanenceDTO> getAllDistributions(EntityManager em, Date dateDebut, Date dateFin)
-	{
-		Query q = em.createQuery("select d from DatePermanence d WHERE " +
-				"d.datePermanence>=:deb AND " +
-				"d.datePermanence<=:fin " +
-				"order by d.datePermanence, d.id");
-		q.setParameter("deb", dateDebut, TemporalType.DATE);
-		q.setParameter("fin", dateFin, TemporalType.DATE);
-		
-		List<DatePermanence> dds = q.getResultList();
-		List<PermanenceDTO> res = new ArrayList<PermanenceDTO>();
-		
-		for (DatePermanence dd : dds)
-		{
-			PermanenceDTO dto = createDistributionDTO(em, dd);
-			res.add(dto);
-		}
-		
-		return res;
-	}
-	
-	// PARTIE RAPPEL PAR MAIL
-	
-	/**
-	 * Permet de faire un rappel par mail 
-	 */
-	@DbRead
-	public void performRappel(String texte)
-	{
-		EntityManager em = TransactionHelper.getEm();
-		
-		// Récuperation de tous les utilisateurs ayant une permanence dans le futur
-		List<Utilisateur> utilisateurs = getUtilisateursPermanenceFuture(em);
-		
-		// Calcul du fichier Excel des permanences à venir 
-		AbstractExcelGenerator generator = new EGPlanningPermanence(fr.amapj.common.DateUtils.getDate());
-		MailerAttachement attachement = new MailerAttachement(generator);
-		
-		// Pour chaque utilisateur, envoi de l'email
-		for (Utilisateur utilisateur : utilisateurs)
-		{
-			sendEmail(em,utilisateur,attachement,texte);
-		}
-		
-	}
-
-
-	private List<Utilisateur> getUtilisateursPermanenceFuture(EntityManager em)
-	{
-		// On recherche tous les utilisateurs qui ont une permanence dans le futur
-		Query q = em.createQuery("select distinct(dpu.utilisateur) from DatePermanenceUtilisateur dpu " +
-								"where dpu.datePermanence.datePermanence>=:d1 ");
-		q.setParameter("d1", fr.amapj.common.DateUtils.getDate());
-		
-		
-		List<Utilisateur> us = q.getResultList();
-		return us;
-	}
-
-
-	private void sendEmail(EntityManager em, Utilisateur utilisateur, MailerAttachement attachement, String texte)
-	{
-		ParametresDTO param = new ParametresService().getParametres();
-		
-		//
-		String email=utilisateur.getEmail();
-		
-		String subject = param.nomAmap+" - Planning des permanences";
-		String htmlContent = texte;
-		
-		// Mise en place des <br/>
-		htmlContent = htmlContent.replaceAll("\r\n", "<br/>");
-		htmlContent = htmlContent.replaceAll("\n", "<br/>");
-		htmlContent = htmlContent.replaceAll("\r", "<br/>");
-		
-		
-		// Remplacement des zones de textes
-		String link = "<a href=\""+param.getUrl()+"\">"+param.getUrl()+"</a>";
-		htmlContent = htmlContent.replaceAll("#LINK#", link);
-		
-		String datePermanences = getDatePermanence(em,utilisateur);
-		htmlContent = htmlContent.replaceAll("#DATES#", datePermanences);
-		
-		// Construction du message
-		MailerMessage message  = new MailerMessage();
-		message.setEmail(email);
-		message.setTitle(subject);
-		message.setContent(htmlContent);
-		message.addAttachement(attachement);
-		
-		// Envoi du message
-		new MailerService().sendHtmlMail(message);
-		//System.out.println("titre="+message.getTitle());
-		//System.out.println("email="+message.getEmail());
-		//System.out.println("content="+message.getContent());
-		
-	}
-
-
-	private String getDatePermanence(EntityManager em, Utilisateur utilisateur)
-	{
-		List<PermanenceDTO> permanencesFutures = getDistributionsFutures(em, utilisateur);
-		SimpleDateFormat df = new SimpleDateFormat("EEEEE dd MMMMM yyyy");
-		
-		// Partie haute
-		StringBuffer buf = new StringBuffer();
-		buf.append("<ul>");
-		for (PermanenceDTO distribution : permanencesFutures)
-		{
-			buf.append("<li>"+df.format(distribution.datePermanence)+"</li>");	
-		}
-		buf.append("</ul><br/>");
-		return buf.toString();
-	}
-		
-	
-
 }

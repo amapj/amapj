@@ -80,6 +80,7 @@ public class MaintenanceView extends BackOfficeLongView implements View
 	{
 		boolean adminFull = SessionManager.getSessionParameters().isAdminFull();
 		boolean allowTimeControl = AppConfiguration.getConf().isAllowTimeControl();
+		boolean allowMailControl = AppConfiguration.getConf().isAllowMailControl();
 		
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		
@@ -111,6 +112,15 @@ public class MaintenanceView extends BackOfficeLongView implements View
 		//
 		addLabel(this, "Version de l'application : "+getVersion());
 		addLabel(this, "Nombre d'emails envoyés aujourd'hui : "+MailerCounter.getNbMails());
+		
+		if ( (allowMailControl==true) && (adminFull==true) )
+		{
+			
+			Button b = new Button("Visualiser tous les mails locaux");
+			this.addComponent(b);
+			b.addClickListener(e->controlMail());
+		}
+		
 		
 		
 		Panel backupPanel = new Panel("Sauvegarde de la base et envoi par e mail");
@@ -148,6 +158,13 @@ public class MaintenanceView extends BackOfficeLongView implements View
 	
 	
 	
+	private void controlMail()
+	{
+		PopupMailStorage.open(new PopupMailStorage());
+	}
+
+
+
 	private void controlTime()
 	{
 		String str = textDateHeure.getValue();
@@ -252,6 +269,20 @@ public class MaintenanceView extends BackOfficeLongView implements View
 		});
 		
 		
+		Button b3 = new Button("Appel du garbage collector", new ClickListener()
+		{
+			@Override
+			public void buttonClick(ClickEvent event)
+			{
+				System.gc();
+			}
+		});
+		
+		
+		
+		
+		
+		
 		Button b4 = new Button("Positionner les dates pour la base démo", new ClickListener()
 		{
 			@Override
@@ -265,6 +296,8 @@ public class MaintenanceView extends BackOfficeLongView implements View
 		
 		
 		layout.addComponent(b2);
+		addEmptyLine(layout);
+		layout.addComponent(b3);
 		addEmptyLine(layout);
 		layout.addComponent(b4);
 		addEmptyLine(layout);

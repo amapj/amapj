@@ -24,13 +24,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;import org.apache.logging.log4j.Logger;
-
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import fr.amapj.common.LongUtils;
 import fr.amapj.model.engine.transaction.DbRead;
@@ -39,18 +39,19 @@ import fr.amapj.model.models.acces.RoleList;
 import fr.amapj.model.models.contrat.modele.ModeleContrat;
 import fr.amapj.model.models.contrat.modele.ModeleContratDate;
 import fr.amapj.model.models.contrat.reel.ContratCell;
-import fr.amapj.model.models.distribution.DatePermanence;
-import fr.amapj.model.models.editionspe.AbstractEditionSpeJson;
 import fr.amapj.model.models.editionspe.EditionSpecifique;
 import fr.amapj.model.models.editionspe.TypEditionSpecifique;
 import fr.amapj.model.models.editionspe.emargement.FeuilleEmargementJson;
 import fr.amapj.model.models.editionspe.emargement.TypFeuilleEmargement;
 import fr.amapj.model.models.fichierbase.Producteur;
 import fr.amapj.model.models.fichierbase.Utilisateur;
-import fr.amapj.service.services.access.AccessManagementService;
+import fr.amapj.model.models.permanence.periode.EtatPeriodePermanence;
+import fr.amapj.model.models.permanence.periode.PeriodePermanence;
+import fr.amapj.model.models.permanence.periode.PeriodePermanenceDate;
 import fr.amapj.service.services.edgenerator.excel.emargement.EGFeuilleEmargement;
 import fr.amapj.service.services.editionspe.EditionSpeService;
-import fr.amapj.service.services.saisiepermanence.PermanenceService;
+import fr.amapj.service.services.permanence.periode.PeriodePermanenceDateDTO;
+import fr.amapj.service.services.permanence.periode.PeriodePermanenceService;
 
 /**
  * Permet la gestion des modeles de contrat
@@ -95,10 +96,10 @@ public class MesLivraisonsService
 		}
 		
 		// On récupère ensuite la liste de toutes les permanences de cet utilisateur dans cet intervalle
-		List<DatePermanence> dds = getAllDistributionsForUtilisateur(em, res.dateDebut,res.dateFin,user);
-		for (DatePermanence dd : dds)
+		List<PeriodePermanenceDate> dds = getAllDistributionsForUtilisateur(em, res.dateDebut,res.dateFin,user);
+		for (PeriodePermanenceDate dd : dds)
 		{
-			addDistribution(em,dd,res);
+			addDistribution(em,dd.datePerm,dd.id,res,dd.periodePermanence);
 		}
 		
 		// On récupère ensuite le planning mensuel si il y en a un
@@ -109,26 +110,37 @@ public class MesLivraisonsService
 	}
 	
 
-	private List<DatePermanence> getAllDistributionsForUtilisateur(EntityManager em, Date dateDebut, Date dateFin,Utilisateur utilisateur)
+	private List<PeriodePermanenceDate> getAllDistributionsForUtilisateur(EntityManager em, Date dateDebut, Date dateFin,Utilisateur utilisateur)
 	{
-		Query q = em.createQuery("select distinct(du.datePermanence) from DatePermanenceUtilisateur du WHERE " +
-				"du.datePermanence.datePermanence>=:deb and " +
-				"du.datePermanence.datePermanence<=:fin and " +
-				"du.utilisateur=:user " +
-				"order by du.datePermanence.datePermanence");
+		Query q = em.createQuery("select distinct(du.periodePermanenceDate) from PermanenceCell du WHERE " +
+				"du.periodePermanenceDate.periodePermanence.etat=:etat and " +
+				"du.periodePermanenceDate.datePerm>=:deb and " +
+				"du.periodePermanenceDate.datePerm<=:fin and " +
+				"du.periodePermanenceUtilisateur.utilisateur=:user " +
+				"order by du.periodePermanenceDate.datePerm");
+		
+		q.setParameter("etat", EtatPeriodePermanence.ACTIF);
 		q.setParameter("deb", dateDebut, TemporalType.DATE);
 		q.setParameter("fin", dateFin, TemporalType.DATE);
 		q.setParameter("user", utilisateur);
 		
-		List<DatePermanence> dds = q.getResultList();
+		List<PeriodePermanenceDate> dds = q.getResultList();
 		
 		return dds;
 	}
 	
-	private void addDistribution(EntityManager em,DatePermanence dd, MesLivraisonsDTO res)
+	private void addDistribution(EntityManager em,Date dateLiv,Long idPeriodePermanenceDate, MesLivraisonsDTO res, PeriodePermanence periodePermanence)
 	{
-		JourLivraisonsDTO jour = findJour(dd.getDatePermanence(),res);
-		jour.distribution = new PermanenceService().createDistributionDTO(em, dd);
+		JourLivraisonsDTO jour = findJour(dateLiv,res);
+		if (jour.permanences==null)
+		{
+			jour.permanences = new ArrayList<JourLivraisonsDTO.InfoPermanence>();
+		}
+		
+		JourLivraisonsDTO.InfoPermanence info = new JourLivraisonsDTO.InfoPermanence();
+		info.dateDTO = new PeriodePermanenceService().loadOneDatePermanence(idPeriodePermanenceDate);
+		info.periodePermanenceDTO = new PeriodePermanenceService().createSmallPeriodePermanenceDTO(em, periodePermanence);
+		jour.permanences.add(info);
 	}
 	
 

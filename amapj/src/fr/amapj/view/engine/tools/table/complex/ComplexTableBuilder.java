@@ -29,6 +29,7 @@ import com.vaadin.data.Item;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
@@ -40,10 +41,12 @@ import com.vaadin.ui.TextField;
 import fr.amapj.common.AmapjRuntimeException;
 import fr.amapj.service.engine.generator.CoreGenerator;
 import fr.amapj.view.engine.excelgenerator.LinkCreator;
-import fr.amapj.view.engine.tools.BaseUiTools;
+import fr.amapj.view.engine.searcher.Searcher;
+import fr.amapj.view.engine.searcher.SearcherDefinition;
 import fr.amapj.view.engine.tools.table.TableColumnInfo;
 import fr.amapj.view.engine.tools.table.TableColumnType;
 import fr.amapj.view.engine.widgets.CurrencyTextFieldConverter;
+import fr.amapj.view.engine.widgets.IntegerTextFieldConverter;
 
 /**
  * Outil pour créer les tables specifiques avec saisie dans la table 
@@ -90,72 +93,96 @@ public class ComplexTableBuilder<T>
 	//
 	public void addString(String title, boolean editable,int width,ToValue<T> toVal)
 	{
-		addColumn(title, null, editable,width, TableColumnType.STRING, toVal,null, null);
+		addColumn(title, null, editable,width, TableColumnType.STRING, toVal,null, null, null);
 	}
 	
 	public void addString(String title, String property,boolean editable,int width,ToValue<T> toVal)
 	{
-		addColumn(title, property,editable,width, TableColumnType.STRING, toVal,null, null);
+		addColumn(title, property,editable,width, TableColumnType.STRING, toVal,null, null, null);
+	}
+	
+	//
+	public void addInteger(String title, boolean editable,int width,ToValue<T> toVal)
+	{
+		addColumn(title, null, editable,width, TableColumnType.INTEGER, toVal,null, null, null);
+	}
+	
+	public void addInteger(String title, String property,boolean editable,int width,ToValue<T> toVal)
+	{
+		addColumn(title, property,editable,width, TableColumnType.INTEGER, toVal,null, null, null);
 	}
 	
 	//
 	public void addCurrency(String title, boolean editable,int width,ToValue<T> toVal)
 	{
-		addColumn(title, null, editable,width, TableColumnType.CURRENCY, toVal,null, null);
+		addColumn(title, null, editable,width, TableColumnType.CURRENCY, toVal,null, null, null);
 	}
 	
 	public void addCurrency(String title, String property,boolean editable,int width,ToValue<T> toVal)
 	{
-		addColumn(title, property,editable,width, TableColumnType.CURRENCY, toVal,null, null);
+		addColumn(title, property,editable,width, TableColumnType.CURRENCY, toVal,null, null, null);
 	}
 	
 	//
 	public void addDate(String title, boolean editable,int width,ToValue<T> toVal)
 	{
-		addColumn(title, null, editable,width, TableColumnType.DATE, toVal,null, null);
+		addColumn(title, null, editable,width, TableColumnType.DATE, toVal,null, null, null);
 	}
 	
 	public void addDate(String title, String property,boolean editable,int width,ToValue<T> toVal)
 	{
-		addColumn(title, property,editable,width, TableColumnType.DATE, toVal,null, null);
+		addColumn(title, property,editable,width, TableColumnType.DATE, toVal,null, null, null);
 	}
 	
 	
 	//
 	public void addCheckBox(String title, boolean editable,int width,ToValue<T> toVal,CallBack<T> onClic)
 	{
-		addColumn(title, null,editable,width, TableColumnType.CHECK_BOX, toVal,onClic, null);
+		addColumn(title, null,editable,width, TableColumnType.CHECK_BOX, toVal,onClic, null, null);
 	}
 		
 	public void addCheckBox(String title, String property,boolean editable,int width,ToValue<T> toVal,CallBack<T> onClic)
 	{
-		addColumn(title, property,editable,width, TableColumnType.CHECK_BOX, toVal,onClic, null);
+		addColumn(title, property,editable,width, TableColumnType.CHECK_BOX, toVal,onClic, null, null);
 	}
 	
 	
 	//
 	public void addButton(String title, int width,ToValue<T> toVal,CallBack<T> onClic)
 	{
-		addColumn(title, null,false,width, TableColumnType.BUTTON, toVal,onClic, null);
+		addColumn(title, null,false,width, TableColumnType.BUTTON, toVal,onClic, null, null);
 	}
 		
 	public void addButton(String title, String property,int width,ToValue<T> toVal,CallBack<T> onClic)
 	{
-		addColumn(title, property,false,width, TableColumnType.BUTTON, toVal,onClic, null);
+		addColumn(title, property,false,width, TableColumnType.BUTTON, toVal,onClic, null, null);
 	}
 	
 	
 	public void addLink(String title, int width,ToValue<T> toVal,ToGenerator<T> generator)
 	{
-		addColumn(title, null,false,width, TableColumnType.LINK, toVal,null,generator);
+		addColumn(title, null,false,width, TableColumnType.LINK, toVal,null,generator, null);
+	}
+	
+	
+	//
+	public void addSearcher(String title, boolean editable,int width,ToValue<T> toVal,SearcherDefinition searcher)
+	{
+		addColumn(title, null, editable,width, TableColumnType.SEARCHER, toVal,null, null, searcher);
+	}
+	
+	public void addSearcher(String title, String property,boolean editable,int width,ToValue<T> toVal,SearcherDefinition searcher)
+	{
+		addColumn(title, property,editable,width, TableColumnType.SEARCHER, toVal,null, null, searcher);
 	}
 	
 	
 	
 	
-	private void addColumn(String title, String property,boolean editable, int width,TableColumnType type, ToValue<T> toVal,CallBack<T> onClic, ToGenerator<T> generator)
+	
+	private void addColumn(String title, String property,boolean editable, int width,TableColumnType type, ToValue<T> toVal,CallBack<T> onClic, ToGenerator<T> generator, SearcherDefinition searcher)
 	{
-		cols.add(new TableColumnInfo<T>(title, property,editable,width,type, toVal,onClic,generator));
+		cols.add(new TableColumnInfo<T>(title, property,editable,width,type, toVal,onClic,generator,searcher));
 	}
 	
 	
@@ -228,6 +255,10 @@ public class ComplexTableBuilder<T>
 			
 		case LINK:
 			return Link.class;
+			
+		case SEARCHER:
+			return ComboBox.class;
+			
 
 		default:
 			throw new AmapjRuntimeException();
@@ -267,7 +298,16 @@ public class ComplexTableBuilder<T>
 			return createLabel( df.format( (Date) col.toVal.toValue(bean)),col.width);
 			
 		case INTEGER:
-			return createLabel( Integer.toString( (Integer) col.toVal.toValue(bean)),col.width);
+			Integer cVal = (Integer) col.toVal.toValue(bean);
+			if (col.editable)
+			{
+				return createIntegerEditableField(cVal,col.width);
+			}
+			else
+			{
+				return createLabel( Integer.toString( cVal),col.width);
+			}
+			
 			
 		case CURRENCY:
 			Integer currentVal = (Integer) col.toVal.toValue(bean);
@@ -289,12 +329,46 @@ public class ComplexTableBuilder<T>
 		case LINK:
 			return createLink( col.toVal.toValue(bean).toString(), col.width,col.generator,bean);
 			
+		case SEARCHER:
+			return createSearcher( (Long) col.toVal.toValue(bean), col.searcher , col.editable , col.width,bean);
+
+			
+			
 		default:
 			throw new AmapjRuntimeException();
 		}
 
 	}
 
+	
+	
+	private ComboBox createSearcher(Long value, SearcherDefinition searcher, boolean editable, int width, T bean)
+	{
+		Searcher box =   new Searcher(searcher,null);
+		box.setConvertedValue(value);
+		/**if (s.params!=null)
+		{
+			box.setParams(s.params);
+		}
+		if (s.linkedSearcher!=null)
+		{
+			box.setLinkedSearcher(s.linkedSearcher);
+		}
+		box.addStyleName("searcher");*/
+		return box;
+	}
+
+	private TextField createIntegerEditableField(Integer currentVal,int taille)
+	{
+		TextField tf = new TextField();
+		tf.addStyleName("align-center");
+		tf.setConverter(new IntegerTextFieldConverter());
+		tf.setConvertedValue(currentVal);
+		tf.setNullRepresentation("");
+		tf.setWidth(taille+"px");
+		tf.setImmediate(true);
+		return tf;
+	}
 
 	private TextField createCurrencyEditableField(Integer currentVal,int taille)
 	{
@@ -426,6 +500,19 @@ public class ComplexTableBuilder<T>
 		this.pageLength = pageLength;
 	}
 	
-
+	/**
+	 * @return la ligne sélectionnée, retourne null si aucune ligne selectionnée 
+	 */
+	public T getSelectedLine()
+	{
+		Integer index = (Integer) t.getValue();
+		if (index==null)
+		{
+			return null;
+		}
+		
+		T dto = beans.get(index); 
+		return dto;
+	}
 
 }

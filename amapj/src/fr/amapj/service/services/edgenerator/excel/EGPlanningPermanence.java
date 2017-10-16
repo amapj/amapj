@@ -22,18 +22,20 @@
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import fr.amapj.common.CollectionUtils;
 import fr.amapj.common.DateUtils;
+import fr.amapj.model.models.permanence.periode.PeriodePermanence;
 import fr.amapj.service.engine.generator.excel.AbstractExcelGenerator;
 import fr.amapj.service.engine.generator.excel.ExcelFormat;
 import fr.amapj.service.engine.generator.excel.ExcelGeneratorTool;
-import fr.amapj.service.services.saisiepermanence.PermanenceDTO;
-import fr.amapj.service.services.saisiepermanence.PermanenceService;
+import fr.amapj.service.services.permanence.periode.PeriodePermanenceDTO;
+import fr.amapj.service.services.permanence.periode.PeriodePermanenceDateDTO;
+import fr.amapj.service.services.permanence.periode.PeriodePermanenceService;
 
 
 /**
@@ -44,20 +46,25 @@ import fr.amapj.service.services.saisiepermanence.PermanenceService;
  */
 public class EGPlanningPermanence extends AbstractExcelGenerator
 {
+	private Long idPeriodePermanence;
 	
-	Date startDate;
+	// Date de départ - toutes les dates avant cette date là ne seront pas dans le fichier généré  
+	// Cette date peut être nulle, dans ce cas pas de filtre 
+	private Date startingDate;
 	
-	public EGPlanningPermanence(Date startDate)
+	public EGPlanningPermanence(Long idPeriodePermanence,Date startingDate)
 	{
-		this.startDate = startDate;
+		this.idPeriodePermanence = idPeriodePermanence;
+		this.startingDate = startingDate;
 	}
 	
 	@Override
 	public void fillExcelFile(EntityManager em,ExcelGeneratorTool et)
 	{
-		List<PermanenceDTO> distributionDTOs = new PermanenceService().getAllDistributions();
+		PeriodePermanenceDTO dto = new PeriodePermanenceService().loadPeriodePermanenceDTO(idPeriodePermanence);
 		SimpleDateFormat df = new SimpleDateFormat("EEEEE dd MMMMM yyyy");
 
+		
 		
 		// Il y a systèmatiquement 8 colonnes
 		et.addSheet("Planning des permanences", 8, 28);
@@ -66,52 +73,37 @@ public class EGPlanningPermanence extends AbstractExcelGenerator
 		et.setColumnWidth(4, 2);
 	
 				
-		et.addRow("Planning de distribution",et.grasGaucheNonWrappe);
+		et.addRow("Planning des permanences",et.grasGaucheNonWrappe);
+		et.addRow(dto.nom,et.grasGaucheNonWrappe);
 		et.addRow("",et.grasGaucheNonWrappe);
 		
-		List<List<PermanenceDTO>> lines = cutInThree(distributionDTOs);
+		
+		List<PeriodePermanenceDateDTO> datesToProcess = dto.datePerms;
+		if (startingDate!=null)
+		{
+			startingDate = DateUtils.suppressTime(startingDate);
+			datesToProcess = CollectionUtils.filter(datesToProcess,e->( e.datePerm.after(startingDate) || e.datePerm.equals(startingDate) ));
+		}
+		
+		List<List<PeriodePermanenceDateDTO>> lines = CollectionUtils.cutInSubList(datesToProcess, 3);
 		
 		
-		for (List<PermanenceDTO> line : lines)
+		for (List<PeriodePermanenceDateDTO> line : lines)
 		{
 			processOneLine(line,et,df);
 		}	
-
 	}
+	
 
-	private List<List<PermanenceDTO>> cutInThree(List<PermanenceDTO> distributionDTOs)
-	{
-		List<List<PermanenceDTO>> res = new ArrayList<>();
-		
-		List<PermanenceDTO> tmp = new ArrayList<>();
-		int size = distributionDTOs.size();
-		for (int i = 0; i < size; i++)
-		{
-			if ( (i!=0) && ((i%3)==0) )
-			{
-				res.add(tmp);
-				tmp = new ArrayList<>();
-			}
-			tmp.add(distributionDTOs.get(i));
-		}
-		
-		if (tmp.size()!=0)
-		{
-			res.add(tmp);
-		}
-		
-		return res;
-	}
-
-	private void processOneLine(List<PermanenceDTO> line, ExcelGeneratorTool et,SimpleDateFormat df)
+	private void processOneLine(List<PeriodePermanenceDateDTO> line, ExcelGeneratorTool et,SimpleDateFormat df)
 	{
 	
 		// Ligne de titre
 		et.addRow();
 		int index =1;
-		for (PermanenceDTO distributionDTO : line)
+		for (PeriodePermanenceDateDTO distributionDTO : line)
 		{
-			et.setCell(index, df.format(distributionDTO.datePermanence), et.grasCentreBordure);
+			et.setCell(index, df.format(distributionDTO.datePerm), et.grasCentreBordure);
 			index = index +2;
 		}
 		
@@ -119,12 +111,12 @@ public class EGPlanningPermanence extends AbstractExcelGenerator
 		et.addRow();
 		index =1;
 		int maxLine = 1;
-		for (PermanenceDTO distributionDTO : line)
+		for (PeriodePermanenceDateDTO distributionDTO : line)
 		{
-			String str = distributionDTO.getUtilisateurs("\n");
+			String str = distributionDTO.getNomInscrit("\n");
 			et.setCell(index, str, et.grasCentreBordure);
 			
-			maxLine = Math.max(maxLine, distributionDTO.permanenceUtilisateurs.size());
+			maxLine = Math.max(maxLine, distributionDTO.getNbInscrit());
 			
 			index = index +2;
 		}
@@ -135,17 +127,18 @@ public class EGPlanningPermanence extends AbstractExcelGenerator
 	}
 
 
-
 	@Override
 	public String getFileName(EntityManager em)
 	{
-		return "planning-distribution";
+		PeriodePermanence pp = em.find(PeriodePermanence.class, idPeriodePermanence);
+		return "planning-permanence-"+pp.nom;
 	}
 
 	@Override
 	public String getNameToDisplay(EntityManager em)
 	{
-		return "le planning des permanences";
+		PeriodePermanence pp = em.find(PeriodePermanence.class, idPeriodePermanence);
+		return "le planning des permanences "+pp.nom;
 	}
 	
 	@Override
@@ -156,7 +149,7 @@ public class EGPlanningPermanence extends AbstractExcelGenerator
 
 	public static void main(String[] args) throws IOException
 	{
-		new EGPlanningPermanence(DateUtils.getDate()).test();
+		new EGPlanningPermanence(1L,null).test();
 	}
 
 }

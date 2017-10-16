@@ -84,7 +84,7 @@ public class AppInstanceService
 		
 		List<AppInstanceDTO> res = new ArrayList<>();
 
-		Query q = em.createQuery("select a from AppInstance a");
+		Query q = em.createQuery("select a from AppInstance a ORDER BY a.nomInstance");
 
 		List<AppInstance> ps = q.getResultList();
 		List<ConnectedUserDTO> connected = SessionManager.getAllConnectedUser();
@@ -362,6 +362,7 @@ public class AppInstanceService
 		
 		for (AppInstanceDTO appInstanceDTO : appInstanceDTOs)
 		{
+			logger.info("Execution des requetes sur la base "+appInstanceDTO.nomInstance);
 			DataBaseResponseDTO dataBaseResponseDTO = new DataBaseResponseDTO();
 			dataBaseResponseDTO.success = false;
 			dataBaseResponseDTO.dbName = appInstanceDTO.nomInstance;

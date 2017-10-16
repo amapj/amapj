@@ -38,6 +38,7 @@ import fr.amapj.model.engine.Mdm;
 import fr.amapj.model.models.contrat.modele.ModeleContratDate;
 import fr.amapj.model.models.distribution.DatePermanenceUtilisateur;
 import fr.amapj.model.models.fichierbase.Utilisateur;
+import fr.amapj.model.models.permanence.reel.PermanenceCell;
 
 /**
  * Suivi des notifications réalisées par e mail 
@@ -49,29 +50,26 @@ public class NotificationDone  implements Identifiable
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+	public Long id;
 	
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	// Permet d'indiquer si cet utilisateur est actif ou inactif
-    private TypNotificationDone typNotificationDone;
+	public TypNotificationDone typNotificationDone;
 	
 	@ManyToOne
-	private ModeleContratDate modeleContratDate;
-	
-	@ManyToOne
-	private DatePermanenceUtilisateur datePermanenceUtilisateur;
+	public ModeleContratDate modeleContratDate;
 	
 	@Temporal(TemporalType.DATE)
-	private Date dateMailPeriodique;
+	public Date dateMailPeriodique;
 	
 	@NotNull
 	@ManyToOne
-	private Utilisateur utilisateur;
+	public Utilisateur utilisateur;
 	
 	@NotNull
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date dateEnvoi;
+	public Date dateEnvoi;
 	
 	
 	public enum P implements Mdm
@@ -91,14 +89,10 @@ public class NotificationDone  implements Identifiable
 		
 	}
 	
-	
 
 	// Getters and setters
 
 	
-	
-
-
 	public Long getId()
 	{
 		return id;
@@ -108,82 +102,6 @@ public class NotificationDone  implements Identifiable
 	public void setId(Long id)
 	{
 		this.id = id;
-	}
-
-
-	public TypNotificationDone getTypNotificationDone()
-	{
-		return typNotificationDone;
-	}
-
-
-	public void setTypNotificationDone(TypNotificationDone typNotificationDone)
-	{
-		this.typNotificationDone = typNotificationDone;
-	}
-
-
-	public ModeleContratDate getModeleContratDate()
-	{
-		return modeleContratDate;
-	}
-
-
-	public void setModeleContratDate(ModeleContratDate modeleContratDate)
-	{
-		this.modeleContratDate = modeleContratDate;
-	}
-
-
-	public Utilisateur getUtilisateur()
-	{
-		return utilisateur;
-	}
-
-
-	public void setUtilisateur(Utilisateur utilisateur)
-	{
-		this.utilisateur = utilisateur;
-	}
-
-
-	public Date getDateEnvoi()
-	{
-		return dateEnvoi;
-	}
-
-
-	public void setDateEnvoi(Date dateEnvoi)
-	{
-		this.dateEnvoi = dateEnvoi;
-	}
-
-
-	public DatePermanenceUtilisateur getDatePermanenceUtilisateur()
-	{
-		return datePermanenceUtilisateur;
-	}
-
-
-	public void setDatePermanenceUtilisateur(DatePermanenceUtilisateur datePermanenceUtilisateur)
-	{
-		this.datePermanenceUtilisateur = datePermanenceUtilisateur;
-	}
-
-
-	public Date getDateMailPeriodique()
-	{
-		return dateMailPeriodique;
-	}
-
-
-	public void setDateMailPeriodique(Date dateMailPeriodique)
-	{
-		this.dateMailPeriodique = dateMailPeriodique;
-	}
-
-
-	
-	
+	}	
 	
 }

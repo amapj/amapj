@@ -25,8 +25,6 @@ public enum TypNotificationDone
 	// 
 	FEUILLE_LIVRAISON_PRODUCTEUR ,
 	
-	RAPPEL_PERMANENCE ,
-	
 	MAIL_PERIODIQUE,
 	
 	// 

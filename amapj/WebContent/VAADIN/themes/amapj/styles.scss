@@ -248,7 +248,7 @@
 		}
 	}
 
-	/* Le periode selector */
+	/* Le periode cotisation selector */
   	.v-horizontallayout-periode-selectorpart
 	{
 		.v-label-periode
@@ -257,6 +257,18 @@
 			font-size : 16px;
 		}
 	}
+	
+	
+	/* Le periode permanence selector */
+  	.v-horizontallayout-periode-permanence-selectorpart
+	{
+		.v-label-periode-permanence
+		{
+			margin-top: 0.25em;	
+			font-size : 16px;
+		}
+	}
+	
 	
 	/* Le utilisateur selector */
 	.utilisateur-selectorpart
@@ -483,6 +495,117 @@
     margin-top: 0.2em;
     margin-bottom: 0.4em;
 }
+
+/******************************************************************************
+ * LA GRILLE DES PERMANENCES 
+ *******************************************************************************/  
+
+.v-verticallayout-grille-permanence
+{
+	
+		.v-label-compteur
+		{
+		    font-size: 16px;   
+		    margin-bottom: 1em;
+		}
+		
+		.v-label-date-complete 
+		{
+		   	text-align: center;
+		   	background-color: #e2ffdb;
+		   	font-size: 16px;
+		   	margin: 0px;
+			padding: 0px;
+			border: 1px solid gray;
+			border-radius: 4px;
+		}
+		
+		.v-label-date-avec-dispo
+		{
+		   	text-align: center;
+		   	background-color: #91c8e4;
+		   	font-size: 16px;
+		   	margin: 0px;
+			padding: 0px;
+			border: 1px solid gray;
+			border-radius: 4px;
+		}
+		
+		
+		
+		.v-label-role 
+		{
+		   	text-align: center;
+		   	background-color: #f5fafa;
+		   	color: #000000;
+		   	font-size: 16px;
+		   	margin: 0px;
+			padding: 0px;
+			border: 1px solid gray;
+			border-radius: 4px;
+		}
+		
+		
+		.v-label-place-libre 
+		{
+		   	text-align: center;
+		   	background-color: #f5fafa;
+		   	color: #2196F3;
+		   	font-size: 16px;
+		   	margin: 0px;
+			padding: 0px;
+			border: 1px solid gray;
+			border-radius: 4px;
+		}
+		
+		
+		.v-label-place-occupee 
+		{
+		   	text-align: center;
+		   	background-color: #f5fafa;
+		   	color: #000000;
+		   	font-size: 16px;
+		   	margin: 0px;
+			padding: 0px;
+			border: 1px solid gray;
+			border-radius: 4px;
+		}
+		
+		
+		.v-label-place-moi 
+		{
+		   	text-align: center;
+		   	background-color: #f5fafa;
+		   	color: #ff0000;
+		   	font-size: 16px;
+		   	margin: 0px;
+			padding: 0px;
+			border: 1px solid gray;
+			border-radius: 4px;
+		}
+		
+		
+		/* Le bouton s'incrire  */
+		.v-button-inscrire 
+		{
+		    color: white;
+		    border: none;
+		    background: #769647;
+		    font-size: 16px;
+		}
+		
+		/* Le bouton supprimer son inscription  */
+		.v-button-suppress-inscrire
+		{
+		    color: white;
+		    border: none;
+		    background: #B64E49;
+		    font-size: 16px;
+		}
+		
+}
+
+
 
 
 /******************************************************************************
@@ -1047,7 +1170,7 @@ voir https://vaadin.com/forum#!/thread/7622424 */
 
 
 /******************************************************************************
- * ECRAN PLANNING PERMANENCES
+ * ECRAN PLANNING PERMANENCES - TODO a supprimer 
  *******************************************************************************/
 
 .v-verticallayout-planning-permanence
@@ -1127,6 +1250,163 @@ voir https://vaadin.com/forum#!/thread/7622424 */
 	}   
 	
 	   
+}
+
+
+/******************************************************************************
+ * ECRAN MES PERMANENCES
+ *******************************************************************************/  
+
+
+.v-verticallayout-mespermanences
+{
+	/* Les différentes rubriques Mes contrats existants, Les nouveaux contrats, ...*/
+	.v-label-rubrique
+	{
+	    line-height: 1.1;
+	    font-weight: 500;
+	    font-size: 24px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.6em;
+	    margin-bottom: 0.4em;
+	}
+	
+	/*Le titre des contrats */
+	.v-label-titrecontrat
+	{
+	    line-height: 1.1;
+	    font-weight: 600;
+	    font-size: 16px;
+	    color: #5cb85c;
+	    letter-spacing: 0;
+	    margin-top: 0.8em;
+	    margin-bottom: 1.6em;
+	}
+	
+	/* Le panel correspondant à 1 contrat */
+	.v-panel-uncontrat 
+	{
+	    border: 2px solid #5cb85c !important;
+	}
+
+	/* Le bouton principal correspondant à Voir ou Adhérer */
+	.v-button-principal 
+	{
+	    color: white;
+	    border: none;
+	    background: #5cb85c;
+	    font-size: 16px;
+	}
+	
+	.v-label-libelle-contrat
+	{	
+		font-size : 16px;
+	}
+	
+	.v-link-adhesion
+	{	
+		 margin-top: 1.2em;
+	}
+	
+	.v-panel-mes-permanences
+	{
+	    border: 2px solid #5cb85c !important;
+	    margin-bottom : 12px;
+	}
+		
+		
+	.v-label-ligne
+	{
+	    line-height: 1.1;
+	    font-size: 16px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.2em;
+	    margin-bottom: 0.2em;
+	}
+		
+}
+
+
+.v-verticallayout-date-viewer
+{
+	.v-label
+	{
+		line-height: 1.1;
+	    font-weight: 400;
+	    font-size: 22px;
+	    color: #000000;
+	    letter-spacing: 0;
+	    margin-top: 0.2em;
+	    margin-bottom: 0.2em;
+	}
+	
+	.v-button-fleche 
+	{
+		border: 2px solid #57223B;
+		background: #B64E49;
+		color: #f4f6f1;
+		min-width: 150px;
+	}
+
+	.v-button-fleche:focus:after 
+	{
+	    border: inherit;
+	    -webkit-box-shadow: 0 0 0 2px rgba(150, 190, 90, 0.5);
+	    box-shadow: 0 0 0 2px rgba(190, 90, 108, 0.5);
+	}			
+}
+
+/******************************************************************************
+ * POPUP ChoixPermanencePopup 
+ *******************************************************************************/  
+
+.v-verticallayout-popup-choix-permanence
+{
+	.v-label-compteur
+	{
+	    font-size: 16px;   
+	    margin-bottom: 2em;
+	}
+	
+	.v-label-liste-inscrits
+	{
+	 	margin-top: 1em;
+	    font-size: 16px;
+	    
+	    /* Permet de supprimer l'espace avant et après la liste des puces */
+	    ul
+	    {
+	    	margin: 0;
+	    }   
+	}
+	
+	.v-label-place-dispo
+	{
+	    font-size: 16px;
+	    color: #000000;   
+	    margin-top: 2em;
+	}
+	
+	/* Le bouton s'incrire  */
+	.v-button-inscrire 
+	{
+	    color: white;
+	    border: none;
+	    background: #769647;
+	    font-size: 16px;
+	}
+	
+	/* Le bouton supprimer son inscription  */
+	.v-button-suppress-inscrire
+	{
+	    color: white;
+	    border: none;
+	    background: #B64E49;
+	    font-size: 16px;
+	}
+	
 }
 
 

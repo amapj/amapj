@@ -45,7 +45,7 @@ public enum MenuList
 	
 	LISTE_ADHERENTS("Liste des adhérents",FontAwesome.USERS),
 	
-	PLANNING_DISTRIBUTION("Planning des permanences",FontAwesome.CALENDAR_O),
+	MES_PERMANENCES("Mes permanences",FontAwesome.CALENDAR_O),
 	
 	HISTORIQUE_CONTRATS("Historique de mes contrats",FontAwesome.BOOK),
 	
@@ -76,6 +76,14 @@ public enum MenuList
 	CONTRATS_AMAPIEN("Contrats d'un amapien",FontAwesome.FILE_TEXT_O) ,
 	
 	LIVRAISON_AMAPIEN("Livraisons d'un amapien",FontAwesome.CUTLERY) ,
+	
+	// Partie permanence
+	
+	PERIODE_PERMANENCE("Périodes de permanence",FontAwesome.CALENDAR_O) ,
+	
+	DETAIL_PERIODE_PERMANENCE("Gestion des inscriptions aux permanences",FontAwesome.CALENDAR_O) ,
+	
+	ROLE_PERMANENCE("Rôles de permanence",FontAwesome.CALENDAR_O) ,
 	
 	// Partie trésorier
 	

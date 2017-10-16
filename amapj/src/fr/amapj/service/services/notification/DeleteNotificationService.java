@@ -20,16 +20,13 @@
  */
  package fr.amapj.service.services.notification;
 
-import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import fr.amapj.common.SQLUtils;
 import fr.amapj.model.models.contrat.modele.ModeleContrat;
-import fr.amapj.model.models.distribution.DatePermanenceUtilisateur;
+import fr.amapj.model.models.contrat.modele.ModeleContratDate;
 import fr.amapj.model.models.fichierbase.Utilisateur;
-import fr.amapj.model.models.permanence.reel.PermanenceCell;
-import fr.amapj.model.models.stats.NotificationDone;
 
 /**
  * Permet la suppression des notifications, indispensable pour pouvoir supprimer
@@ -49,13 +46,22 @@ public class DeleteNotificationService
 		Query q = em.createQuery("select n from NotificationDone n WHERE n.modeleContratDate.modeleContrat=:mc");
 		q.setParameter("mc",mc);
 		
-		List<NotificationDone>  notifs = q.getResultList();
-		
-		for (NotificationDone notif : notifs)
-		{
-			em.remove(notif);
-		}
+		SQLUtils.deleteAll(em, q);
 	}
+	
+	
+	/**
+	 * Methode utilitaire permettant de supprimer toutes les notifications faites sur une  date de livraison d'un modele de contrat
+	 */
+	public void deleteAllNotificationDoneModeleContratDate(EntityManager em, ModeleContratDate mcd)
+	{ 
+		Query q = em.createQuery("select n from NotificationDone n WHERE n.modeleContratDate=:mcd");
+		q.setParameter("mcd",mcd);
+		
+		SQLUtils.deleteAll(em, q);
+	}
+
+	
 	
 	
 	/**
@@ -66,12 +72,8 @@ public class DeleteNotificationService
 	{
 		Query q = em.createQuery("select n from NotificationDone n WHERE n.utilisateur=:u");
 		q.setParameter("u",u);
-		List<NotificationDone> notifs =  q.getResultList();
 		
-		for (NotificationDone notif : notifs)
-		{
-			em.remove(notif);
-		}
+		SQLUtils.deleteAll(em, q);
 	}
 		
 }

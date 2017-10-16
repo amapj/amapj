@@ -25,10 +25,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import fr.amapj.common.GenericUtils.GetField;
+import fr.amapj.common.GenericUtils.GetFieldTyped;
 import fr.amapj.common.GenericUtils.ToBoolean;
 import fr.amapj.common.GenericUtils.ToDate;
 
@@ -76,6 +82,7 @@ public class CollectionUtils
 		public String toString(T t);
 	}
 
+	
 	/**
 	 * Convertit une liste d'objet en une String Exemple : ls = [ "Bob" , "Marc"
 	 * , "Paul" ]
@@ -84,6 +91,21 @@ public class CollectionUtils
 	 * 
 	 */
 	public static <T> String asString(List<T> ls, String sep, ToString<T> f)
+	{
+		return asString(ls, sep, f,false);
+	}
+	
+	
+	
+	/**
+	 * Convertit une liste d'objet en une String Exemple : ls = [ "Bob" , "Marc"
+	 * , "Paul" ]
+	 * 
+	 * asString(ls,",") => "Bob,Marc,Paul"
+	 * 
+	 * @param excludeEmpty si la fonction f retourne null ou "" sur un element, alors la valeur est exclue si excludeEmpty == true 
+	 */
+	public static <T> String asString(List<T> ls, String sep, ToString<T> f,boolean excludeEmpty)
 	{
 		if (ls.size() == 0)
 		{
@@ -96,8 +118,20 @@ public class CollectionUtils
 			T l = ls.get(i);
 			if (l != null)
 			{
-				str.append(f.toString(l));
-			} else
+				String s = f.toString(l);
+				if ((s!=null) && (s.length()>0))
+				{
+					str.append(s);
+				}
+				else
+				{
+					if (excludeEmpty==false)
+					{
+						str.append(s);
+					}
+				}
+			} 
+			else
 			{
 				str.append("null");
 			}
@@ -107,14 +141,32 @@ public class CollectionUtils
 		T l = ls.get(ls.size() - 1);
 		if (l != null)
 		{
-			str.append(f.toString(l));
-		} else
+			String s = f.toString(l);
+			if ((s!=null) && (s.length()>0))
+			{
+				str.append(s);
+			}
+			else
+			{
+				if (excludeEmpty==false)
+				{
+					str.append(s);
+				}
+			}
+		} 
+		else
 		{
 			str.append("null");
 		}
 
 		return str.toString();
 	}
+	
+	
+	
+	
+	
+	
 
 	/**
 	 * Convertit une liste d'objet en une String Exemple : ls = [ "Bob" , "Marc"
@@ -262,7 +314,7 @@ public class CollectionUtils
 	 * 
 	 * Les objets avec le champ null sont en premier (les plus petits)
 	 */
-	private static <T> void sortInternal(List<T> ls, GetField<T>[] fs, boolean[] asc)
+	public static <T> void sortInternal(List<T> ls, GetField<T>[] fs, boolean[] asc)
 	{
 		Comparator<T> c = new Comparator<T>()
 		{
@@ -349,13 +401,13 @@ public class CollectionUtils
 	
 	
 	// SELECT 
-	public static <T> List<Object> selectDistinct(List<T> ls, GetField<T> f1)
+	public static <T,V> List<V> selectDistinct(List<T> ls, GetFieldTyped<T,V> f1)
 	{
-		List<Object> res = new ArrayList<Object>();
+		List<V> res = new ArrayList<V>();
 		
 		for (T t : ls)
 		{
-			Object field = f1.getField(t);
+			V field = f1.getField(t);
 			if (res.contains(field)==false)
 			{
 				res.add(field);
@@ -363,6 +415,20 @@ public class CollectionUtils
 		}
 		return res;
 	}
+	
+	public static <T,V> List<V> select(List<T> ls, GetFieldTyped<T,V> f1)
+	{
+		List<V> res = new ArrayList<V>();
+		
+		for (T t : ls)
+		{
+			V field = f1.getField(t);
+			res.add(field);
+		}
+		return res;
+	}
+	
+	
 	
 	
 	// FILTER
@@ -388,6 +454,155 @@ public class CollectionUtils
 	}
 	
 	
+	/**
+	 * Permet de savoir si il existe au moins un element d'une liste , qui matche un certain nombre de critere 
+	 */
+	public static <T> boolean exists(List<T> ls, ToBoolean<T> f1)
+	{
+		return findMatching(ls, f1)!=null;
+	}
+	
+	
+	
+	
+	// Différence entre deux listes
+	
+	
+	static public class ListDiff<T>
+	{
+		// Liste des élements à ajouter
+		public List<T> toAdd;
+		
+		// Liste des éléments à supprimer 
+		public List<T> toSuppress;
+		
+	}
+	
+	/**
+	 * Permet de calculer la différence entre deux listes
+	 * 
+	 * Retourne la liste des éléments à ajouter et la liste des élements à supprimer 
+	 * pour transformer oldList en newList 
+	 * 
+	 * compare retourne le champ qui servira pour la comparaison 
+	 */
+	public static <T> ListDiff<T> diffList(List<T> oldList, List<T> newList,GetField<T> compare)
+	{
+		ListDiff<T> res = new ListDiff<T>();
+		
+		res.toAdd = new ArrayList<T>();
+		res.toSuppress = new ArrayList<T>();
+		
+		
+		for (T t : oldList)
+		{
+			Object val = compare.getField(t);
+			if (isNotIn(newList,val,compare))
+			{
+				res.toSuppress.add(t);
+			}
+		}
+		
+		for (T t : newList)
+		{
+			Object val = compare.getField(t);
+			if (isNotIn(oldList,val,compare))
+			{
+				res.toAdd.add(t);
+			}
+		}
+
+		
+		
+		return res;
+	}
+	
+	
+	private static <T> boolean isNotIn(List<T> ls, Object val1 , GetField<T> compare)
+	{
+		for (T t : ls)
+		{
+			Object val2 = compare.getField(t);
+			if (ObjectUtils.equals(val1, val2))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	
+	// Conversion (en fait, c'est le meme code que select )
+	
+	public static <T,V> List<V> convert(List<T> ls, GetFieldTyped<T,V> f1)
+	{
+		List<V> res = new ArrayList<V>();
+		
+		for (T t : ls)
+		{
+			V field = f1.getField(t);
+			res.add(field);
+		}
+		return res;
+	}
+	
+	
+	// Count 
+	/**
+	 * Permet de compter les elements qui matche (c'est à dire qui retourne true)  
+	 */
+	public static <T> int count(List<T> ls, ToBoolean<T> f1)
+	{
+		int nb=0;
+		for (T t : ls)
+		{
+			if (f1.toBoolean(t))
+			{
+				nb++;
+			}
+		}
+		return nb;
+	}
+	
+	
+	// Accumulation de INT 
+	public static <IN> int accumulateInt(List<IN> ls, GetFieldTyped<IN,Integer> f1)
+	{
+		int nb=0;
+		for (IN t : ls)
+		{
+			nb=nb+f1.getField(t);
+		}
+		return nb;
+	}
+	
+	
+	/**
+	 * Retourne le premier element, ou null si la liste est de taille 0
+	 * @param values
+	 */
+	public static <T> T getFirstOrNull(List<T> values)
+	{
+		if (values.size()==0)
+		{
+			return null;
+		}
+		return values.get(0);
+	}
+	
+	/**
+	 * Voir 
+	 * 
+	 * https://stackoverflow.com/questions/27870136/java-lambda-stream-distinct-on-arbitrary-key
+	 * 
+	 * @param keyExtractor
+	 * @return
+	 */
+	public static <T> Predicate<T> distinctByKey(Function<? super T,Object> keyExtractor) 
+	{
+	    Map<Object,Boolean> seen = new ConcurrentHashMap<Object, Boolean>();
+	    return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+	}
 	
 
 }

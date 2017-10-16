@@ -27,6 +27,7 @@ import org.vaadin.openesignforms.ckeditor.CKEditorTextField;
 
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
+import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.PropertysetItem;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -46,6 +47,11 @@ import fr.amapj.common.GenericUtils;
 import fr.amapj.model.engine.Identifiable;
 import fr.amapj.model.engine.metadata.MetaDataEnum;
 import fr.amapj.model.engine.metadata.MetaDataEnum.HelpInfo;
+import fr.amapj.service.services.gestioncontrat.DateModeleContratDTO;
+import fr.amapj.service.services.permanence.periode.PeriodePermanenceDateDTO;
+import fr.amapj.view.engine.collectioneditor.CollectionEditor;
+import fr.amapj.view.engine.collectioneditor.FieldType;
+import fr.amapj.view.engine.collectioneditor.columns.ColumnInfo;
 import fr.amapj.view.engine.enumselector.EnumSearcher;
 import fr.amapj.view.engine.popup.corepopup.CorePopup;
 import fr.amapj.view.engine.popup.errorpopup.ErrorPopup;
@@ -288,5 +294,27 @@ abstract public class AbstractFormPopup extends CorePopup
         return ckEditorTextField;
 	}
 	
+	
+	private CollectionEditor currentCollectionEditor;
+	
+	protected <T> CollectionEditor<T> addCollectionEditorField(String title, Object propertyId,Class<T> beanType,IValidator... validators)
+	{
+		currentCollectionEditor = new CollectionEditor<T>(title, (BeanItem) item, propertyId, beanType);
+		binder.bind(currentCollectionEditor, propertyId);
+		form.addComponent(currentCollectionEditor);
+
+		validatorManager.add(currentCollectionEditor,title,propertyId, validators);
+			
+		
+		return currentCollectionEditor;
+	}
+	
+	
+	protected void addColumn(String propertyId, String title,FieldType fieldType,Object defaultValue,IValidator... validators)
+	{
+		currentCollectionEditor.addColumn(propertyId, title, fieldType, defaultValue);
+		
+		validatorManager.add(currentCollectionEditor,title,propertyId, validators);
+	}
 	
 }

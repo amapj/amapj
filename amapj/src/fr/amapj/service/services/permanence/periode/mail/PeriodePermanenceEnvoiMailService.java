@@ -33,7 +33,7 @@ import fr.amapj.model.engine.transaction.DbRead;
 import fr.amapj.model.engine.transaction.TransactionHelper;
 import fr.amapj.model.models.fichierbase.Utilisateur;
 import fr.amapj.service.engine.generator.excel.AbstractExcelGenerator;
-import fr.amapj.service.services.edgenerator.excel.EGPlanningPermanence;
+import fr.amapj.service.services.edgenerator.excel.permanence.EGPlanningPermanence;
 import fr.amapj.service.services.mailer.MailerAttachement;
 import fr.amapj.service.services.mailer.MailerMessage;
 import fr.amapj.service.services.mailer.MailerService;

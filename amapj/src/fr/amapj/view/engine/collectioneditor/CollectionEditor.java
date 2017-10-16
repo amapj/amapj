@@ -490,10 +490,22 @@ public class CollectionEditor<BEANTYPE> extends CustomField implements Action.Ha
 		
 	}
 
-	
+	@Override
+	public Object getValue()
+	{
+		return computeValue();
+	}
 
 	@Override
 	public void commit() throws SourceException, InvalidValueException
+	{
+		List<BEANTYPE> ls = computeValue();
+		item.getItemProperty(propertyId).setValue(ls);
+	}
+	
+	
+	
+	private List<BEANTYPE> computeValue()
 	{
 		try
 		{
@@ -516,7 +528,7 @@ public class CollectionEditor<BEANTYPE> extends CustomField implements Action.Ha
 				
 				ls.add(elt);
 			}
-			item.getItemProperty(propertyId).setValue(ls);
+			return ls;
 		}
 		catch (InstantiationException  | IllegalAccessException  | ReadOnlyException e)
 		{
@@ -525,6 +537,9 @@ public class CollectionEditor<BEANTYPE> extends CustomField implements Action.Ha
 		}
 
 	}
+	
+	
+	
 
 	@Override
 	public Class<?> getType()

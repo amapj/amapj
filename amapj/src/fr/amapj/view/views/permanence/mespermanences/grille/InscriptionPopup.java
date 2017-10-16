@@ -30,6 +30,7 @@ import com.vaadin.ui.VerticalLayout;
 import fr.amapj.common.FormatUtils;
 import fr.amapj.service.services.permanence.mespermanences.MesPermanencesService;
 import fr.amapj.service.services.permanence.mespermanences.UnePeriodePermanenceDTO;
+import fr.amapj.service.services.permanence.mespermanences.MesPermanencesService.InscriptionMessage;
 import fr.amapj.service.services.permanence.periode.PeriodePermanenceDateDTO;
 import fr.amapj.service.services.permanence.periode.PermanenceCellDTO;
 import fr.amapj.view.engine.popup.messagepopup.MessagePopup;
@@ -142,13 +143,30 @@ public class InscriptionPopup extends OKCancelPopup
 			}
 		}
 		
-		String msg = new MesPermanencesService().inscription(userId,date.idPeriodePermanenceDate,selectedRole);
+		InscriptionMessage msg = new MesPermanencesService().inscription(userId,date.idPeriodePermanenceDate,selectedRole);
 		if (msg!=null)
 		{
-			MessagePopup popup = new MessagePopup("Impossible de s'inscrire",ColorStyle.RED,"Vous ne pouvez pas vous inscrire car "+msg);
+			String lib = computeLib(msg);
+			MessagePopup popup = new MessagePopup("Impossible de s'inscrire",ColorStyle.RED,"Vous ne pouvez pas vous inscrire car "+lib);
 			MessagePopup.open(popup);
 		}
 		return true;
 	}
 
+	static public  String computeLib(InscriptionMessage msg)
+	{
+		switch (msg)
+		{
+		case DEJA_INSCRIT_CETTE_DATE:
+			return "vous êtes déjà inscrit à cette date.";
+		
+		case NOMBRE_SUFFISANT:
+			return "Vous êtes inscrit un nombre suffisant de fois sur la période.";
+	
+		case PAS_DE_PLACE_CETTE_DATE:
+			return "il n'y a plus de place disponible à cette date.";
+		}
+		return null;
+	}
+	
 }

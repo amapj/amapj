@@ -124,10 +124,8 @@ public class ProducteurService
 	public List<ProdUtilisateurDTO> getUtilisateur(EntityManager em, Producteur p)
 	{
 		List<ProdUtilisateurDTO> res = new ArrayList<>();
-		
-		Query q = em.createQuery("select c from ProducteurUtilisateur c WHERE c.producteur=:p order by c.indx");
-		q.setParameter("p", p);
-		List<ProducteurUtilisateur> pus =  q.getResultList();
+	
+		List<ProducteurUtilisateur> pus =  getProducteurUtilisateur(em, p);
 		for (ProducteurUtilisateur pu : pus)
 		{
 			ProdUtilisateurDTO dto = new ProdUtilisateurDTO();
@@ -140,6 +138,16 @@ public class ProducteurService
 		}
 		return res;
 	}
+	
+	
+	public List<ProducteurUtilisateur> getProducteurUtilisateur(EntityManager em, Producteur p)
+	{
+		Query q = em.createQuery("select c from ProducteurUtilisateur c WHERE c.producteur=:p order by c.indx");
+		q.setParameter("p", p);
+		List<ProducteurUtilisateur> pus =  q.getResultList();
+		return pus;
+	}
+	
 
 
 	// PARTIE MISE A JOUR DES PRODUCTEURS

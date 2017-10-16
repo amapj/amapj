@@ -22,7 +22,8 @@
 
 import com.vaadin.shared.ui.label.ContentMode;
 
-import fr.amapj.service.services.maintenance.MaintenanceService;
+import fr.amapj.service.services.advanced.maintenance.MaintenanceService;
+import fr.amapj.service.services.advanced.patch.PatchService;
 import fr.amapj.view.engine.popup.formpopup.OnSaveException;
 import fr.amapj.view.engine.popup.formpopup.WizardFormPopup;
 
@@ -72,7 +73,7 @@ public class PatchEditorPart extends WizardFormPopup
 	
 	private void addResultat()
 	{
-		String resultat = new MaintenanceService().applyPatchV020();
+		String resultat = new PatchService().applyPatchV020();
 		
 		// Titre
 		setStepTitle("le résultat");

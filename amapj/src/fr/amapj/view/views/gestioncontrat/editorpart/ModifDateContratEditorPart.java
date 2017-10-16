@@ -26,10 +26,13 @@ import com.vaadin.shared.ui.label.ContentMode;
 import fr.amapj.service.services.gestioncontrat.DateModeleContratDTO;
 import fr.amapj.service.services.gestioncontrat.GestionContratService;
 import fr.amapj.service.services.gestioncontrat.ModeleContratDTO;
-import fr.amapj.view.engine.collectioneditor.CollectionEditor;
 import fr.amapj.view.engine.collectioneditor.FieldType;
 import fr.amapj.view.engine.popup.formpopup.OnSaveException;
 import fr.amapj.view.engine.popup.formpopup.WizardFormPopup;
+import fr.amapj.view.engine.popup.formpopup.validator.CollectionNoDuplicates;
+import fr.amapj.view.engine.popup.formpopup.validator.CollectionSizeValidator;
+import fr.amapj.view.engine.popup.formpopup.validator.ColumnNotNull;
+import fr.amapj.view.engine.popup.formpopup.validator.IValidator;
 
 /**
  * Permet uniquement de creer des contrats
@@ -95,11 +98,12 @@ public class ModifDateContratEditorPart extends WizardFormPopup
 		}
 		else if (modeleContrat.frequence==FrequenceLivraison.AUTRE)
 		{
+			IValidator size = new CollectionSizeValidator<DateModeleContratDTO>(1, null);
+			IValidator noDuplicates = new CollectionNoDuplicates<DateModeleContratDTO>(e->e.dateLiv);
+								
 			//
-			CollectionEditor<DateModeleContratDTO> f1 = new CollectionEditor<DateModeleContratDTO>("Liste des dates", (BeanItem) item, "dateLivs", DateModeleContratDTO.class);
-			f1.addColumn("dateLiv", "Date",FieldType.DATE, null);
-			binder.bind(f1, "dateLivs");
-			form.addComponent(f1);
+			addCollectionEditorField("Liste des dates", "dateLivs", DateModeleContratDTO.class,size,noDuplicates);
+			addColumn("dateLiv", "Date",FieldType.DATE, null,new ColumnNotNull<DateModeleContratDTO>(e->e.dateLiv));			
 		}
 		else
 		{
@@ -123,23 +127,9 @@ public class ModifDateContratEditorPart extends WizardFormPopup
 		}
 		else if (modeleContrat.frequence==FrequenceLivraison.AUTRE)
 		{
-			//
-			if (modeleContrat.dateLivs.size()==0)
-			{
-				return "Il y a 0 date de livraison";
-			}
-			else
-			{
-				for (DateModeleContratDTO dat : modeleContrat.dateLivs)
-				{
-					if (dat.dateLiv==null)
-					{
-						return "Il y a des dates qui ne sont pas saisies correctement (zone laissée à blanc)";
-					}
-				}
-				
-				return null;
-			}
+			// C'est toujours bon 
+			return null;
+			
 		}
 		else
 		{
@@ -184,8 +174,9 @@ public class ModifDateContratEditorPart extends WizardFormPopup
 		{
 			String str = "Vous ne pouvez plus modifier les dates de livraison de ce contrat<br/>"+
 						 "car "+nbInscrits+" adhérents ont déjà souscrits à ce contrat.<br/>"+
-						 "Deux cas sont possibles :<br/><ul>"+
+						 "Trois cas sont possibles :<br/><ul>"+
 						 "<li>Vous souhaitez déplacer une date. Dans ce cas, vous allez dans \"Gestion des contrats signés\", puis vous cliquez sur le bouton \"Modifier en masse\", puis sur \"Déplacer une date de livraison\".</li>"+						 
+						 "<li>Vous souhaitez ajouter une date. Dans ce cas, vous allez dans \"Gestion des contrats signés\", puis vous cliquez sur le bouton \"Modifier en masse\", puis sur \"Ajouter une date de livraison\".</li>"+
 						 "<li>Une date a été réellement annulée suite à un problème avec le producteur par exemple. Dans ce cas, vous allez dans \"Gestion des contrats signés\", puis vous cliquez sur le bouton \"Modifier en masse\", puis sur \"Mettre à zéro les quantités commandées sur une ou plusieurs dates de livraison\"."+
 						 "Un assistant vous aidera à gérer le cas où une ou plusieurs livraisons sont annulées.</li>"+					
 						 "</ul>";

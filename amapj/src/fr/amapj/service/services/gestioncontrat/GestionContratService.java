@@ -35,8 +35,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import fr.amapj.common.AmapjRuntimeException;
+import fr.amapj.common.CollectionUtils;
+import fr.amapj.common.CollectionUtils.ListDiff;
 import fr.amapj.common.DateUtils;
-import fr.amapj.common.DebugUtil;
 import fr.amapj.common.SQLUtils;
 import fr.amapj.model.engine.transaction.DbRead;
 import fr.amapj.model.engine.transaction.DbWrite;
@@ -52,8 +53,8 @@ import fr.amapj.model.models.contrat.reel.ContratCell;
 import fr.amapj.model.models.fichierbase.Producteur;
 import fr.amapj.model.models.fichierbase.Produit;
 import fr.amapj.model.models.fichierbase.Utilisateur;
-import fr.amapj.model.models.stats.NotificationDone;
 import fr.amapj.service.services.authentification.PasswordManager;
+import fr.amapj.service.services.gestioncontratsigne.update.GestionContratSigneUpdateService;
 import fr.amapj.service.services.mescontrats.ContratColDTO;
 import fr.amapj.service.services.mescontrats.ContratDTO;
 import fr.amapj.service.services.mescontrats.ContratLigDTO;
@@ -716,49 +717,43 @@ public class GestionContratService
 
 	/**
 	 * Permet de mettre à jour les dates d'un contrat
-	 * 
-	 * TODO on pourrait ameliorer en ne supprimant pas les dates qui vont être
-	 * recrees juste apres
-	 *
 	 */
 	@DbWrite
 	public void updateDateModeleContrat(ModeleContratDTO modeleContrat)
 	{
 		EntityManager em = TransactionHelper.getEm();
 		
-
 		ModeleContrat mc = em.find(ModeleContrat.class, modeleContrat.id);
 
-		// Avec une sous requete, on obtient la liste de toutes les dates
-		// exclues actuellement en base et on les efface
-		deleteAllDateBarreesModeleContrat(em, mc);
-		
-		// On efface aussi toutes les notification relatives à ce contrat  
-		new DeleteNotificationService().deleteAllNotificationDoneModeleContrat(em, mc);
-
-		// Avec une sous requete, on obtient la liste de toutes les dates de
-		// livraison
-		// actuellement en base et on les efface
-		List<ModeleContratDate> datesInBase = getAllDates(em, mc);
-		for (ModeleContratDate modeleContratDate : datesInBase)
-		{
-			em.remove(modeleContratDate);
-		}
-
-		// Création de toutes les lignes pour chacune des dates
-		List<Date> dates = getAllDates(modeleContrat.dateDebut, modeleContrat.dateFin, modeleContrat.frequence,modeleContrat.dateLivs);
-		if (dates.size()==0)
+		// Calcul de la liste des nouvelles dates 
+		List<Date> newListDate = getAllDates(modeleContrat.dateDebut, modeleContrat.dateFin, modeleContrat.frequence,modeleContrat.dateLivs);
+		if (newListDate.size()==0)
 		{
 			throw new AmapjRuntimeException("Vous ne pouvez pas créer un contrat avec 0 date de livraison");
 		}
-		for (Date date : dates)
+		List<ModeleContratDate> newList = CollectionUtils.convert(newListDate,e->{ ModeleContratDate a = new ModeleContratDate();a.setDateLiv(e);return a;});
+		
+		// Calcul de la liste des anciennes dates
+		List<ModeleContratDate> oldList = getAllDates(em, mc);
+
+		// Calcul de la différence entre les deux listes
+		ListDiff<ModeleContratDate> diff = CollectionUtils.diffList(oldList, newList, e->e.getDateLiv());
+		
+		// On efface les dates en trop
+		GestionContratSigneUpdateService update  = new GestionContratSigneUpdateService();
+		for (ModeleContratDate modeleContratDate : diff.toSuppress)
 		{
-			ModeleContratDate md = new ModeleContratDate();
-			md.setModeleContrat(mc);
-			md.setDateLiv(date);
-			em.persist(md);
+			update.suppressOneDateLiv(modeleContratDate.getId());
+		}
+		
+		// On crée les nouvelles dates 
+		for (ModeleContratDate modeleContratDate : diff.toAdd)
+		{
+			update.addOneDateLiv(em,modeleContratDate.getDateLiv(),mc);
 		}
 	}
+
+
 
 	/**
 	 * Perlet la mise à jour des dates barrées d'un contrat dans une transaction

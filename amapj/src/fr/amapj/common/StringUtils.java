@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import fr.amapj.service.services.saisiepermanence.PermanenceUtilisateurDTO;
-
 public class StringUtils
 {
 	public static String sansAccent(String s)

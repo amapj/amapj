@@ -66,6 +66,23 @@ public class MonitorInfo
 	{
 		
 	}
+	
+	
+	
+	
+	
+
+	@Override
+	public String toString()
+	{
+		return "cpuLoad=" + cpuLoad + "<br/> diskFreeSpace=" + diskFreeSpace + "<br/> nbOpenFile=" + nbOpenFile + "<br/> memInit=" + memInit + "<br/> memMax="
+				+ memMax + "<br/> memUsed=" + memUsed + "<br/> threadNb=" + threadNb + "<br/> threadPeak=" + threadPeak + "<br/> upTimeDays=" + upTimeDays;
+	}
+
+
+
+
+
 
 	static public MonitorInfo calculateMonitorInfo()
 	{

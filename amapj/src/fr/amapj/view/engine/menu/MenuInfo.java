@@ -28,6 +28,9 @@ import fr.amapj.service.services.parametres.ParamEcranDTO;
 import fr.amapj.service.services.parametres.ParametresDTO;
 import fr.amapj.service.services.parametres.ParametresService;
 import fr.amapj.service.services.session.SessionManager;
+import fr.amapj.view.views.advanced.devtools.DevToolsView;
+import fr.amapj.view.views.advanced.maintenance.MaintenanceView;
+import fr.amapj.view.views.advanced.supervision.SupervisionView;
 import fr.amapj.view.views.appinstance.AppInstanceListPart;
 import fr.amapj.view.views.compte.MonCompteView;
 import fr.amapj.view.views.contratsamapien.ContratsAmapienListPart;
@@ -46,7 +49,6 @@ import fr.amapj.view.views.listeproducteurreferent.ListeProducteurReferentView;
 import fr.amapj.view.views.livraisonamapien.LivraisonAmapienView;
 import fr.amapj.view.views.logview.LogView;
 import fr.amapj.view.views.logview.StatAccessView;
-import fr.amapj.view.views.maintenance.MaintenanceView;
 import fr.amapj.view.views.mescontrats.MesContratsView;
 import fr.amapj.view.views.meslivraisons.MesLivraisonsView;
 import fr.amapj.view.views.mespaiements.MesPaiementsView;
@@ -61,7 +63,6 @@ import fr.amapj.view.views.producteur.livraison.ProducteurLivraisonsView;
 import fr.amapj.view.views.produit.ProduitListPart;
 import fr.amapj.view.views.receptioncheque.ReceptionChequeListPart;
 import fr.amapj.view.views.remiseproducteur.RemiseProducteurListPart;
-import fr.amapj.view.views.saisiepermanence.SaisiePermanenceListPart;
 import fr.amapj.view.views.sendmail.SendMailView;
 import fr.amapj.view.views.suiviacces.SuiviAccesView;
 import fr.amapj.view.views.tableaudebord.TableauDeBordView;
@@ -115,7 +116,6 @@ public class MenuInfo
 		menus.add(new MenuDescription(MenuList.RECEPTION_CHEQUES, ReceptionChequeListPart.class, RoleList.REFERENT));
 		menus.add(new MenuDescription(MenuList.REMISE_PRODUCTEUR, RemiseProducteurListPart.class, RoleList.REFERENT));
 		menus.add(new MenuDescription(MenuList.PRODUIT, ProduitListPart.class , RoleList.REFERENT));
-		// menus.add(new MenuDescription(MenuList.SAISIE_PLANNING_DISTRIBUTION, SaisiePermanenceListPart.class , RoleList.REFERENT , ModuleList.PLANNING_DISTRIBUTION ));
 		menus.add(new MenuDescription(MenuList.CONTRATS_AMAPIEN,  ContratsAmapienListPart.class , RoleList.REFERENT ));
 		menus.add(new MenuDescription(MenuList.LIVRAISON_AMAPIEN,  LivraisonAmapienView.class , RoleList.REFERENT ));
 		
@@ -146,6 +146,8 @@ public class MenuInfo
 		menus.add(new MenuDescription(MenuList.SUIVI_ACCES, SuiviAccesView.class, RoleList.MASTER));	
 		menus.add(new MenuDescription(MenuList.VISU_LOG, LogView.class, RoleList.MASTER));
 		menus.add(new MenuDescription(MenuList.STAT_ACCES, StatAccessView.class, RoleList.MASTER));
+		menus.add(new MenuDescription(MenuList.SUPERVISION, SupervisionView.class, RoleList.MASTER));
+		menus.add(new MenuDescription(MenuList.OUTILS_DEV, DevToolsView.class, RoleList.MASTER));
 	}
 	
 	/**

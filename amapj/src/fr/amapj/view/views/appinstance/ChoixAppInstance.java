@@ -44,7 +44,7 @@ public class ChoixAppInstance extends SwitchPopup
 		line1 = "Veuillez indiquer ce que vous souhaitez faire :";
 
 		addLine("Extraire les mails de tous les administrateurs", new PopupCopyAllMail());
-
+		
 	}
 
 }

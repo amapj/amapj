@@ -59,7 +59,7 @@ public class FeuilleEmargementEditorPart extends WizardFormPopup
 
 	public enum Step
 	{
-		GENERAL, MARGES , LARGEURS , COLONNES  ;
+		GENERAL, MARGES , LARGEURS , COLONNES , CUMUL_PRODUCTEUR ;
 	}
 
 	/**
@@ -114,6 +114,7 @@ public class FeuilleEmargementEditorPart extends WizardFormPopup
 		add(Step.MARGES,()->addFieldMarges());
 		add(Step.LARGEURS,()->addFieldLargeur());
 		add(Step.COLONNES,()->addFieldColonnes());
+		add(Step.CUMUL_PRODUCTEUR,()->addFieldCumulProducteur());
 		
 	}
 
@@ -220,6 +221,39 @@ public class FeuilleEmargementEditorPart extends WizardFormPopup
 		
 		addComboEnumField("Imprimer la liste des produits", "detailProduits",  new NotNullValidator());
 	}
+	
+	
+	private void addFieldCumulProducteur()
+	{
+		if (etiquetteDTO.getFormat()==FormatFeuilleEmargement.GRILLE)
+		{
+			addFieldCumulProducteurGrille();
+		}
+		else
+		{
+			addFieldCumulProducteurListe();
+		}
+	}
+	
+	private void addFieldCumulProducteurGrille()
+	{
+		// Titre
+		setStepTitle("cumul des quantités producteur");
+		
+		
+		addLabel("Non disponible pour le moment. Appuyer sur continuer", ContentMode.HTML);
+		
+	}
+	
+
+	private void addFieldCumulProducteurListe()
+	{
+		// Titre
+		setStepTitle("cumul des quantités producteur");
+
+		addComboEnumField("Imprimer en tete du document un cumul des quantités livrées pour chaque producteur", "listeAffichageCumulProducteur",  new NotNullValidator());
+	}
+
 
 
 

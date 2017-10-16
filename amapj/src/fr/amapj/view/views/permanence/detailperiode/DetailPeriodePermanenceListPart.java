@@ -22,7 +22,8 @@
 
 import java.util.List;
 
-import fr.amapj.service.services.edgenerator.excel.EGPlanningPermanence;
+import fr.amapj.service.services.edgenerator.excel.permanence.EGBilanInscriptionPermanence;
+import fr.amapj.service.services.edgenerator.excel.permanence.EGPlanningPermanence;
 import fr.amapj.service.services.permanence.periode.PeriodePermanenceDateDTO;
 import fr.amapj.service.services.permanence.periode.PeriodePermanenceService;
 import fr.amapj.view.engine.excelgenerator.TelechargerPopup;
@@ -169,6 +170,7 @@ public class DetailPeriodePermanenceListPart extends StandardListPart<PeriodePer
 		
 		TelechargerPopup popup = new TelechargerPopup("Période de permanence",80);
 		popup.addGenerator(new EGPlanningPermanence(idPeriodePermanence,null));
+		popup.addGenerator(new EGBilanInscriptionPermanence(idPeriodePermanence));
 		CorePopup.open(popup,this);
 		
 	}

@@ -27,8 +27,6 @@ import fr.amapj.service.services.permanence.detailperiode.DetailPeriodePermanenc
 import fr.amapj.service.services.permanence.periode.PeriodePermanenceDTO;
 import fr.amapj.service.services.permanence.periode.PeriodePermanenceService;
 import fr.amapj.service.services.permanence.periode.update.PeriodePermanenceUpdateService;
-import fr.amapj.service.services.saisiepermanence.planif.PlanifDTO;
-import fr.amapj.service.services.saisiepermanence.planif.PlanifPermanenceService;
 import fr.amapj.view.engine.popup.formpopup.WizardFormPopup;
 import fr.amapj.view.engine.popup.formpopup.validator.IValidator;
 import fr.amapj.view.engine.popup.formpopup.validator.NotNullValidator;

@@ -131,7 +131,7 @@ public class PeriodePermanenceUpdateService
 		PeriodePermanence pp = em.find(PeriodePermanence.class, dto.id);
 
 		// On selectionne toutes les dates de permanences
-		Query q = em.createQuery("select d from PeriodePermanenceDate d where  d.periodePermanence=:pp and d.datePerm >= :debut and  d.datePerm <= :fin");
+		Query q = em.createQuery("select d from PeriodePermanenceDate d where  d.periodePermanence=:pp and d.datePerm >= :debut and  d.datePerm <= :fin ORDER BY d.datePerm");
 
 		q.setParameter("pp", pp);
 		q.setParameter("debut", dto.dateDebut);
@@ -148,7 +148,7 @@ public class PeriodePermanenceUpdateService
 		buf.append("<br/>");
 
 		q = em.createQuery("select distinct(c.periodePermanenceUtilisateur.utilisateur) from PermanenceCell c where "
-				+ " c.periodePermanenceUtilisateur.periodePermanence=:pp and "
+				+ " c.periodePermanenceDate.periodePermanence=:pp and "
 				+ " c.periodePermanenceDate.datePerm >= :debut and " 
 				+ " c.periodePermanenceDate.datePerm <= :fin " 
 				+ " order by c.periodePermanenceUtilisateur.utilisateur.nom,c.periodePermanenceUtilisateur.utilisateur.prenom");
@@ -173,7 +173,7 @@ public class PeriodePermanenceUpdateService
 
 		// On selectionne toutes les cellules, puis on les supprime
 		Query q = em.createQuery("select c from PermanenceCell c where " 
-						+ " c.periodePermanenceUtilisateur.periodePermanence=:pp and " 
+						+ " c.periodePermanenceDate.periodePermanence=:pp and " 
 						+ " c.periodePermanenceDate.datePerm >= :debut and "
 						+ " c.periodePermanenceDate.datePerm <= :fin");
 
@@ -370,7 +370,7 @@ public class PeriodePermanenceUpdateService
 	private List<PeriodePermanenceDate> getDateUtilisateur(EntityManager em, Utilisateur u, Long idPeriodePermanence)
 	{
 		Query q = em.createQuery("select c.periodePermanenceDate from PermanenceCell c WHERE "
-				+ " c.periodePermanenceUtilisateur.periodePermanence.id=:id and "
+				+ " c.periodePermanenceDate.periodePermanence.id=:id and "
 				+ " c.periodePermanenceUtilisateur.utilisateur = :u "
 				+ " order by c.periodePermanenceDate.datePerm");
 		

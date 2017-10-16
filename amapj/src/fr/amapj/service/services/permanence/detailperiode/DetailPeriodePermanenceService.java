@@ -146,7 +146,7 @@ public class DetailPeriodePermanenceService
 		buf.append("<br/>");
 
 		q = em.createQuery("select distinct(c.periodePermanenceUtilisateur.utilisateur) from PermanenceCell c where "
-				+ " c.periodePermanenceUtilisateur.periodePermanence=:pp and "
+				+ " c.periodePermanenceDate.periodePermanence=:pp and "
 				+ " c.periodePermanenceDate.datePerm >= :debut and " 
 				+ " c.periodePermanenceDate.datePerm <= :fin " 
 				+ " order by c.periodePermanenceUtilisateur.utilisateur.nom,c.periodePermanenceUtilisateur.utilisateur.prenom");
@@ -171,7 +171,7 @@ public class DetailPeriodePermanenceService
 
 		// On selectionne toutes les cellules, puis on les supprime
 		Query q = em.createQuery("select c from PermanenceCell c where " 
-						+ " c.periodePermanenceUtilisateur.periodePermanence=:pp and " 
+						+ " c.periodePermanenceDate.periodePermanence=:pp and " 
 						+ " c.periodePermanenceDate.datePerm >= :debut and "
 						+ " c.periodePermanenceDate.datePerm <= :fin");
 

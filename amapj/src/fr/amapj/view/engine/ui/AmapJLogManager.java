@@ -20,10 +20,12 @@
  */
  package fr.amapj.view.engine.ui;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -154,8 +156,16 @@ public class AmapJLogManager
 			method.setAccessible(true);
 			AppenderControl appenderControl = (AppenderControl) method.invoke(appender,fileNameToClose,null);
 			appenderControl.getAppender().stop();
+			
+			// Attention : il faut bien ensuite enlever cet AppenderControl de la map appenders de RoutingAppender
+			// Sinon il y a une fuite mémoire importante 
+			Field f = appender.getClass().getDeclaredField("appenders");
+			f.setAccessible(true);
+			ConcurrentMap<String, AppenderControl> appenders = (ConcurrentMap<String, AppenderControl>) f.get(appender);
+			appenders.remove(fileNameToClose);
+			
 		} 
-		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException e)
 		{
 			// Shouldn't happen - log anyway 
 			logger.error("Unable to close the logger",e);

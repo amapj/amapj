@@ -24,11 +24,15 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
+
+import org.eclipse.persistence.internal.sessions.IdentityMapAccessor;
 
 import fr.amapj.model.engine.tools.TestTools;
 import fr.amapj.model.engine.transaction.DbRead;
@@ -178,7 +182,38 @@ public class SelectDbUtilisateurHsql
 			System.out.println("Attente "+i);
 			Thread.sleep(1000);;
 		}
+	}
+	
+	
+	/**
+	 * Visualisation du cache JPA 
+	 */
+	@DbRead
+	public void listAllUserAndCheckCache()
+	{
+		EntityManager em = TransactionHelper.getEm();
 		
+		Query q = em.createQuery("select u from Utilisateur u");
+		List<Utilisateur> us = q.getResultList();
+		for (Utilisateur u : us)
+		{
+			System.out.println("Utilisateur: Nom ="+u.getNom()+" Prenom ="+u.getPrenom());
+		}
+		
+		
+		IdentityMapAccessor ima = (IdentityMapAccessor) em.getEntityManagerFactory().getCache().unwrap(org.eclipse.persistence.sessions.IdentityMapAccessor.class);
+		Iterator<Class> iter = ima.getIdentityMapManager().getIdentityMapClasses();
+		while(iter.hasNext())
+		{
+			Class clz = iter.next();
+			System.out.println("Class = "+clz);
+			
+			Vector vs = ima.getAllFromIdentityMap(null, clz, null);
+			for (Object v : vs)
+			{
+				System.out.println("v="+v);
+			}
+		}
 		
 	}
 	
@@ -191,7 +226,7 @@ public class SelectDbUtilisateurHsql
 		
 		SelectDbUtilisateurHsql selectUtilisateur = new SelectDbUtilisateurHsql();
 		System.out.println("Requete dans la base avec HSQL..");
-		selectUtilisateur.selectForUpdate();
+		selectUtilisateur.listAllUserAndCheckCache();
 		System.out.println("Fin de la requete");
 
 	}

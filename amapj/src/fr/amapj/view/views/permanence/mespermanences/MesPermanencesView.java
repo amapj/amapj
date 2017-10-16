@@ -32,7 +32,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
 import fr.amapj.common.AmapjRuntimeException;
-import fr.amapj.service.services.edgenerator.excel.EGPlanningPermanence;
+import fr.amapj.service.services.edgenerator.excel.permanence.EGPlanningPermanence;
 import fr.amapj.service.services.permanence.mespermanences.MesPermanenceDTO;
 import fr.amapj.service.services.permanence.mespermanences.MesPermanencesService;
 import fr.amapj.service.services.permanence.mespermanences.UnePeriodePermanenceDTO;

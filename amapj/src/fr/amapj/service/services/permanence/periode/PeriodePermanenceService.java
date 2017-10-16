@@ -642,8 +642,10 @@ public class PeriodePermanenceService
 			throw new UnableToSuppressException(str);
 		}
 
+		suppressAllPermanenceCell(em,p);
 		suppressAllDates(em, p);
 		suppressAllPermanenceUtilisateurs(em, p);
+		
 
 		em.remove(p);
 	}
@@ -653,23 +655,24 @@ public class PeriodePermanenceService
 	{
 		Query q = em.createQuery("select d from PeriodePermanenceDate d WHERE d.periodePermanence=:p");
 		q.setParameter("p",p);
-		List<PeriodePermanenceDate> ps = q.getResultList();
-		for (PeriodePermanenceDate ppd : ps)
-		{
-			em.remove(ppd);
-		}
+		SQLUtils.deleteAll(em, q);
 	}
 	
 	private void suppressAllPermanenceUtilisateurs(EntityManager em, PeriodePermanence p)
 	{
 		Query q = em.createQuery("select d from PeriodePermanenceUtilisateur d WHERE d.periodePermanence=:p");
 		q.setParameter("p",p);
-		List<PeriodePermanenceUtilisateur> ps = q.getResultList();
-		for (PeriodePermanenceUtilisateur ppu : ps)
-		{
-			em.remove(ppu);
-		}
+		SQLUtils.deleteAll(em, q);
 	}
+	
+	private void suppressAllPermanenceCell(EntityManager em, PeriodePermanence p)
+	{
+		Query q = em.createQuery("select d from PermanenceCell d WHERE d.periodePermanenceDate.periodePermanence=:p");
+		q.setParameter("p",p);
+		SQLUtils.deleteAll(em, q);
+	}
+	
+	
 	
 	// PARTIE AFFECTATION DES UTILISATEURS 
 	
@@ -712,7 +715,7 @@ public class PeriodePermanenceService
 	}
 
 
-	// TODO a supprimer
+	
 	@DbRead
 	public PeriodePermanenceUtilisateurDTO createAffectAdherentDetailDTO(Long userId)
 	{
@@ -721,8 +724,7 @@ public class PeriodePermanenceService
 		return createAffectAdherentDetailDTO(utilisateur);
 	}
 	
-	
-	// TODO a supprimer 
+	 
 	public PeriodePermanenceUtilisateurDTO createAffectAdherentDetailDTO(Utilisateur utilisateur)
 	{
 		PeriodePermanenceUtilisateurDTO e = new PeriodePermanenceUtilisateurDTO();

@@ -145,6 +145,49 @@ public class UtilisateurUtil
 		}
 		return buf.toString();
 	}
+	
+	
+	
+	/**
+	 * Retourne la liste des e mails des utilisateurs en tenant compte des utilisateurs sans e mails 
+	 */
+	
+	static public class EmailInfo
+	{
+		public int nbUtilisateurAvecEmail;
+		
+		// Liste des e mails séparés par des ;
+		public String utilisateurAvecEmail = "";
+		
+		public int nbUtilisateurSansEmail;
+		
+		// Liste des prenom nom séparés par des ;
+		public String utilisateurSansEmail = "";
+	}
+	
+	
+	static public EmailInfo getEmailsInfos(List<Utilisateur> utilisateurs)
+	{
+		EmailInfo res = new EmailInfo();
+		
+		for (Utilisateur utilisateur : utilisateurs)
+		{
+			
+			if (UtilisateurUtil.canSendMailTo(utilisateur))
+			{
+				res.nbUtilisateurAvecEmail++;
+				res.utilisateurAvecEmail = res.utilisateurAvecEmail + utilisateur.getEmail()+";";
+			}
+			else
+			{
+				res.nbUtilisateurSansEmail++;
+				res.utilisateurSansEmail =  res.utilisateurSansEmail + utilisateur.getNom() + " " + utilisateur.getPrenom()+";";
+			}
+		}
+		return res;
+	}
+	
+	
 
 
 }

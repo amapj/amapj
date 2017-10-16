@@ -52,6 +52,12 @@ public class GenericUtils
 		public Object getField(T t);
 	}
 	
+	static public interface GetFieldTyped<T,V>
+	{
+		public V getField(T t);
+	}
+	
+	
 	static public interface SetField<T>
 	{
 		public void setField(T t,Object val);

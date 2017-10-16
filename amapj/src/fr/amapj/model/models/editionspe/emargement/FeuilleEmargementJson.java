@@ -88,6 +88,9 @@ public class FeuilleEmargementJson extends AbstractEditionSpeJson
 	
 	private ChoixOuiNon detailProduits = ChoixOuiNon.OUI;
 	
+	// Permet l'affichage d'un cumul des quantités par producteur en tete du document 
+	private ChoixOuiNon listeAffichageCumulProducteur = ChoixOuiNon.NON;
+	
 	
 	public FeuilleEmargementJson()
 	{
@@ -286,6 +289,21 @@ public class FeuilleEmargementJson extends AbstractEditionSpeJson
 	{
 		this.detailProduits = detailProduits;
 	}
+
+
+
+	public ChoixOuiNon getListeAffichageCumulProducteur()
+	{
+		return listeAffichageCumulProducteur;
+	}
+
+
+
+	public void setListeAffichageCumulProducteur(ChoixOuiNon listeAffichageCumulProducteur)
+	{
+		this.listeAffichageCumulProducteur = listeAffichageCumulProducteur;
+	}
+	
 	
 	
 	

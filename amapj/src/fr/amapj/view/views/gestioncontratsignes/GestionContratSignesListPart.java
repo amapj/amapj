@@ -46,6 +46,7 @@ import fr.amapj.view.engine.tools.DateTimeToStringConverter;
 import fr.amapj.view.engine.widgets.CurrencyTextFieldConverter;
 import fr.amapj.view.views.common.contratselector.ContratSelectorPart;
 import fr.amapj.view.views.common.contrattelecharger.TelechargerContrat;
+import fr.amapj.view.views.gestioncontratsignes.update.ChoixModifContratSigne;
 import fr.amapj.view.views.saisiecontrat.SaisieContrat;
 import fr.amapj.view.views.saisiecontrat.SaisieContrat.ModeSaisie;
 

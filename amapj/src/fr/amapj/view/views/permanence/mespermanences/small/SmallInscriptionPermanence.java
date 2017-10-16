@@ -20,22 +20,16 @@
  */
  package fr.amapj.view.views.permanence.mespermanences.small;
 
-import java.util.Date;
-import java.util.List;
-
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.VerticalLayout;
 
-import fr.amapj.common.AmapjRuntimeException;
-import fr.amapj.common.DateUtils;
-import fr.amapj.service.services.permanence.detailperiode.DetailPeriodePermanenceService;
 import fr.amapj.service.services.permanence.mespermanences.MesPermanencesService;
+import fr.amapj.service.services.permanence.mespermanences.MesPermanencesService.InscriptionMessage;
 import fr.amapj.service.services.permanence.mespermanences.UnePeriodePermanenceDTO;
 import fr.amapj.service.services.permanence.periode.PeriodePermanenceDTO;
 import fr.amapj.service.services.permanence.periode.PeriodePermanenceDateDTO;
 import fr.amapj.service.services.permanence.periode.PeriodePermanenceService;
-import fr.amapj.service.services.permanence.periode.PeriodePermanenceUtilisateurDTO;
 import fr.amapj.service.services.permanence.periode.PermanenceCellDTO;
 import fr.amapj.view.engine.popup.PopupListener;
 import fr.amapj.view.engine.popup.messagepopup.MessagePopup;
@@ -43,6 +37,7 @@ import fr.amapj.view.engine.popup.okcancelpopup.OKCancelPopup;
 import fr.amapj.view.engine.tools.BaseUiTools;
 import fr.amapj.view.views.common.dateviewer.DateViewer;
 import fr.amapj.view.views.permanence.mespermanences.MesPermanencesUtils;
+import fr.amapj.view.views.permanence.mespermanences.grille.InscriptionPopup;
 
 /**
  * Popup permettant le choix des permanences par l'amapien 
@@ -312,10 +307,11 @@ public class SmallInscriptionPermanence extends OKCancelPopup implements PopupLi
 		
 		
 		//
-		String msg = new MesPermanencesService().inscription(userId,detail.idPeriodePermanenceDate,null); // TODO gerer le role 
+		InscriptionMessage msg = new MesPermanencesService().inscription(userId,detail.idPeriodePermanenceDate,null); // TODO gerer le role 
 		if (msg!=null)
 		{
-			MessagePopup popup = new MessagePopup("Impossible de s'inscrire",ColorStyle.RED,"Vous ne pouvez pas vous inscrire car "+msg);
+			String lib = InscriptionPopup.computeLib(msg);
+			MessagePopup popup = new MessagePopup("Impossible de s'inscrire",ColorStyle.RED,"Vous ne pouvez pas vous inscrire car "+lib);
 			MessagePopup.open(popup,()->handleFinInscription());
 		}
 		else

@@ -89,7 +89,9 @@ public class ExcelGeneratorTool
 	public CellStyle nonGrasCentreBordureGray;
 	public CellStyle nonGrasGaucheBordure;
 	public CellStyle nongrasGaucheWrappe;
+	public CellStyle nonGrasGaucheNonWrappe;
 	public CellStyle nonGrasGaucheBordureGray;
+	
 	
 	public CellStyle prixCentreBordure;
 	public CellStyle prixCentreBordureColor;
@@ -290,6 +292,9 @@ public class ExcelGeneratorTool
 		nongrasGaucheWrappe.setFont(fontNonGras);
 		nongrasGaucheWrappe.setWrapText(true);
 		beWhite(nongrasGaucheWrappe);
+		
+		nonGrasGaucheNonWrappe = duplicate(nongrasGaucheWrappe);
+		nonGrasGaucheNonWrappe.setWrapText(false);
 
 	}
 	
@@ -878,6 +883,17 @@ public class ExcelGeneratorTool
 		Cell cell = currentRow.getCell(numCol);
 		cell.setCellValue(text);
 		cell.setCellStyle(style);
+	}
+	
+	/**
+	 * Permet de positionner N cellules identiques à la suite
+	 */
+	public void setNCell(int numCol, int nbCell,String text,CellStyle style)
+	{
+		for (int i = numCol; i < numCol+nbCell; i++)
+		{
+			setCell(i, text, style);
+		}
 	}
 
 

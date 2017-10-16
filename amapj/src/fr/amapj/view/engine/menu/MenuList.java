@@ -124,6 +124,10 @@ public enum MenuList
 	
 	STAT_ACCES("Statistiques des accès",FontAwesome.BAR_CHART_O) , 
 	
+	SUPERVISION("Supervision",FontAwesome.HEART) ,
+	
+	OUTILS_DEV("Outils developpement",FontAwesome.EDIT) ,
+	
 	// Partie non visible, mais paramétrable
 	
 	OUT_SAISIE_PAIEMENT("Saisie des paiements par l'amapien",FontAwesome.GEAR)

@@ -222,18 +222,21 @@ public class PopupSqlAppInstance extends WizardFormPopup
 			{
 				str = str+"<table>";
 				List<List<String>> lines = responseDTO.sqlResultSet;
-				for (List<String> ls : lines)
+				if (lines!=null)
 				{
-					str = str+" <tr>";
-					for (String string : ls)
+					for (List<String> ls : lines)
 					{
-						if (string!=null)
+						str = str+" <tr>";
+						for (String string : ls)
 						{
-							string = SafeHtmlUtils.htmlEscape(string);
+							if (string!=null)
+							{
+								string = SafeHtmlUtils.htmlEscape(string);
+							}
+							str = str +  "<td>"+string+"</td>";
 						}
-						str = str +  "<td>"+string+"</td>";
+						str = str+" </tr>";
 					}
-					str = str+" </tr>";
 				}
 				str = str+" </table>";
 				str = str+"<br/><br/>";

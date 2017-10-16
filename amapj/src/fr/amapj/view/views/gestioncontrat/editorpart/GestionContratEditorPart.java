@@ -43,6 +43,9 @@ import fr.amapj.service.services.gestioncontrat.ModeleContratDTO;
 import fr.amapj.view.engine.collectioneditor.CollectionEditor;
 import fr.amapj.view.engine.collectioneditor.FieldType;
 import fr.amapj.view.engine.popup.formpopup.WizardFormPopup;
+import fr.amapj.view.engine.popup.formpopup.validator.CollectionNoDuplicates;
+import fr.amapj.view.engine.popup.formpopup.validator.CollectionSizeValidator;
+import fr.amapj.view.engine.popup.formpopup.validator.ColumnNotNull;
 import fr.amapj.view.engine.popup.formpopup.validator.DateRangeValidator;
 import fr.amapj.view.engine.popup.formpopup.validator.IValidator;
 import fr.amapj.view.engine.popup.formpopup.validator.NotNullValidator;
@@ -185,11 +188,12 @@ public class GestionContratEditorPart extends WizardFormPopup
 		}
 		else if (modeleContrat.frequence==FrequenceLivraison.AUTRE)
 		{
+			IValidator size = new CollectionSizeValidator<DateModeleContratDTO>(1, null);
+			IValidator noDuplicates = new CollectionNoDuplicates<DateModeleContratDTO>(e->e.dateLiv);
+								
 			//
-			CollectionEditor<DateModeleContratDTO> f1 = new CollectionEditor<DateModeleContratDTO>("Liste des dates", (BeanItem) item, "dateLivs", DateModeleContratDTO.class);
-			f1.addColumn("dateLiv", "Date",FieldType.DATE, null);
-			binder.bind(f1, "dateLivs");
-			form.addComponent(f1);
+			addCollectionEditorField("Liste des dates", "dateLivs", DateModeleContratDTO.class,size,noDuplicates);
+			addColumn("dateLiv", "Date",FieldType.DATE, null,new ColumnNotNull<DateModeleContratDTO>(e->e.dateLiv));			
 		}
 		else
 		{
@@ -212,22 +216,8 @@ public class GestionContratEditorPart extends WizardFormPopup
 		}
 		else if (modeleContrat.frequence==FrequenceLivraison.AUTRE)
 		{
-			//
-			if (modeleContrat.dateLivs.size()==0)
-			{
-				return "Il y a 0 date de livraison";
-			}
-			else
-			{
-				for (DateModeleContratDTO dat : modeleContrat.dateLivs)
-				{
-					if (dat.dateLiv==null)
-					{
-						return "Il y a des dates qui ne sont pas saisies correctement (zone laissée à blanc)";
-					}
-				}
-				return null;
-			}
+			// C'est toujours bon 
+			return null;
 		}
 		else
 		{

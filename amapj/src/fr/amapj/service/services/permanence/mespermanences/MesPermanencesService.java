@@ -28,6 +28,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
 
+import fr.amapj.common.AmapjRuntimeException;
 import fr.amapj.common.DateUtils;
 import fr.amapj.common.SQLUtils;
 import fr.amapj.model.engine.transaction.DbRead;
@@ -277,10 +278,18 @@ public class MesPermanencesService
 
 	/**
 	 * Permet à un utilisateur de s'inscrire pour une permanence
-	 * 
 	 */
+	
+	public enum InscriptionMessage
+	{
+		DEJA_INSCRIT_CETTE_DATE,
+		NOMBRE_SUFFISANT,
+		PAS_DE_PLACE_CETTE_DATE;
+	}
+	
+	
 	@DbWrite
-	public String inscription(Long userId, Long idPeriodePermanenceDate,Long idRole)
+	public InscriptionMessage inscription(Long userId, Long idPeriodePermanenceDate,Long idRole)
 	{
 		EntityManager em = TransactionHelper.getEm();
 		
@@ -296,13 +305,30 @@ public class MesPermanencesService
 		
 		List<PermanenceCell> pcs = q.getResultList();
 		
-		// On verifie d'abord que l'utilisateur ne soit pas déjà inscrit 
+		// On recherche le ppu 
+		PeriodePermanenceUtilisateur ppu = new DetailPeriodePermanenceService().findPeriodePermanenceUtilisateur(em,userId,ppd.periodePermanence);
+		if (ppu==null)
+		{
+			throw new AmapjRuntimeException("Vous ne pouvez pas vous inscrire à cette période");
+		}
+		
+		
+		// On verifie d'abord que l'utilisateur ne soit pas déjà inscrit à cette date
 		for (PermanenceCell pc : pcs)
 		{
 			if (pc.periodePermanenceUtilisateur!=null && pc.periodePermanenceUtilisateur.utilisateur.getId()==userId)
 			{
-				return "vous êtes déjà inscrit.";
+				return InscriptionMessage.DEJA_INSCRIT_CETTE_DATE;
 			}
+		}
+		
+		// On vérifie ensuite que l'utilisateur n'a pas dépassé son quota d'inscription sur la période
+		q = em.createQuery("select count(c) from PermanenceCell c WHERE c.periodePermanenceUtilisateur=:ppu");
+		q.setParameter("ppu", ppu);
+		int nbInscriptionReel = SQLUtils.toInt(q.getSingleResult());
+		if (nbInscriptionReel>=ppu.nbParticipation)
+		{
+			return InscriptionMessage.NOMBRE_SUFFISANT;
 		}
 		
 		// On cherche ensuite une place disponible
@@ -310,11 +336,11 @@ public class MesPermanencesService
 		
 		if (pc==null)
 		{
-			return "il n'y a plus de place disponible.";
+			return InscriptionMessage.PAS_DE_PLACE_CETTE_DATE;
 		}
 		
 		// On ajoute le nouvel participant
-		pc.periodePermanenceUtilisateur = new DetailPeriodePermanenceService().findPeriodePermanenceUtilisateur(em,userId,ppd.periodePermanence);
+		pc.periodePermanenceUtilisateur = ppu;
 			
 		return null;
 	}

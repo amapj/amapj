@@ -21,6 +21,12 @@
  package fr.amapj.common;
 
 import java.math.BigDecimal;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
+import fr.amapj.model.models.contrat.modele.ModeleContratExclude;
 
 
 
@@ -56,4 +62,21 @@ public class SQLUtils
 		throw new AmapjRuntimeException("Type inconnu:"+o.getClass());
 		
 	}
+	
+	
+	/**
+	 * Permet de supprimer tous les éléments retournés par cette requête
+	 */
+	public static void deleteAll(EntityManager em,Query q)
+	{
+		List  mces = q.getResultList();
+		
+		for (Object mce : mces)
+		{
+			em.remove(mce);
+		}
+	}
+	
+	
+	
 }

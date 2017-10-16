@@ -36,7 +36,6 @@ import javax.validation.constraints.NotNull;
 import fr.amapj.model.engine.Identifiable;
 import fr.amapj.model.engine.Mdm;
 import fr.amapj.model.models.contrat.modele.ModeleContratDate;
-import fr.amapj.model.models.distribution.DatePermanenceUtilisateur;
 import fr.amapj.model.models.fichierbase.Utilisateur;
 import fr.amapj.model.models.permanence.reel.PermanenceCell;
 

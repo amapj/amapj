@@ -27,14 +27,20 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import fr.amapj.model.engine.Identifiable;
 import fr.amapj.model.engine.Mdm;
 
 @Entity
+@Table( uniqueConstraints=
+{
+   @UniqueConstraint(columnNames={"modeleContrat_id" , "dateLiv"})
+})
 public class ModeleContratDate implements Identifiable
 {
 

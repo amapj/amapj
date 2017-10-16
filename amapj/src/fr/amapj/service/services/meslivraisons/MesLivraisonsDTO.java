@@ -22,7 +22,6 @@
 
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import fr.amapj.service.services.edgenerator.excel.emargement.EGFeuilleEmargement;
@@ -33,9 +32,6 @@ import fr.amapj.service.services.edgenerator.excel.emargement.EGFeuilleEmargemen
  */
 public class MesLivraisonsDTO
 {
-	public Date dateDebut;
-	
-	public Date dateFin;
 	
 	public List<JourLivraisonsDTO> jours = new ArrayList<JourLivraisonsDTO>();
 	

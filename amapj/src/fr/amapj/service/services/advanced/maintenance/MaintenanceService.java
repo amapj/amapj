@@ -22,24 +22,13 @@
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.poi.util.IOUtils;
 
 import fr.amapj.model.engine.transaction.DbWrite;
 import fr.amapj.model.engine.transaction.TransactionHelper;
-import fr.amapj.model.models.contrat.modele.ModeleContrat;
-import fr.amapj.model.models.contrat.reel.Contrat;
-import fr.amapj.model.models.contrat.reel.Paiement;
-import fr.amapj.model.models.remise.RemiseProducteur;
-import fr.amapj.service.services.gestioncontrat.GestionContratService;
-import fr.amapj.service.services.mescontrats.MesContratsService;
-import fr.amapj.service.services.remiseproducteur.RemiseProducteurService;
 
 /**
  * Service pour la maintenance de base 
@@ -47,91 +36,6 @@ import fr.amapj.service.services.remiseproducteur.RemiseProducteurService;
  */
 public class MaintenanceService
 {
-	
-	private final static Logger logger = LogManager.getLogger();
-	
-	public MaintenanceService()
-	{
-
-	}
-
-
-
-	// PARTIE SUPPRESSION D'UN MODELE DE CONTRAT ET DE TOUS LES CONTRATS ASSOCIES
-
-	/**
-	 * Permet de supprimer un modele de contrat et TOUS les contrats associées
-	 * Ceci est fait dans une transaction en ecriture  
-	 */
-	@DbWrite
-	public void deleteModeleContratAndContrats(Long modeleContratId)
-	{
-		EntityManager em = TransactionHelper.getEm();
-		ModeleContrat mc = em.find(ModeleContrat.class, modeleContratId);
-		
-		// On supprime d'abord toutes les remises
-		List<RemiseProducteur> remises = getAllRemises(em,mc);
-		for (RemiseProducteur remiseProducteur : remises)
-		{
-			new RemiseProducteurService().deleteRemise(remiseProducteur.getId());
-		}
-		
-		// On supprime ensuite tous les paiements
-		List<Paiement> paiements = getAllPaiements(em,mc);
-		for (Paiement paiement : paiements)
-		{
-			em.remove(paiement);
-		}
-		
-		
-		// On supprime ensuite tous les contrats
-		List<Contrat> cs = getAllContrats(em, mc);
-		for (Contrat contrat : cs)
-		{
-			new MesContratsService().deleteContrat(contrat.getId());
-		}
-		
-		// On supprime ensuite le modele de contrat
-		new GestionContratService().deleteContrat(modeleContratId);
-		
-	}
-
-	
-	
-
-
-
-	private List<RemiseProducteur> getAllRemises(EntityManager em, ModeleContrat mc)
-	{
-		Query q = em.createQuery("select r from RemiseProducteur r  WHERE r.datePaiement.modeleContrat=:mc ORDER BY r.datePaiement.datePaiement desc");
-		q.setParameter("mc", mc);
-		
-		List<RemiseProducteur> rps = q.getResultList();
-		return rps;
-	}
-
-	
-	private List<Paiement> getAllPaiements(EntityManager em, ModeleContrat mc)
-	{
-		Query q = em.createQuery("select p from Paiement p  WHERE p.contrat.modeleContrat=:mc");
-		q.setParameter("mc", mc);
-		List<Paiement> rps = q.getResultList();
-		return rps;
-	}
-
-
-	/**
-	 * 
-	 */
-	private List<Contrat> getAllContrats(EntityManager em, ModeleContrat mc)
-	{
-		Query q = em.createQuery("select c from Contrat c WHERE c.modeleContrat=:mc");
-		q.setParameter("mc",mc);
-		List<Contrat> cs = q.getResultList();
-		return cs;
-	}
-	
-
 	
 	/**
 	 * Permet de vider le cache de la base

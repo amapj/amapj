@@ -29,7 +29,7 @@ public class StatInstanceDTO
 {
 	public String nomInstance;
 	
-	// 0 pour l emois en cours, 1 pour le mois precedent, 2 pour pour le precedent precedent
+	// 0 pour le mois en cours, 1 pour le mois precedent, 2 pour pour le precedent precedent
 	public Detail[] detail;
 	
 	public int erreurUser;
@@ -42,6 +42,4 @@ public class StatInstanceDTO
 		public int nbAccess;
 		public int nbVisiteur;
 	}
-	
-	
 }

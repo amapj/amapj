@@ -18,7 +18,7 @@
  * 
  * 
  */
- package fr.amapj.view.views.gestioncontratsignes.update;
+ package fr.amapj.view.views.gestioncontratsignes.modifiermasse.date;
 
 import java.util.Date;
 import java.util.List;
@@ -39,7 +39,7 @@ import fr.amapj.view.engine.popup.formpopup.validator.CollectionNotIn;
 import fr.amapj.view.engine.popup.formpopup.validator.CollectionSizeValidator;
 import fr.amapj.view.engine.popup.formpopup.validator.ColumnNotNull;
 import fr.amapj.view.engine.popup.formpopup.validator.IValidator;
-import fr.amapj.view.views.gestioncontratsignes.PopupDeplacerDateLivraison.Step;
+import fr.amapj.view.views.gestioncontratsignes.modifiermasse.date.PopupDeplacerDateLivraison.Step;
 
 /**
  * Permet d'ajouter des dates 

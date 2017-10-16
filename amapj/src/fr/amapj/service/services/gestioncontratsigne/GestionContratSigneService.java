@@ -26,16 +26,16 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
+import fr.amapj.common.CollectionUtils;
 import fr.amapj.common.DateUtils;
 import fr.amapj.common.LongUtils;
 import fr.amapj.common.SQLUtils;
+import fr.amapj.common.collections.G1D;
 import fr.amapj.model.engine.transaction.DbRead;
 import fr.amapj.model.engine.transaction.DbWrite;
 import fr.amapj.model.engine.transaction.TransactionHelper;
+import fr.amapj.model.models.contrat.modele.EtatModeleContrat;
 import fr.amapj.model.models.contrat.modele.ModeleContrat;
 import fr.amapj.model.models.contrat.modele.ModeleContratDate;
 import fr.amapj.model.models.contrat.modele.ModeleContratExclude;
@@ -43,12 +43,17 @@ import fr.amapj.model.models.contrat.modele.ModeleContratProduit;
 import fr.amapj.model.models.contrat.reel.Contrat;
 import fr.amapj.model.models.contrat.reel.ContratCell;
 import fr.amapj.model.models.contrat.reel.EtatPaiement;
-import fr.amapj.model.models.fichierbase.Producteur;
 import fr.amapj.model.models.fichierbase.Produit;
 import fr.amapj.model.models.fichierbase.Utilisateur;
 import fr.amapj.service.services.gestioncontrat.GestionContratService;
 import fr.amapj.service.services.gestioncontrat.LigneContratDTO;
 import fr.amapj.service.services.gestioncontrat.ModeleContratDTO;
+import fr.amapj.service.services.gestioncontratsigne.InfoBarrerProduitDTO.CellChange;
+import fr.amapj.service.services.gestioncontratsigne.InfoBarrerProduitDTO.DiffState;
+import fr.amapj.service.services.mescontrats.ContratColDTO;
+import fr.amapj.service.services.mescontrats.ContratDTO;
+import fr.amapj.service.services.mescontrats.ContratLigDTO;
+import fr.amapj.service.services.mescontrats.MesContratsService;
 import fr.amapj.service.services.utilisateur.util.UtilisateurUtil;
 import fr.amapj.view.engine.widgets.CurrencyTextFieldConverter;
 
@@ -151,27 +156,27 @@ public class GestionContratSigneService
 	// PARTIE REQUETAGE POUR AVOIR LA LISTE DES CONTRATS MODLEE D'UN PRODUCTEUR
 
 	/**
-	 * Permet de charger la liste de tous les modeles de contrats dans une
-	 * transaction en lecture
+	 * Permet de charger la liste de tous les modeles de contrats d'un producteur,
+	 * actif ou en creation 
+	 * 
+	 *  Les contrats sont triés avec en tete ceux dont la date de derniere livraison est la plus lointaine 
 	 */
 	@DbRead
-	public List<ModeleContrat> getModeleContrat(Long idProducteur)
+	public List<ModeleContrat> getModeleContratCreationOrActif(Long idProducteur)
 	{
 		EntityManager em = TransactionHelper.getEm();
 
-		Producteur prod = em.find(Producteur.class, idProducteur);
-
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<ModeleContrat> cq = cb.createQuery(ModeleContrat.class);
-
-		Root<ModeleContrat> root = cq.from(ModeleContrat.class);
-
-		// On ajoute la condition where
-		cq.where(cb.equal(root.get(ModeleContrat.P.PRODUCTEUR.prop()), prod));
-
-		List<ModeleContrat> mcs = em.createQuery(cq).getResultList();
-
-		return mcs;
+		Query q = em.createQuery("select max(mcd.dateLiv),mcd.modeleContrat from ModeleContratDate mcd "
+				+ " where mcd.modeleContrat.producteur.id=:id and mcd.modeleContrat.etat !=:etat "
+				+ " GROUP BY mcd.modeleContrat ORDER BY max(mcd.dateLiv) desc , mcd.modeleContrat.id desc");
+		
+		q.setParameter("id", idProducteur);
+		q.setParameter("etat", EtatModeleContrat.ARCHIVE);
+		
+		List<Object[]> mcs = q.getResultList();
+		
+		return CollectionUtils.select(mcs, e-> (ModeleContrat) e[1]);
+		
 	}
 
 	// PARTIE REQUETAGE POUR AVOIR LA LISTE DES UTILISATEURS QUI N'ONT PAS DE
@@ -234,7 +239,7 @@ public class GestionContratSigneService
 	}
 
 	/*
-	 * Gestion des annulations des dates de livraisons
+	 * Gestion des annulations des dates de livraisons (avec barré de la date) 
 	 */
 	@DbRead
 	public AnnulationDateLivraisonDTO getAnnulationDateLivraisonDTO(Long mcId)
@@ -267,9 +272,20 @@ public class GestionContratSigneService
 		}
 		return dto;
 	}
+	
+	static public class ResBarrerDate
+	{
+		// 
+		public String msg;
+		
+		// Liste des dates qu'il faudra barrer
+		public List<Long> idModeleContratDates;
+	}
+	
+	
 
 	@DbRead
-	public String getAnnulationInfo(final AnnulationDateLivraisonDTO annulationDto)
+	public ResBarrerDate getAnnulationInfo(final AnnulationDateLivraisonDTO annulationDto)
 	{
 		EntityManager em = TransactionHelper.getEm();
 
@@ -322,12 +338,17 @@ public class GestionContratSigneService
 		List<Utilisateur> utilisateurs = q.getResultList();
 
 		buf.append(UtilisateurUtil.getUtilisateurImpactes(utilisateurs));
-		return buf.toString();
+		
+		ResBarrerDate resBarrerDate = new ResBarrerDate();
+		resBarrerDate.msg =  buf.toString();
+		resBarrerDate.idModeleContratDates = CollectionUtils.select(mcds, e->e.getId());
+		
+		return resBarrerDate;
 
 	}
 
 	@DbWrite
-	public void performAnnulationDateLivraison(final AnnulationDateLivraisonDTO annulationDto)
+	public void performAnnulationDateLivraison(AnnulationDateLivraisonDTO annulationDto,ResBarrerDate resBarrerDate)
 	{
 		EntityManager em = TransactionHelper.getEm();
 
@@ -347,6 +368,27 @@ public class GestionContratSigneService
 			// On supprime la cellule dans la base devenue inutile
 			em.remove(contratCell);
 		}
+		
+		// On barre ensuite les dates 
+		ContratDTO contratDTO = new MesContratsService().loadContrat(annulationDto.mcId,null);
+		contratDTO.expandExcluded();
+		
+		for (Long idModeleContratDate : resBarrerDate.idModeleContratDates)
+		{
+			// On retrouve l'index de la date 
+			int index = CollectionUtils.findIndex(contratDTO.contratLigs, e->(e.modeleContratDateId==idModeleContratDate));
+			
+			// On barre toute la ligne de cet index
+			int nbCol = contratDTO.contratColumns.size();
+			for (int j = 0; j < nbCol; j++)
+			{
+				contratDTO.excluded[index][j] = true;
+			}
+		}
+		
+		// 
+		new GestionContratService().updateDateBarreesModeleContrat(contratDTO);
+		
 	}
 
 	// PARTIE REQUETAGE POUR AVOIR LA LISTE DES MAILS DES UTILISATEURS QUI ONT
@@ -639,6 +681,193 @@ public class GestionContratSigneService
 			index++;
 		}
 	}
+	
+	
+	
+	/*
+	 * Gestion des barrer sur les produits 
+	 */
+	
+	
+	static public class ResBarrerProduit
+	{
+		// 
+		public String msg;
+		
+		// Liste des cellules de contrat qu'il faudra supprimer
+		public List<Long> idContratCellToDeletes;
+	}
+	
+	@DbRead
+	public ResBarrerProduit getBarrerProduitInfo(ContratDTO newContratDTO)
+	{
+		EntityManager em = TransactionHelper.getEm();
+
+		StringBuffer buf = new StringBuffer();
+
+		// On charge les anciennes valeurs  
+		ContratDTO oldContratDTO = new MesContratsService().loadContrat(newContratDTO.modeleContratId,null);
+		
+		// On compare les anciennes valeurs et les nouvelles
+		InfoBarrerProduitDTO infos = compareGrilleBarre(oldContratDTO.excluded,newContratDTO.excluded,newContratDTO,em);
+
+		// On affiche la liste des produits impactés 
+		buf.append(infos.computeStringInfo());
+		buf.append("<br/>");
+		
+		// On recherche la liste des toutes les cellules de contrats qu'il faudra mettre à zéro 
+		List<ContratCell> toDelete = getAllContratCellToDelete(infos.cellChanges,em);
+		
+		// On ajoute les infos sur les quantités mises à zéro 
+		buf.append(computeQteMiseAzero(toDelete));
+		buf.append("<br/>");
+
+		// On recherche la liste des utilisateurs impactés 
+		List<Utilisateur> utilisateurs = CollectionUtils.selectDistinct(toDelete, e->e.getContrat().getUtilisateur());
+		CollectionUtils.sort(utilisateurs,e->e.getNom(),e->e.getPrenom());
+		
+		buf.append(UtilisateurUtil.getUtilisateurImpactes(utilisateurs));
+		
+		ResBarrerProduit res = new ResBarrerProduit();
+		res.msg = buf.toString();
+		res.idContratCellToDeletes = CollectionUtils.select(toDelete, e->e.getId());
+		
+		return res;
+
+	}
+
+	private List<ContratCell> getAllContratCellToDelete(List<CellChange> cellChanges, EntityManager em)
+	{
+		List<ContratCell> res = new ArrayList<ContratCell>();
+		
+		for (CellChange cellChange : cellChanges)
+		{
+			// On recherches les cellules de contrats impactés 
+			Query q = em.createQuery("select c from ContratCell c where " + 
+										" c.modeleContratProduit.id =:mcpid and " +
+										" c.modeleContratDate.id =:mcdid");
+			
+			q.setParameter("mcpid", cellChange.modeleContratProduit.getId());
+			q.setParameter("mcdid", cellChange.modeleContratDate.getId());
+			
+			res.addAll(q.getResultList());
+			
+		}
+		return res;
+	}
+
+	private String computeQteMiseAzero(List<ContratCell> toDelete)
+	{
+		// On réalise un eclatement 1D des ContratCell par produit 
+		G1D<Produit, ContratCell> c1 = new G1D<Produit, ContratCell>();
+		
+		c1.fill(toDelete);
+		c1.groupBy(e->e.getModeleContratProduit().getProduit());
+		
+		c1.sortLigAdvanced(e->e.getModeleContratProduit().getIndx(),true);
+		
+		c1.compute();
+		
+		// On fait ensuite de la chaine a afficher 
+		List<Produit> produits = c1.getKeys();
+		
+		StringBuilder buf = new StringBuilder();
+		buf.append("Les quantités suivantes vont être mises à zéro: ( " + produits.size() + " produits)<br/>");
+		for (int i = 0; i < produits.size(); i++)
+		{
+			Produit prod = produits.get(i);
+			List<ContratCell> cells = c1.getCell(i);
+			int qte = CollectionUtils.accumulateInt(cells, e->e.getQte()); 
+		
+			buf.append(" - " + qte + " " + prod.getNom() + " , " + prod.getConditionnement() + "<br/>");
+		}
+		buf.append("<br/>");
+		
+		return buf.toString();
+	}
+
+	private InfoBarrerProduitDTO compareGrilleBarre(boolean[][] oldC, boolean[][] newC, ContratDTO contratDTO, EntityManager em)
+	{
+		InfoBarrerProduitDTO info = new InfoBarrerProduitDTO();
+		
+		
+		int nbLig = contratDTO.contratLigs.size();
+		int nbCol = contratDTO.contratColumns.size();
+		
+		
+		for (int j = 0; j < nbCol; j++)
+		{
+			ContratColDTO col = contratDTO.contratColumns.get(j);
+		
+			for (int i = 0; i < nbLig; i++)
+			{
+				ContratLigDTO lig = contratDTO.contratLigs.get(i);
+				processDiffSate(i,j,oldC,newC,info,col,lig,em);
+			}
+		}
+		
+		return info;
+	}
+	
+	
+	private void processDiffSate(int i, int j, boolean[][] oldC, boolean[][] newC, InfoBarrerProduitDTO info, ContratColDTO col, ContratLigDTO lig, EntityManager em)
+	{
+		// Calcul de l'ancien status
+		boolean oldState = false;
+		if (oldC!=null)
+		{
+			oldState = oldC[i][j];
+		}
+		
+		// Calcul du nouveau status
+		boolean newState = newC[i][j];
+		
+		// Si pas de changement : rien à faire 
+		if (oldState==newState)
+		{
+			return;
+		}
+		
+		ModeleContratDate mcd = em.find(ModeleContratDate.class,lig.modeleContratDateId);
+		ModeleContratProduit mcp = em.find(ModeleContratProduit.class,col.modeleContratProduitId);
+		
+		// Si on a barré un produit non barré avant
+		if (newState==true)
+		{
+			
+			info.addCellChange(DiffState.NO_MORE_DISPO,mcd,mcp);
+		}
+		// Si on a débarré un produit barré avant 
+		else
+		{
+			info.addCellChange(DiffState.NOW_DISPO,mcd,mcp);
+		}
+	}
+
+
+	
+	
+	
+	@DbWrite
+	public void performBarrerProduitInfo(ResBarrerProduit resBarrerProduit,ContratDTO newContratDTO)
+	{
+		EntityManager em = TransactionHelper.getEm();
+						
+		// On efface les cellules de contrat
+		for (Long idContratCell : resBarrerProduit.idContratCellToDeletes)
+		{
+			//
+			ContratCell contratCell = em.find(ContratCell.class, idContratCell);
+			
+			// On supprime la cellule dans la base devenue inutile
+			em.remove(contratCell);
+		}
+		
+		// On barre ensuite les cellules sur le contrat vierge 
+		new GestionContratService().updateDateBarreesModeleContrat(newContratDTO);
+	}
+	
+	
 
 
 	// REQUETAGE DIVERS
@@ -694,5 +923,7 @@ public class GestionContratSigneService
 
 		return SQLUtils.toInt(q.getSingleResult()) > 0;
 	}
+
+	
 
 }

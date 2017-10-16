@@ -18,13 +18,14 @@
  * 
  * 
  */
- package fr.amapj.view.views.gestioncontratsignes;
+ package fr.amapj.view.views.gestioncontratsignes.modifiermasse.date;
 
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.shared.ui.label.ContentMode;
 
 import fr.amapj.service.services.gestioncontratsigne.AnnulationDateLivraisonDTO;
 import fr.amapj.service.services.gestioncontratsigne.GestionContratSigneService;
+import fr.amapj.service.services.gestioncontratsigne.GestionContratSigneService.ResBarrerDate;
 import fr.amapj.view.engine.popup.formpopup.WizardFormPopup;
 
 /**
@@ -32,10 +33,11 @@ import fr.amapj.view.engine.popup.formpopup.WizardFormPopup;
  * 
  *
  */
-public class PopupAnnulationDateLivraison extends WizardFormPopup
+public class PopupBarrerDateLivraison extends WizardFormPopup
 {
 
 	private AnnulationDateLivraisonDTO annulationDto;
+	private ResBarrerDate resBarrerDate;
 
 
 	public enum Step
@@ -46,10 +48,10 @@ public class PopupAnnulationDateLivraison extends WizardFormPopup
 	/**
 	 * 
 	 */
-	public PopupAnnulationDateLivraison(Long mcId)
+	public PopupBarrerDateLivraison(Long mcId)
 	{
 		setWidth(80);
-		popupTitle = "Mise à zéro des quantités commandées sur une ou plusieurs dates de livraison";
+		popupTitle = "Barrer une ou plusieurs dates de livraison (avec mise à zéro des quantités commandées)";
 
 		// Chargement de l'objet à créer
 		annulationDto = new GestionContratSigneService().getAnnulationDateLivraisonDTO(mcId);
@@ -72,16 +74,17 @@ public class PopupAnnulationDateLivraison extends WizardFormPopup
 		// Titre
 		setStepTitle("les informations générales.");
 		
-		String str = 	"Cet outil va vous permettre de mettre à zéro les quantités commandées sur une ou plusieurs dates de livraisons, pour tous les adhérents à ce contrat</br>"+
+		String str =    "Cet outil va vous permettre de barrer une ou plusieurs dates de livraisons, pour tous les adhérents à ce contrat.<br/>"+
+				        "Les quantités commandées sur les dates barrées seront alors remises à zéro pour les contrats déjà signés.<br/>"+ 	
 						"<br/>"+
 						"Exemple de cas d'utilisation : un producteur a prévu de livrer ses produits pendant 4 mois à l'AMAP<br/>"+
 						"20 adhérents ont souscrits à ce contrat sur les 4 mois<br/>"+
 						"Suite à un problème agricole ou autre, le producteur cesse ses livraisons au bout de 3 mois<br/>"+
-						"Cet outil permet alors de mettre à zéro les quantités commandées sur le dernier mois<br/>"+
+						"Cet outil permet alors de barrer les dates et de mettre à zéro les quantités commandées sur le dernier mois<br/>"+
 						"Il faut ensuite gérer le trop payé des adhérents sous la forme d'un avoir<br/>"+
 						"<br/><br/>"+
 						"Autre exemple : un producteur ne peut assurer une livraison suite à un problème de dernière minute<br/>"+
-						"Cet outil permet alors de mettre à zéro les quantités commandées sur cette livraison<br/>";
+						"Cet outil permet alors de mettre à zéro les quantités commandées sur cette livraison et de barrer la livraison.<br/>";
 										
 		
 		addLabel(str, ContentMode.HTML);
@@ -111,12 +114,11 @@ public class PopupAnnulationDateLivraison extends WizardFormPopup
 		// Titre
 		setStepTitle("confirmation avant suppression");
 		
-		//
-		String str = new GestionContratSigneService().getAnnulationInfo(annulationDto);
+		resBarrerDate = new GestionContratSigneService().getAnnulationInfo(annulationDto);
 		
 		addLabel("Vous allez apporter les modifications suivantes sur ce contrat:", ContentMode.HTML);
 		
-		addLabel(str, ContentMode.HTML);
+		addLabel(resBarrerDate.msg, ContentMode.HTML);
 		
 		addLabel("Appuyez sur Sauvegarder pour réaliser cette modification, ou Annuler pour ne rien modifier", ContentMode.HTML);
 		
@@ -128,7 +130,7 @@ public class PopupAnnulationDateLivraison extends WizardFormPopup
 	@Override
 	protected void performSauvegarder()
 	{
-		new GestionContratSigneService().performAnnulationDateLivraison(annulationDto);
+		new GestionContratSigneService().performAnnulationDateLivraison(annulationDto,resBarrerDate);
 	}
 
 	@Override

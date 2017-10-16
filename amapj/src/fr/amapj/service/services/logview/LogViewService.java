@@ -37,13 +37,12 @@ import fr.amapj.common.AmapjRuntimeException;
 import fr.amapj.common.CollectionUtils;
 import fr.amapj.common.DateUtils;
 import fr.amapj.common.LongUtils;
-import fr.amapj.common.SQLUtils;
+import fr.amapj.common.collections.G1D;
 import fr.amapj.model.engine.transaction.Call;
 import fr.amapj.model.engine.transaction.DbRead;
 import fr.amapj.model.engine.transaction.NewTransaction;
 import fr.amapj.model.engine.transaction.TransactionHelper;
 import fr.amapj.model.models.param.ChoixOnOff;
-import fr.amapj.model.models.saas.AppInstance;
 import fr.amapj.model.models.saas.LogAccess;
 import fr.amapj.model.models.saas.TypLog;
 import fr.amapj.service.services.appinstance.LogAccessDTO;
@@ -339,66 +338,102 @@ public class LogViewService
 		Date ref2 = DateUtils.addDays(ref1, -30);
 		Date ref3 = DateUtils.addDays(ref1, -60);
 		Date ref4 = DateUtils.addDays(ref1, -90);
-
-		//
-		Query q = em.createQuery("select a from AppInstance a");
 		
-		List<AppInstance> apps = q.getResultList();
-		for (AppInstance app : apps)
+		
+		
+		// On recupere tous les logs utilisateur entre aujourd'hui et -90 jours 
+		Query q = em.createQuery("select l from LogAccess l where l.typLog = :typLog and l.dateIn>:d2");
+		q.setParameter("typLog", TypLog.USER);
+		q.setParameter("d2", ref4, TemporalType.TIMESTAMP);
+		
+		List<LogAccess> c1s = q.getResultList();
+		
+
+		// On recupere tous les logs demons en erreur entre aujourd'hui et -30 jours 
+		q = em.createQuery("select l from LogAccess l where l.typLog = :typLog and l.dateIn>:d2 and l.nbError >0");
+		q.setParameter("typLog", TypLog.DEAMON);
+		q.setParameter("d2", ref2, TemporalType.TIMESTAMP);
+		
+		List<LogAccess> c2s = q.getResultList();
+
+		List<LogAccess> cs = new ArrayList<LogAccess>();
+		cs.addAll(c1s);
+		cs.addAll(c2s);
+		
+
+		// On réalise une projection 1D de ces logs
+		// En ligne les instances 
+		G1D<String,LogAccess> c1 = new G1D<String,LogAccess>();
+		
+		// 
+		c1.fill(cs);
+		c1.groupBy(e->e.getDbName());
+		
+		// Pas de tri des lignes 
+		// Pas de tri sur les cellules
+		
+		// Calcul 
+		c1.compute();
+				 
+		// On en deduit la liste des titres de lignes 
+		List<String> dbNames = c1.getKeys();
+		
+		for (int i = 0; i < dbNames.size(); i++)
 		{
-			StatInstanceDTO dto = creatStatInstanceDTO(app,em,ref1,ref2,ref3,ref4);
+			String dbName = dbNames.get(i);
+			
+			List<LogAccess> cells = c1.getCell(i);
+			
+			StatInstanceDTO dto = creatStatInstanceDTO(dbName,cells,ref1,ref2,ref3,ref4);
 			res.add(dto);
 		}
 		
-		CollectionUtils.sort(res, e->e.detail[0].nbAccess);
+		// On trie ensuite avec en tete les instances avec le plus grand nombre d'accés 
+		CollectionUtils.sort(res, e->e.detail[0].nbAccess,false);
 		
 		return res;
 	}
 
-	private StatInstanceDTO creatStatInstanceDTO(AppInstance app,EntityManager em, Date ref1, Date ref2, Date ref3, Date ref4)
+	
+	private StatInstanceDTO creatStatInstanceDTO(String dbName,List<LogAccess> cells, Date ref1, Date ref2, Date ref3, Date ref4)
 	{
 		StatInstanceDTO dto = new StatInstanceDTO();
 		
-		dto.nomInstance = app.getNomInstance();
+		dto.nomInstance = dbName;
 		dto.detail = new Detail[3];
 		
-		dto.detail[0] = getDetail(em,dto.nomInstance,ref1,ref2);
-		dto.detail[1] = getDetail(em,dto.nomInstance,ref2,ref3);
-		dto.detail[2] = getDetail(em,dto.nomInstance,ref3,ref4);
 		
-		dto.erreurDemon = getErreur(em,dto.nomInstance,TypLog.DEAMON,ref1,ref2);
-		dto.erreurUser = getErreur(em,dto.nomInstance,TypLog.USER,ref1,ref2);
+		List<LogAccess> users = CollectionUtils.filter(cells, e->e.getTypLog()==TypLog.USER);
+		List<LogAccess> deamons = CollectionUtils.filter(cells, e->e.getTypLog()==TypLog.DEAMON);
+		
+		
+		dto.detail[0] = getDetail(select(users,ref2,ref1));
+		dto.detail[1] = getDetail(select(users,ref3,ref2));
+		dto.detail[2] = getDetail(select(users,ref4,ref3));
+		
+		dto.erreurDemon = CollectionUtils.accumulateInt(deamons, e->e.getNbError());
+		dto.erreurUser = CollectionUtils.accumulateInt(users, e->e.getNbError());
 		
 		return dto;
 	}
-
-	private int getErreur(EntityManager em, String nomInstance, TypLog typLog, Date ref1, Date ref2)
+	
+	private List<LogAccess> select(List<LogAccess> ls,Date debut,Date fin)
 	{
-		Query q = em.createQuery("select sum(l.nbError) from LogAccess l "
-				+ "where l.typLog = :typLog and l.dbName=:db and l.dateIn<=:d1 and l.dateIn>:d2");
-		q.setParameter("db", nomInstance);
-		q.setParameter("typLog", typLog);
-		q.setParameter("d1", ref1 , TemporalType.TIMESTAMP);
-		q.setParameter("d2", ref2, TemporalType.TIMESTAMP);
-		
-		return SQLUtils.toInt(q.getSingleResult());
-
+		return CollectionUtils.filter(ls, e->isIn(e,debut,fin));
 	}
-
-	private Detail getDetail(EntityManager em, String nomInstance, Date ref1,Date ref2)
+	
+	
+	private boolean isIn(LogAccess l,Date debut,Date fin)
 	{
-		Query q = em.createQuery("select count(l.idUtilisateur) , count(distinct(l.idUtilisateur)) from LogAccess l "
-				+ "where l.typLog = :typLog and l.dbName=:db and l.dateIn<=:d1 and l.dateIn>:d2");
-		q.setParameter("db", nomInstance);
-		q.setParameter("typLog", TypLog.USER);
-		q.setParameter("d1", ref1 , TemporalType.TIMESTAMP);
-		q.setParameter("d2", ref2, TemporalType.TIMESTAMP);
-		
-		Object[] ds = (Object[]) q.getSingleResult();
+		return l.getDateIn().after(debut) && ( l.getDateIn().before(fin) || l.getDateIn().equals(fin) );
+	}
+	
 
+	private Detail getDetail(List<LogAccess> ls)
+	{
 		Detail d = new Detail();
-		d.nbAccess = LongUtils.toInt(ds[0]);
-		d.nbVisiteur = LongUtils.toInt(ds[1]);
+		d.nbAccess = ls.size();
+		d.nbVisiteur = CollectionUtils.selectDistinct(ls, e->e.getIdUtilisateur()).size();
 		
 		return d;
 	}

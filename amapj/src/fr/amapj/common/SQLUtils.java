@@ -66,8 +66,10 @@ public class SQLUtils
 	
 	/**
 	 * Permet de supprimer tous les éléments retournés par cette requête
+	 * 
+	 * Retourne le nombre d'elements supprimés
 	 */
-	public static void deleteAll(EntityManager em,Query q)
+	public static int deleteAll(EntityManager em,Query q)
 	{
 		List  mces = q.getResultList();
 		
@@ -75,6 +77,8 @@ public class SQLUtils
 		{
 			em.remove(mce);
 		}
+		
+		return mces.size();
 	}
 	
 	

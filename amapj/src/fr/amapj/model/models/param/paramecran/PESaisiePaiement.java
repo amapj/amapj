@@ -21,6 +21,7 @@
  package fr.amapj.model.models.param.paramecran;
 
 import fr.amapj.model.models.param.ChoixOuiNon;
+import fr.amapj.model.models.param.paramecran.common.AbstractParamEcran;
 
 
 

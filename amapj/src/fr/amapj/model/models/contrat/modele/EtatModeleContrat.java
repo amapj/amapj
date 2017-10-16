@@ -26,6 +26,10 @@ public enum EtatModeleContrat
 	CREATION ,
 	
 	// le modele de contrat est visible par tous les utilisateurs
-	ACTIF ;
+	ACTIF ,
+	
+	// le modele de contrat est archivé
+	ARCHIVE;
+	
 
 }

@@ -26,7 +26,6 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import fr.amapj.model.engine.DbTools;
 import fr.amapj.model.engine.transaction.DbRead;
 import fr.amapj.model.engine.transaction.DbWrite;
 import fr.amapj.model.engine.transaction.TransactionHelper;
@@ -35,6 +34,7 @@ import fr.amapj.model.models.fichierbase.Producteur;
 import fr.amapj.model.models.fichierbase.RoleAdmin;
 import fr.amapj.model.models.fichierbase.RoleTresorier;
 import fr.amapj.model.models.fichierbase.Utilisateur;
+import fr.amapj.service.engine.tools.DbToDto;
 
 /**
  * Permet la gestion des droits d'accès
@@ -261,7 +261,7 @@ public class AccessManagementService
 	{
 		EntityManager em = TransactionHelper.getEm();
 		Query q = em.createQuery("select r from RoleAdmin r");
-		return  DbTools.transform(q, (RoleAdmin r) ->loadAdminDTO(r));
+		return  DbToDto.transform(q, (RoleAdmin r) ->loadAdminDTO(r));
 	}
 	
 	
@@ -316,7 +316,7 @@ public class AccessManagementService
 	{
 		EntityManager em = TransactionHelper.getEm();
 		Query q = em.createQuery("select r from RoleTresorier r");
-		return  DbTools.transform(q, (RoleTresorier r) ->loadTresorierDTO(r));
+		return  DbToDto.transform(q, (RoleTresorier r) ->loadTresorierDTO(r));
 	}
 	
 	

@@ -18,7 +18,7 @@
  * 
  * 
  */
- package fr.amapj.view.views.gestioncontratsignes;
+ package fr.amapj.view.views.gestioncontratsignes.modifiermasse.produit;
 
 import com.vaadin.data.util.converter.Converter;
 import com.vaadin.shared.ui.label.ContentMode;

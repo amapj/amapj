@@ -40,6 +40,7 @@ import fr.amapj.service.services.mescontrats.AdhesionDTO.AffichageOnly;
 import fr.amapj.service.services.mescontrats.MesContratsDTO;
 import fr.amapj.service.services.parametres.ParametresService;
 import fr.amapj.view.engine.excelgenerator.LinkCreator;
+import fr.amapj.view.engine.menu.MenuList;
 import fr.amapj.view.engine.popup.suppressionpopup.PopupSuppressionListener;
 import fr.amapj.view.engine.popup.suppressionpopup.SuppressionPopup;
 import fr.amapj.view.engine.popup.suppressionpopup.UnableToSuppressException;
@@ -244,7 +245,7 @@ public class MesContratsViewAdhesionPart implements PopupSuppressionListener
 	
 	private boolean shouldDisplayLinkBulletinInAffichageOnly(AffichageOnly aff)
 	{
-		PEMesContrats peMesContrats = new ParametresService().getPEMesContrats();
+		PEMesContrats peMesContrats = (PEMesContrats) new ParametresService().loadParamEcran(MenuList.MES_CONTRATS);
 		switch (peMesContrats.canPrintAdhesion)
 		{
 			case JAMAIS:
@@ -300,7 +301,7 @@ public class MesContratsViewAdhesionPart implements PopupSuppressionListener
 			return false;
 		}
 		
-		PEMesContrats peMesContrats = new ParametresService().getPEMesContrats();
+		PEMesContrats peMesContrats = (PEMesContrats) new ParametresService().loadParamEcran(MenuList.MES_CONTRATS);
 		switch (peMesContrats.canPrintAdhesion)
 		{
 			case JAMAIS:

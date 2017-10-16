@@ -32,6 +32,7 @@ import fr.amapj.view.views.advanced.devtools.DevToolsView;
 import fr.amapj.view.views.advanced.maintenance.MaintenanceView;
 import fr.amapj.view.views.advanced.supervision.SupervisionView;
 import fr.amapj.view.views.appinstance.AppInstanceListPart;
+import fr.amapj.view.views.archivage.ArchivageContratListPart;
 import fr.amapj.view.views.compte.MonCompteView;
 import fr.amapj.view.views.contratsamapien.ContratsAmapienListPart;
 import fr.amapj.view.views.cotisation.bilan.BilanCotisationView;
@@ -118,6 +119,7 @@ public class MenuInfo
 		menus.add(new MenuDescription(MenuList.PRODUIT, ProduitListPart.class , RoleList.REFERENT));
 		menus.add(new MenuDescription(MenuList.CONTRATS_AMAPIEN,  ContratsAmapienListPart.class , RoleList.REFERENT ));
 		menus.add(new MenuDescription(MenuList.LIVRAISON_AMAPIEN,  LivraisonAmapienView.class , RoleList.REFERENT ));
+		menus.add(new MenuDescription(MenuList.CONTRAT_ARCHIVE,  ArchivageContratListPart.class , RoleList.REFERENT ));
 		
 		// Partie permanence
 		menus.add(new MenuDescription(MenuList.PERIODE_PERMANENCE, PeriodePermanenceListPart.class , RoleList.REFERENT , ModuleList.PLANNING_DISTRIBUTION ).setCategorie("PERMANENCES"));

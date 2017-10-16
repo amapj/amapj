@@ -26,6 +26,7 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import fr.amapj.model.models.param.paramecran.PEMesLivraisons;
 import fr.amapj.service.services.edgenerator.excel.emargement.EGFeuilleEmargement;
 import fr.amapj.service.services.meslivraisons.JourLivraisonsDTO;
 import fr.amapj.service.services.meslivraisons.JourLivraisonsDTO.InfoPermanence;
@@ -33,13 +34,16 @@ import fr.amapj.service.services.meslivraisons.MesLivraisonsDTO;
 import fr.amapj.service.services.meslivraisons.MesLivraisonsService;
 import fr.amapj.service.services.meslivraisons.ProducteurLivraisonsDTO;
 import fr.amapj.service.services.meslivraisons.QteProdDTO;
-import fr.amapj.service.services.permanence.periode.PeriodePermanenceDateDTO;
+import fr.amapj.service.services.parametres.ParametresService;
 import fr.amapj.service.services.session.SessionManager;
 import fr.amapj.view.engine.excelgenerator.LinkCreator;
+import fr.amapj.view.engine.menu.MenuList;
 import fr.amapj.view.engine.popup.PopupListener;
 import fr.amapj.view.engine.template.FrontOfficeView;
 import fr.amapj.view.engine.tools.BaseUiTools;
-import fr.amapj.view.views.common.semaineviewer.SemaineViewer;
+import fr.amapj.view.views.common.gapviewer.AbstractGapViewer;
+import fr.amapj.view.views.common.gapviewer.GapViewerUtil;
+import fr.amapj.view.views.common.gapviewer.WeekViewer;
 
 
 /**
@@ -63,7 +67,7 @@ public class MesLivraisonsView extends FrontOfficeView implements PopupListener
 	
 	private VerticalLayout livraison;
 	
-	private SemaineViewer semaineViewer;
+	private AbstractGapViewer semaineViewer;
 	
 	private SimpleDateFormat df1 = new SimpleDateFormat("EEEEE dd MMMMM yyyy");
 
@@ -80,7 +84,9 @@ public class MesLivraisonsView extends FrontOfficeView implements PopupListener
 	@Override
 	public void enter()
 	{
-		semaineViewer = new SemaineViewer(this);
+		PEMesLivraisons peMesLivraisons = (PEMesLivraisons) new ParametresService().loadParamEcran(MenuList.MES_LIVRAISONS);
+		
+		semaineViewer = GapViewerUtil.createGapWiever(peMesLivraisons.modeAffichage, this);
 		addComponent(semaineViewer.getComponent());
 		
 		VerticalLayout central = new VerticalLayout();
@@ -100,8 +106,7 @@ public class MesLivraisonsView extends FrontOfficeView implements PopupListener
 
 	public void onPopupClose()
 	{
-		MesLivraisonsDTO res = new MesLivraisonsService().getMesLivraisons(semaineViewer.getDate(),SessionManager.getUserRoles(),SessionManager.getUserId());
-		semaineViewer.updateTitreValue(res.dateDebut, res.dateFin);
+		MesLivraisonsDTO res = new MesLivraisonsService().getMesLivraisons(semaineViewer.getDateDebut(),semaineViewer.getDateFin(),SessionManager.getUserRoles(),SessionManager.getUserId());
 		
 		// Pour la semaine, ajout des planning mensuels de distribution
 		planning.removeAllComponents();

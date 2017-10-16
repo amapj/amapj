@@ -44,14 +44,43 @@ public class DeamonsUtils
 {
 	private final static Logger logger = LogManager.getLogger();
 
-	
+	/**
+	 * Permet d'executer un demon dans toutes les bases 
+	 * 
+	 */
 	static public void executeAsDeamon(Class clazz,DeamonsImpl... deamons)
 	{
-		String deamonName = clazz.getSimpleName();
-		
 		// On fait une copie de la liste des bases : on ne veut pas tenir compte des ajouts enventuels de base
 		// avant la fin du déroulement complet du démon
 		List<DataBaseInfo> dataBaseInfos = new ArrayList<DataBaseInfo>(DbUtil.getAllDbs());
+	
+		internalExecuteAsDeamon(clazz, dataBaseInfos, deamons);
+	}
+	
+	
+	
+	/**
+	 * Permet d'executer un demon UNIQUEMENT dans la base MASTER 
+	 * 
+	 */
+	static public void executeAsDeamonInMaster(Class clazz,DeamonsImpl... deamons)
+	{
+		// On récupere la base de données MASTER
+		List<DataBaseInfo> dataBaseInfos = new ArrayList<DataBaseInfo>();
+		dataBaseInfos.add(DbUtil.getMasterDb());
+	
+		internalExecuteAsDeamon(clazz, dataBaseInfos, deamons);
+	}
+	
+	
+	
+	/**
+	 * Permet l'execution d'un demon dans la liste des bases indiqués
+	 */
+	static private void internalExecuteAsDeamon(Class clazz,List<DataBaseInfo> dataBaseInfos,DeamonsImpl... deamons)
+	{
+		String deamonName = clazz.getSimpleName();
+		
 		for (DataBaseInfo dataBaseInfo : dataBaseInfos)
 		{
 			if (dataBaseInfo.getState()==AppState.ON)
@@ -83,6 +112,5 @@ public class DeamonsUtils
 			}
 		}
 	}
-	
 	
 }

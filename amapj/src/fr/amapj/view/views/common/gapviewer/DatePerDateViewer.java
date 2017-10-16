@@ -18,7 +18,7 @@
  * 
  * 
  */
- package fr.amapj.view.views.common.dateviewer;
+ package fr.amapj.view.views.common.gapviewer;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -44,7 +44,7 @@ import fr.amapj.view.engine.tools.BaseUiTools;
  * La liste d'entrée doit être triée dans l'ordre croissant 
  *
  */
-public class  DateViewer<T>
+public class  DatePerDateViewer<T>
 {
 	
 	private SimpleDateFormat df1 = new SimpleDateFormat("EEEEE dd MMMMM yyyy");
@@ -66,7 +66,7 @@ public class  DateViewer<T>
 
 	
 	
-	public DateViewer(List<T> dates,GenericUtils.ToDate<T> toDate,PopupListener listener)
+	public DatePerDateViewer(List<T> dates,GenericUtils.ToDate<T> toDate,PopupListener listener)
 	{
 		this.dates = dates;
 		this.toDate = toDate;

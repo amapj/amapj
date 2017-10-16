@@ -35,6 +35,7 @@ import fr.amapj.service.services.parametres.ParametresService;
 import fr.amapj.service.services.remiseproducteur.PaiementRemiseDTO;
 import fr.amapj.service.services.remiseproducteur.RemiseDTO;
 import fr.amapj.service.services.remiseproducteur.RemiseProducteurService;
+import fr.amapj.view.engine.menu.MenuList;
 
 
 /**
@@ -60,7 +61,7 @@ public class EGRemise extends AbstractExcelGenerator
 		ModeleContrat mc = remise.getDatePaiement().getModeleContrat();
 		RemiseDTO dto = new RemiseProducteurService().loadRemise(remiseId);
 		
-		PEReceptionCheque peConf = new ParametresService().getPEReceptionCheque();
+		PEReceptionCheque peConf = (PEReceptionCheque) new ParametresService().loadParamEcran(MenuList.RECEPTION_CHEQUES);
 		
 		// Calcul du nombre de colonnes :  Nom + prénom + 1 montant du chéque + commentaire 1 + commentaire 2
 		et.addSheet(dto.moisRemise, 5, 20);

@@ -18,7 +18,7 @@
  * 
  * 
  */
- package fr.amapj.view.views.gestioncontratsignes;
+ package fr.amapj.view.views.gestioncontratsignes.modifiermasse.date;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

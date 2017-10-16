@@ -23,9 +23,7 @@
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.shared.ui.label.ContentMode;
 
-import fr.amapj.model.models.param.paramecran.AbstractParamEcran;
 import fr.amapj.model.models.param.paramecran.PESaisiePaiement;
-import fr.amapj.service.services.parametres.ParamEcranDTO;
 import fr.amapj.service.services.parametres.ParametresService;
 import fr.amapj.view.engine.menu.MenuList;
 import fr.amapj.view.engine.popup.formpopup.WizardFormPopup;
@@ -41,10 +39,6 @@ public class PESaisiePaiementEditorPart extends WizardFormPopup
 
 	private PESaisiePaiement pe;
 
-	private boolean create;
-	
-	final static private MenuList menu = MenuList.OUT_SAISIE_PAIEMENT;
-
 	public enum Step
 	{
 		GENERAL ;
@@ -55,27 +49,11 @@ public class PESaisiePaiementEditorPart extends WizardFormPopup
 	 */
 	public PESaisiePaiementEditorPart()
 	{
-		
-		ParamEcranDTO p = new ParametresService().getParamEcran(menu);
-		
-		this.create = (p==null);
+		pe = (PESaisiePaiement) new ParametresService().loadParamEcran(MenuList.OUT_SAISIE_PAIEMENT);
 		
 		setWidth(80);
-		popupTitle = "Paramètrage de l'écran \""+menu.getTitle()+"\"";
-		
-		if (create)
-		{
-			
-			this.pe = new PESaisiePaiement();
-			this.pe.setMenu(menu);
-		}
-		else
-		{
-			this.pe = (PESaisiePaiement) AbstractParamEcran.load(p);	
-		}	
-		
-	
-		
+		popupTitle = "Paramètrage de l'écran \""+pe.getMenu().getTitle()+"\"";
+
 		item = new BeanItem<PESaisiePaiement>(this.pe);
 
 	}
@@ -126,8 +104,7 @@ public class PESaisiePaiementEditorPart extends WizardFormPopup
 	@Override
 	protected void performSauvegarder()
 	{
-		ParamEcranDTO peDTO = pe.save();
-		new ParametresService().update(peDTO, create);
+		new ParametresService().update(pe);
 	}
 
 	@Override

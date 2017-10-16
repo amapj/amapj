@@ -158,5 +158,23 @@ public class ProduitService
 		}
 	}
 	
+	/**
+	 *
+	 */
+	@DbRead
+	public String prettyString(Long idProduit)
+	{
+		EntityManager em = TransactionHelper.getEm();
+		
+		if (idProduit==null)
+		{
+			return "";
+		}
+		
+		Produit p = em.find(Produit.class, idProduit);
+		return p.getNom()+","+p.getConditionnement();
+		
+	}
+	
 	
 }

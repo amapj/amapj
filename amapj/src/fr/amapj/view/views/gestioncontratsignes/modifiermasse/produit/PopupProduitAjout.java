@@ -18,10 +18,13 @@
  * 
  * 
  */
- package fr.amapj.view.views.gestioncontratsignes;
+ package fr.amapj.view.views.gestioncontratsignes.modifiermasse.produit;
+
+import java.util.List;
 
 import com.vaadin.data.util.BeanItem;
 
+import fr.amapj.model.models.fichierbase.Produit;
 import fr.amapj.service.services.gestioncontrat.GestionContratService;
 import fr.amapj.service.services.gestioncontrat.LigneContratDTO;
 import fr.amapj.service.services.gestioncontrat.ModeleContratDTO;
@@ -29,15 +32,14 @@ import fr.amapj.service.services.gestioncontratsigne.GestionContratSigneService;
 import fr.amapj.view.engine.collectioneditor.CollectionEditor;
 import fr.amapj.view.engine.collectioneditor.FieldType;
 import fr.amapj.view.engine.popup.formpopup.WizardFormPopup;
-import fr.amapj.view.engine.searcher.Searcher;
-import fr.amapj.view.views.searcher.SearcherList;
+import fr.amapj.view.views.searcher.SDProduitHorsContrat;
 
 /**
- * Permet de modifier l'ordre des produits, même quand des constrats sont signés  
+ * Permet d'ajouter des produits, même quand des constrats sont signés  
  * 
  *
  */
-public class PopupProduitOrdreContrat extends WizardFormPopup
+public class PopupProduitAjout extends WizardFormPopup
 {
 
 	private ModeleContratDTO modeleContrat;
@@ -50,56 +52,70 @@ public class PopupProduitOrdreContrat extends WizardFormPopup
 	/**
 	 * 
 	 */
-	public PopupProduitOrdreContrat(Long mcId)
+	public PopupProduitAjout(Long mcId)
 	{
 		setWidth(80);
-		popupTitle = "Ordre des produits dans un contrat";
+		popupTitle = "Ajout de produits à un contrat";
 
 		// Chargement de l'objet  à modifier
 		modeleContrat = new GestionContratService().loadModeleContrat(mcId);
 		item = new BeanItem<ModeleContratDTO>(modeleContrat);
-				
-	
+		
+		// On efface la liste des produits déjà inscrits 
+		modeleContrat.produits.clear();
+		
+		
+
 	}
 	
 	@Override
 	protected void configure()
 	{
-		add(Step.SAISIE_PRODUIT,()->addFieldOrdreProduit());
+		add(Step.SAISIE_PRODUIT,()->addFieldSaisieProduit());
 	}
 
+	/**
+	 * Vérifie si il y a encore des produits disponibles 
+	 */
+	@Override
+	protected String checkInitialCondition()
+	{
+		List<Produit> prs = new GestionContratSigneService().getProduitHorsContrat(modeleContrat.id);
+		if (prs.size()!=0)
+		{
+			return null;
+		}
+		return "Ce producteur ne posséde plus de produits qui pourraient être ajoutés à ce contrat.<br/>"+
+			   "Si vous voulez ajouter un produit, il faut d'abord le créer en allant dans le menu \"Gestion des produits\"";
+		
+		
+		
+	}
+	
 	
 
-	private void addFieldOrdreProduit()
+	private void addFieldSaisieProduit()
 	{
 		// Titre
-		setStepTitle("changer l'ordre des produits");
-		
-		// Le producteur
-		Searcher prod = new Searcher(SearcherList.PRODUCTEUR);
-		prod.bind(binder, "producteur");
-		form.addComponent(prod);
-		prod.setEnabled(false);
+		setStepTitle("les nouveaux produits");
+			
+		SDProduitHorsContrat searcher = new SDProduitHorsContrat(modeleContrat.id);
 		
 		// Les produits
 		CollectionEditor<LigneContratDTO> f1 = new CollectionEditor<LigneContratDTO>("Produits", (BeanItem) item, "produits", LigneContratDTO.class);
-		f1.addSearcherColumn("produitId", "Nom du produit",FieldType.SEARCHER, false,null,SearcherList.PRODUIT,prod);
-		f1.addColumn("prix", "Prix du produit", FieldType.CURRENCY, false,null);
-		f1.addBeanIdToPreserve("idModeleContratProduit");
-			
-		f1.activeButton(false, false, true, true);
+		f1.addSearcherColumn("produitId", "Nom du produit",FieldType.SEARCHER, null,searcher,null);
+		f1.addColumn("prix", "Prix du produit", FieldType.CURRENCY, null);
 		binder.bind(f1, "produits");
 		form.addComponent(f1);
 		
 	}
 	
 	
-	
 
 	@Override
 	protected void performSauvegarder()
 	{
-		new GestionContratSigneService().performModifProduitOrdreContrat(modeleContrat);
+		new GestionContratSigneService().performAjoutProduit(modeleContrat);
 	}
 
 	@Override

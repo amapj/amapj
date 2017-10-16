@@ -82,8 +82,6 @@ public class PopupDetailDate extends PopupIntegerGrid
 		
 		// Largeur des colonnes
 		param.largeurCol = 110;
-		param.espaceInterCol = 3;
-		
 				
 		// Construction du header 1
 		GridHeaderLine line1  =new GridHeaderLine();

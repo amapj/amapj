@@ -32,12 +32,10 @@ import fr.amapj.model.engine.transaction.DbWrite;
 import fr.amapj.model.engine.transaction.TransactionHelper;
 import fr.amapj.model.models.acces.RoleList;
 import fr.amapj.model.models.param.Parametres;
-import fr.amapj.model.models.param.paramecran.AbstractParamEcran;
 import fr.amapj.model.models.param.paramecran.PEListeAdherent;
-import fr.amapj.model.models.param.paramecran.PEMesContrats;
-import fr.amapj.model.models.param.paramecran.PEReceptionCheque;
-import fr.amapj.model.models.param.paramecran.PESaisiePaiement;
-import fr.amapj.model.models.param.paramecran.ParamEcran;
+import fr.amapj.model.models.param.paramecran.common.AbstractParamEcran;
+import fr.amapj.model.models.param.paramecran.common.ParamEcran;
+import fr.amapj.model.models.param.paramecran.common.ParamEcranConverter;
 import fr.amapj.service.services.parametres.paramecran.PEListeAdherentDTO;
 import fr.amapj.service.services.session.SessionManager;
 import fr.amapj.view.engine.menu.MenuList;
@@ -181,9 +179,13 @@ public class ParametresService
 
 	// PARTIE MISE A JOUR 
 	@DbWrite
-	public void update(final ParamEcranDTO dto, final boolean create)
+	public void update(AbstractParamEcran abstractParamEcran)
 	{
 		EntityManager em = TransactionHelper.getEm();
+		
+		boolean create = abstractParamEcran.getId()==null;
+		
+		ParamEcranDTO dto = ParamEcranConverter.save(abstractParamEcran);
 
 		ParamEcran p;
 
@@ -207,15 +209,37 @@ public class ParametresService
 
 	}
 
-	
+
 	/**
-	 * Permet de charger le parametrage d'un écran particulier
+	 * Permet de charger le parametrage d'un écran 
+	 * dans le but de l'utiliser fonctionnellement
 	 */
 	@DbRead
-	public ParamEcranDTO getParamEcran(MenuList menu)
+	public AbstractParamEcran loadParamEcran(MenuList menuList)
 	{
 		EntityManager em = TransactionHelper.getEm();
+		
+		ParamEcranDTO p = getParamEcranDTO(menuList,em);
 
+		AbstractParamEcran pe;
+		if (p!=null)
+		{
+			pe = ParamEcranConverter.load(p);
+		}
+		else
+		{
+			pe = ParamEcranConverter.getNew(menuList);
+		}
+		return pe;
+	}
+	
+	
+	/**
+	 * Permet de charger le parametrage d'un écran particulier, sous la forme d'un DTO
+	 * @param em 
+	 */
+	private ParamEcranDTO getParamEcranDTO(MenuList menu, EntityManager em)
+	{
 		Query q = em.createQuery("select p from ParamEcran p where p.menu=:m ");
 		q.setParameter("m", menu);
 
@@ -234,24 +258,21 @@ public class ParametresService
 			throw new AmapjRuntimeException("Erreur : il y a deux param ecrans pour "+menu);
 		}
 	}
+
+	
+	
 	
 	/**
 	 * Permet de charger le parametrage de l'écran liste adhérent
 	 * dans le but de l'utiliser fonctionnellement
+	 * 
+	 * Cas specifique à cet écran, dans le cas normal utiliser la methode 
+	 * public AbstractParamEcran loadParamEcran(MenuList menuList)
 	 */
 	public PEListeAdherentDTO getPEListeAdherentDTO()
 	{
-		ParamEcranDTO p = getParamEcran(MenuList.LISTE_ADHERENTS);
-
-		PEListeAdherent pe;
-		if (p!=null)
-		{
-			pe = (PEListeAdherent) AbstractParamEcran.load(p);
-		}
-		else
-		{
-			 pe = new PEListeAdherent();	
-		}
+		PEListeAdherent pe = (PEListeAdherent) loadParamEcran(MenuList.LISTE_ADHERENTS);
+		
 		List<RoleList> roles = SessionManager.getSessionParameters().userRole;
 		
 		PEListeAdherentDTO ret = new PEListeAdherentDTO();
@@ -262,71 +283,5 @@ public class ParametresService
 		
 		return ret;
 	}
-	
-	
-	/**
-	 * Permet de charger le parametrage de l'écran "Reception des cheques"
-	 * dans le but de l'utiliser fonctionnellement
-	 */
-	public PEReceptionCheque getPEReceptionCheque()
-	{
-		ParamEcranDTO p = getParamEcran(MenuList.RECEPTION_CHEQUES);
-
-		PEReceptionCheque pe;
-		if (p!=null)
-		{
-			pe = (PEReceptionCheque) AbstractParamEcran.load(p);
-		}
-		else
-		{
-			 pe = new PEReceptionCheque();	
-		}
-		return pe;
-	}
-	
-	
-	
-	
-	/**
-	 * Permet de charger le parametrage de l'écran "Saisie des paiements par l'amapien"
-	 * dans le but de l'utiliser fonctionnellement
-	 */
-	public PESaisiePaiement getPESaisiePaiement()
-	{
-		ParamEcranDTO p = getParamEcran(MenuList.OUT_SAISIE_PAIEMENT);
-
-		PESaisiePaiement pe;
-		if (p!=null)
-		{
-			pe = (PESaisiePaiement) AbstractParamEcran.load(p);
-		}
-		else
-		{
-			 pe = new PESaisiePaiement();	
-		}
-		return pe;
-	}
-	
-	
-	/**
-	 * Permet de charger le parametrage de l'écran "Mes contrats"
-	 * dans le but de l'utiliser fonctionnellement
-	 */
-	public PEMesContrats getPEMesContrats()
-	{
-		ParamEcranDTO p = getParamEcran(MenuList.MES_CONTRATS);
-
-		PEMesContrats pe;
-		if (p!=null)
-		{
-			pe = (PEMesContrats) AbstractParamEcran.load(p);
-		}
-		else
-		{
-			 pe = new PEMesContrats();	
-		}
-		return pe;
-	}
-	
-	
+		
 }

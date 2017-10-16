@@ -18,7 +18,7 @@
  * 
  * 
  */
- package fr.amapj.view.views.gestioncontratsignes;
+ package fr.amapj.view.views.gestioncontratsignes.modifiermasse.produit;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -37,45 +37,59 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import fr.amapj.common.DateUtils;
+import fr.amapj.common.SQLUtils;
 import fr.amapj.common.StackUtils;
 import fr.amapj.model.engine.transaction.Call;
+import fr.amapj.model.engine.transaction.DbWrite;
 import fr.amapj.model.engine.transaction.NewTransaction;
+import fr.amapj.model.engine.transaction.TransactionHelper;
 import fr.amapj.model.models.saas.LogAccess;
+import fr.amapj.model.models.saas.TypLog;
+import fr.amapj.service.engine.deamons.DeamonsUtils;
 import fr.amapj.view.engine.ui.AmapJLogManager;
 
 
+/**
+ * Ce service permet deux choses
+ *  - l'effacement des fichiers de logs au bout d'un certain temps (30 jours typiquement)
+ *  - l'effacement de la trace de la connexion de l'utilisateur (90 jours typiquement) 
+ *
+ */
 public class LogDeleteService implements Job
 {
 	private final static Logger logger = LogManager.getLogger();
 	
-	
-	public LogDeleteService()
-	{
-		
-	}
-	
 	/**
-	 * Permet l'effacement de tous les logs plus vieux de 30 jours dans la base master
-	 * les logs avec erreur sont conservés par contre pendant 90 jours
+	 * TODO : 
+	 * 
+	 * -> voir le time out (30 secondes) pour le transfert de la base
+	 * 
+	 * 
+	 * 
 	 */
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException
 	{
-		NewTransaction.writeInMaster(new Call()
-		{
-			@Override
-			public Object executeInNewTransaction(EntityManager em)
-			{
-				deleteAllLog(em);
-				return null;
-			}
-		});
-		
+		DeamonsUtils.executeAsDeamonInMaster(getClass(), e->deleteOldLogFiles(),e->deleteOldLogAccess());
 	}
 	
 	
-	private void deleteAllLog(EntityManager em)
+	
+	
+	/**
+	 * Permet l'effacement de tous les fichiers de logs plus vieux de 30 jours 
+	 * les fichiers de logs avec erreur sont conservés par contre pendant 90 jours
+	 * 
+	 */
+	@DbWrite
+	public void deleteOldLogFiles()
 	{
+		EntityManager em = TransactionHelper.getEm();
+		
+		logger.info("Debut de l'effacement des fichiers de logs");
+		
+		int nbFile = 0;
+		
 		Query q = em.createQuery("select a from LogAccess a where "
 				+ " ( (a.dateOut<=:d1 and a.nbError=0) or (a.dateOut<=:d2 and a.nbError>0) ) "
 				+ " and a.logFileName is not null");
@@ -91,8 +105,10 @@ public class LogDeleteService implements Job
 		{
 			deleteLogFile(logAccess);
 			logAccess.setLogFileName(null);
+			nbFile++;
 		}
 		
+		logger.info("Fin de l'effacement des fichiers de logs. "+nbFile+" fichiers effacés.");
 	}
 
 	private void deleteLogFile(LogAccess logAccess)
@@ -107,6 +123,44 @@ public class LogDeleteService implements Job
 			logger.error("Impossible d'effacer le fichier de log : "+StackUtils.asString(e));
 		}
 	}
+	
+	
+	/**
+	 * Permet l'effacement de tous les LogAccess qui n'ont plus de fichiers associées 
+	 * 
+	 * Les LogAccess des utilisateurs sont conservés 90 jours
+	 * Les LogAccess des démons sont conservés 30 jours   
+	 * 
+	 */
+	@DbWrite
+	public void deleteOldLogAccess()
+	{	
+		
+		EntityManager em = TransactionHelper.getEm();
+		
+		logger.info("Debut de l'effacement des LogAccess dans la base master");
+		
+		Query q = em.createQuery("select a from LogAccess a where "
+				+ " ( (a.dateOut<=:d1 and a.typLog=:typLog1) or (a.dateOut<=:d2 and a.typLog=:typLog2) ) "
+				+ " and a.logFileName is null");
+
+		Date now = DateUtils.getDate();
+		Date d1 = DateUtils.addDays(now, -30);
+		Date d2 = DateUtils.addDays(now, -90);
+		
+		q.setParameter("d1", d1);
+		q.setParameter("typLog1", TypLog.DEAMON);
+		
+		q.setParameter("d2", d2);
+		q.setParameter("typLog2", TypLog.USER);
+		
+		int nb =  SQLUtils.deleteAll(em, q);
+		
+		logger.info("Fin de l'effacement des LogAcess de logs. "+nb+" lignes effacées.");
+		
+	}
+
+	
 
 	
 	

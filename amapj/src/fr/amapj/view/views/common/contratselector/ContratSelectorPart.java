@@ -179,7 +179,7 @@ public class ContratSelectorPart
 			contratBox.setEnabled(true);
 			producteurBox.setEnabled(false);
 			contratBox.removeAllItems();
-			List<ModeleContrat> mcs = new GestionContratSigneService().getModeleContrat(idProducteur);
+			List<ModeleContrat> mcs = new GestionContratSigneService().getModeleContratCreationOrActif(idProducteur);
 			for (ModeleContrat mc : mcs)
 			{
 				contratBox.addItem(mc.getId());

@@ -21,6 +21,7 @@
  package fr.amapj.model.models.param.paramecran;
 
 import fr.amapj.model.models.acces.RoleList;
+import fr.amapj.model.models.param.paramecran.common.AbstractParamEcran;
 
 
 

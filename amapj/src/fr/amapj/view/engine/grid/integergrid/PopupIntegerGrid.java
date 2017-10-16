@@ -266,11 +266,11 @@ abstract public class PopupIntegerGrid extends CorePopup
 			}
 			if (index==0)
 			{
-				dateLabel.setWidth((param.leftPartLineLargeur+param.espaceInterCol)+"px");
+				dateLabel.setWidth((param.leftPartLineLargeur+5)+"px");
 			}
 			else
 			{
-				dateLabel.setWidth((param.largeurCol+param.espaceInterCol)+"px");
+				dateLabel.setWidth((param.largeurCol+2)+"px");
 			}
 			
 			header1.addComponent(dateLabel);
@@ -317,10 +317,10 @@ abstract public class PopupIntegerGrid extends CorePopup
 	 * Calcul de la largeur totale de la table
 	 * @return
 	 */
-	private String getLargeurTotal()
+	/*private String getLargeurTotal()
 	{
 		return ( (param.leftPartLineLargeur+param.espaceInterCol) + (param.nbCol) * (param.largeurCol + param.espaceInterCol) )+ "px";
-	}
+	}*/
 
 	private void displayMontantTotal()
 	{

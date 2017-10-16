@@ -488,6 +488,28 @@ public class G2D<LIG,COL,CONTENT>
 		return content.get(index);
 	}
 	
+	/**
+	 * Permet de retrouver le contenu d'une cellule à partir de l'index de la ligne et la valeur de la tete de la colonne
+	 * 
+	 * Si on ne trouve pas la colonne, alors retourne une liste vide 
+	 * 
+	 */
+	public List<CONTENT> findCellContent(int ligIndex,COL col)
+	{
+		checkComputeDone();
+		for (Cell2<LIG, COL, CONTENT> c : content.get(ligIndex))
+		{
+			if (c.col.equals(col))
+			{
+				return c.values;
+			}
+		}
+		return Collections.emptyList();
+	}
+	
+	
+	
+	
 	private void checkComputeDone()
 	{
 		if (computeDone==false)

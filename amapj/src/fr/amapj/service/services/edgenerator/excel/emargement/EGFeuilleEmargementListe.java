@@ -35,7 +35,6 @@ import fr.amapj.common.StringUtils;
 import fr.amapj.common.collections.G1D;
 import fr.amapj.common.collections.G1D.Cell1;
 import fr.amapj.common.collections.G2D;
-import fr.amapj.common.collections.G2D.Cell2;
 import fr.amapj.model.models.contrat.modele.ModeleContrat;
 import fr.amapj.model.models.contrat.reel.ContratCell;
 import fr.amapj.model.models.editionspe.emargement.FeuilleEmargementJson;
@@ -49,7 +48,6 @@ import fr.amapj.service.engine.generator.excel.ExcelGeneratorTool;
 import fr.amapj.service.services.edgenerator.excel.emargement.EGFeuilleEmargement.LibInfo;
 import fr.amapj.service.services.permanence.periode.PeriodePermanenceDateDTO;
 import fr.amapj.service.services.permanence.periode.PeriodePermanenceService;
-import fr.amapj.service.services.producteur.ProdUtilisateurDTO;
 import fr.amapj.service.services.producteur.ProducteurService;
 
 
@@ -502,27 +500,24 @@ public class EGFeuilleEmargementListe
 	 */
 	private String getListeProduitProducteur(DateColonne prodCol, List<ContratCell> cells,FeuilleEmargementJson feuilleEmargementJson)
 	{
-		// On réalise un eclatement 2D des ContratCell par modele de contrat  / produit  
+		// On réalise un eclatement 1D des ContratCell par modele de contrat    
 		// Avec un tri des lignes par nom du contrat
-		// et un tri des colonnes par indx produit 
-		G2D<ModeleContrat, Produit,ContratCell> c1 = new G2D<ModeleContrat, Produit,ContratCell>();
+		G1D<ModeleContrat, ContratCell> c1 = new G1D<ModeleContrat, ContratCell>();
 		
 		c1.fill(cells);
 		
-		c1.groupByLig(e->e.getModeleContratDate().getModeleContrat());
+		c1.groupBy(e->e.getModeleContratDate().getModeleContrat());
 		c1.sortLig(e->e.getNom(),true);
-		
-		c1.groupByCol(e->e.getModeleContratProduit().getProduit());
-		c1.sortColAdvanced(e->e.getModeleContratProduit().getIndx(), true);
-		
+				
 		// Pas de tri sur les cellules
 		// Puis calcul du tout
 		c1.compute();
+
 		
 		StringBuffer buf = new StringBuffer();
 		
 		// On boucle sur les modeles de contrats
-		List<ModeleContrat> modeleContrats = c1.getLigs();
+		List<ModeleContrat> modeleContrats = c1.getKeys();
 		for (int i = 0; i < modeleContrats.size(); i++)
 		{
 			ModeleContrat modeleContrat = modeleContrats.get(i);
@@ -530,21 +525,49 @@ public class EGFeuilleEmargementListe
 			buf.append(modeleContrat.getNom());
 			buf.append("\n");
 			
-			List<Cell2<ModeleContrat, Produit, ContratCell>> pcells = c1.getFullLine(i);
-			for (Cell2<ModeleContrat, Produit, ContratCell> pcell : pcells)
-			{
-				Produit p = pcell.col;
-				int qte = CollectionUtils.accumulateInt(pcell.values, e->e.getQte());
-				
-				String content = qte+" "+p.getNom()+" , "+p.getConditionnement();
-				buf.append(" "+BULLET_CHARACTER+" "+content+"\n");
-			}
+			List<ContratCell> pcells = c1.getCell(i);
+			buf.append(computeListeProduit(pcells));
 		}
 		
 		// On supprime le dernier /n
 		return StringUtils.removeLast(buf.toString(), "\n");
 	}
 	
+	
+	
+	private String computeListeProduit(List<ContratCell> pcells)
+	{
+		// On réalise un eclatement 1D des ContratCell par produits
+		// Avec un tri des lignes par index du produit dans le contrat
+		G1D<Produit, ContratCell> c1 = new G1D<Produit, ContratCell>();
+		
+		c1.fill(pcells);
+		
+		c1.groupBy(e->e.getModeleContratProduit().getProduit());
+		c1.sortLigAdvanced(e->e.getModeleContratProduit().getIndx(), true);
+				
+		// Pas de tri sur les cellules
+		// Puis calcul du tout
+		c1.compute();
+		
+		StringBuffer buf = new StringBuffer();
+		
+		// On boucle sur les produits
+		List<Produit> produits = c1.getKeys();
+		for (int i = 0; i < produits.size(); i++)
+		{
+			Produit p = produits.get(i);
+			List<ContratCell> cells = c1.getCell(i);
+			
+			int qte = CollectionUtils.accumulateInt(cells, e->e.getQte());
+			
+			String content = qte+" "+p.getNom()+" , "+p.getConditionnement();
+			buf.append(" "+BULLET_CHARACTER+" "+content+"\n");
+		}
+		
+		return buf.toString();
+	}
+
 	/**
 	 * Retourne la liste de toutes les livraisons concernées
 	 * 

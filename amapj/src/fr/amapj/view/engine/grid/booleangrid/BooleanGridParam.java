@@ -44,9 +44,6 @@ public class BooleanGridParam
 	
 	// Largeur de la colonne en pixel, exemple 110
 	public int largeurCol;
-	
-	// Escpace entre les colonnes en pixel, exemple 3 
-	public int espaceInterCol;
 
 	// Message specifique a afficher en haut de popup
 	public String messageSpecifique;

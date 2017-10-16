@@ -22,6 +22,10 @@
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import fr.amapj.common.GenericUtils.GetFieldTyped;
 
 /**
  * Outils generique pour le formatage
@@ -69,4 +73,75 @@ public class FormatUtils
 	}
 	
 	
+	/**
+	 * Permet le formatage intelligent d'une liste de date 
+	 * 
+	 * Si la liste est vide : retourne ""
+	 * 
+	 * Si la liste contient une date : retourne "le 12/05/17"
+	 * 
+	 * Si la liste contient deux dates : retourne "les 12/05/17 et 19/05/17"
+	 * 
+	 * Si la liste contient trois dates et plus  : retourne "les 12/05/17, 19/05/17 et 26/05/17"
+	 * 
+	 */
+	static public String listeDate(List<Date> dates)
+	{
+		SimpleDateFormat df = getStdDate();
+		
+		if (dates.size()==0)
+		{
+			return "";
+		}
+		
+		if (dates.size()==1)
+		{
+			return "le "+df.format(dates.get(0));
+		}
+		
+		StringBuilder buf = new StringBuilder();
+		buf.append("les ");
+		for (int i = 0; i < dates.size()-2; i++)
+		{
+			buf.append(df.format(dates.get(i))+", ");
+		}
+		buf.append(df.format(dates.get(dates.size()-2))+" et ");
+		buf.append(df.format(dates.get(dates.size()-1)));
+		
+		return buf.toString();
+	}
+	
+	/**
+	 * Permet le formatage d'une liste de date dans une liste à puce 
+	 * 
+	 */
+	static public <T> String puceDate(List<T> dates,GetFieldTyped<T,Date> f1)
+	{
+		SimpleDateFormat df = getStdDate();
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("<ul>");
+		
+		for (T date : dates)
+		{
+			Date d = f1.getField(date);
+			sb.append("<li>");
+			sb.append(df.format(d));
+			sb.append("</li>");
+		}
+		
+		sb.append("</ul>");
+		
+		
+		return sb.toString();
+	}
+	
+	/**
+	 * Permet le formatage d'une liste de date dans une liste à puce 
+	 * 
+	 */
+	static public String puceDate(List<Date> dates)
+	{
+		return puceDate(dates, e->e);
+	}
 }

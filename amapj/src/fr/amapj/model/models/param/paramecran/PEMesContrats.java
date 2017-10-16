@@ -20,6 +20,8 @@
  */
  package fr.amapj.model.models.param.paramecran;
 
+import fr.amapj.model.models.param.paramecran.common.AbstractParamEcran;
+
 /**
  * Parametrage de l'écran Mes contrats
  */

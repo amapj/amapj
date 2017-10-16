@@ -77,6 +77,9 @@ public enum MenuList
 	
 	LIVRAISON_AMAPIEN("Livraisons d'un amapien",FontAwesome.CUTLERY) ,
 	
+	CONTRAT_ARCHIVE("Contrats archivés",FontAwesome.ARCHIVE),
+	
+	
 	// Partie permanence
 	
 	PERIODE_PERMANENCE("Périodes de permanence",FontAwesome.CALENDAR_O) ,

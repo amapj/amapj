@@ -61,6 +61,7 @@ import fr.amapj.view.engine.searcher.SearcherDefinition;
 import fr.amapj.view.engine.tools.BaseUiTools;
 import fr.amapj.view.engine.tools.table.complex.ComplexTableBuilder;
 import fr.amapj.view.engine.ui.AppConfiguration;
+import fr.amapj.view.views.searcher.SearcherList;
 
 /**
  * Fonctions communes des popups portant uniquement sur la gestion de la form et du validate  
@@ -307,6 +308,15 @@ abstract public class AbstractFormPopup extends CorePopup
 			
 		
 		return currentCollectionEditor;
+	}
+	
+	
+	protected void addColumnSearcher(String propertyId, String title, FieldType fieldType, Object defaultValue,SearcherDefinition searcher,Searcher linkedSearcher,IValidator... validators)
+	{
+		
+		currentCollectionEditor.addSearcherColumn(propertyId, title, fieldType, defaultValue, searcher, linkedSearcher);
+
+		validatorManager.add(currentCollectionEditor,title,propertyId, validators);
 	}
 	
 	

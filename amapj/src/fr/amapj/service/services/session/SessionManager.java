@@ -142,10 +142,6 @@ public class SessionManager
 		{
 			return "Chrome "+browser.getBrowserMajorVersion();
 		}
-		else if (browser.isAndroid())
-		{
-			return "Android "+browser.getBrowserMajorVersion();
-		} 
 		else if (browser.isFirefox())
 		{
 			return "Firefox "+browser.getBrowserMajorVersion();
@@ -162,9 +158,13 @@ public class SessionManager
 		{
 			return "Safari "+browser.getBrowserMajorVersion();
 		}
+		else if (browser.isEdge())
+		{
+			return "Edge "+browser.getBrowserMajorVersion();
+		}
 		else
 		{
-			return browser.getBrowserApplication();
+			return "XX";
 		}
 	}
 

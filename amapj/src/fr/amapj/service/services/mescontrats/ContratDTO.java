@@ -191,5 +191,27 @@ public class ContratDTO
 		return excluded[i][j];
 	}
 	
+
+	/**
+	 * Réalise le calcul de la matrice excluded, si celle ci est nulle 
+	 */
+	public void expandExcluded()
+	{
+		if (excluded==null)
+		{
+			int nbCol = contratColumns.size();
+			int nbLig = contratLigs.size();
+			
+			excluded = new boolean[nbLig][nbCol];
+			for (int i = 0; i < nbLig; i++)
+			{
+				for (int j = 0; j < nbCol; j++)
+				{
+					excluded[i][j] = false ;
+				}
+			}
+		}
+	}
+	
 	
 }

@@ -27,7 +27,8 @@ import com.vaadin.navigator.View;
 import fr.amapj.common.AmapjRuntimeException;
 import fr.amapj.model.models.acces.RoleList;
 import fr.amapj.model.models.param.EtatModule;
-import fr.amapj.model.models.param.paramecran.AbstractParamEcran;
+import fr.amapj.model.models.param.paramecran.common.AbstractParamEcran;
+import fr.amapj.model.models.param.paramecran.common.ParamEcranConverter;
 import fr.amapj.service.services.parametres.ParamEcranDTO;
 import fr.amapj.service.services.parametres.ParametresDTO;
 
@@ -134,7 +135,7 @@ public class MenuDescription
 			return true;
 		}
 		
-		AbstractParamEcran ape = AbstractParamEcran.load(dto);
+		AbstractParamEcran ape = ParamEcranConverter.load(dto);
 		
 		return roles.contains(ape.getCanAccessEcran());
 		

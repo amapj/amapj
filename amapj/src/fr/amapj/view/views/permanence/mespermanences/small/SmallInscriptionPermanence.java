@@ -35,7 +35,7 @@ import fr.amapj.view.engine.popup.PopupListener;
 import fr.amapj.view.engine.popup.messagepopup.MessagePopup;
 import fr.amapj.view.engine.popup.okcancelpopup.OKCancelPopup;
 import fr.amapj.view.engine.tools.BaseUiTools;
-import fr.amapj.view.views.common.dateviewer.DateViewer;
+import fr.amapj.view.views.common.gapviewer.DatePerDateViewer;
 import fr.amapj.view.views.permanence.mespermanences.MesPermanencesUtils;
 import fr.amapj.view.views.permanence.mespermanences.grille.InscriptionPopup;
 
@@ -57,7 +57,7 @@ public class SmallInscriptionPermanence extends OKCancelPopup implements PopupLi
 	
 	private VerticalLayout planning;
 	
-	private DateViewer<PeriodePermanenceDateDTO> dateViewer;
+	private DatePerDateViewer<PeriodePermanenceDateDTO> dateViewer;
 	
 	// Permet de choisir entre le mode visualiser seul et le mode modifier
 	private boolean visualiser;
@@ -100,7 +100,7 @@ public class SmallInscriptionPermanence extends OKCancelPopup implements PopupLi
 		contentLayout.addComponent(compteur);
 		
 		
-		dateViewer = new DateViewer<PeriodePermanenceDateDTO>(dto.datePerms,e->e.datePerm,this); 
+		dateViewer = new DatePerDateViewer<PeriodePermanenceDateDTO>(dto.datePerms,e->e.datePerm,this); 
 		contentLayout.addComponent(dateViewer.getComponent());
 		
 		VerticalLayout central = new VerticalLayout();

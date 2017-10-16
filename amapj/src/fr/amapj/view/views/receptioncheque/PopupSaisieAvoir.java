@@ -31,6 +31,7 @@ import fr.amapj.model.models.param.ChoixOuiNon;
 import fr.amapj.model.models.param.paramecran.PEReceptionCheque;
 import fr.amapj.service.services.gestioncontratsigne.ContratSigneDTO;
 import fr.amapj.service.services.mescontrats.MesContratsService;
+import fr.amapj.view.engine.menu.MenuList;
 import fr.amapj.view.engine.notification.NotificationHelper;
 import fr.amapj.service.services.parametres.ParametresService;
 import fr.amapj.view.engine.popup.okcancelpopup.OKCancelPopup;
@@ -61,7 +62,7 @@ public class PopupSaisieAvoir extends OKCancelPopup
 	@Override
 	protected void createContent(VerticalLayout contentLayout)
 	{
-		PEReceptionCheque peConf = new ParametresService().getPEReceptionCheque();
+		PEReceptionCheque peConf = (PEReceptionCheque) new ParametresService().loadParamEcran(MenuList.RECEPTION_CHEQUES);
 		boolean allowNegativeNumber = peConf.saisieAvoirNegatif == ChoixOuiNon.OUI;
 		 
 		FormLayout f = new FormLayout();

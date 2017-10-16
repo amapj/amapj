@@ -40,7 +40,6 @@ import com.vaadin.ui.themes.ChameleonTheme;
 import fr.amapj.view.engine.grid.ErreurSaisieException;
 import fr.amapj.view.engine.grid.GridHeaderLine;
 import fr.amapj.view.engine.popup.corepopup.CorePopup;
-import fr.amapj.view.engine.popup.corepopup.CorePopup.PopupType;
 
 /**
  * Popup pour la saisie des quantites 
@@ -169,22 +168,33 @@ abstract public class PopupBooleanGrid extends CorePopup
 	private void constructHeaderLine(VerticalLayout mainLayout, GridHeaderLine line)
 	{
 		HorizontalLayout header1 = new HorizontalLayout();
-		header1.setWidth(getLargeurTotal());
 		if (line.height!=-1)
 		{
 			header1.setHeight(line.height+"px");
 		}
 		
+		int index=0;
 		for (String str : line.cells)
 		{
 			Label dateLabel = new Label(str);
+			dateLabel.setSizeFull();
 			if (line.styleName!=null)
 			{
 				dateLabel.addStyleName(line.styleName);
 			}
+			
+			if (index==0)
+			{
+				dateLabel.setWidth((param.largeurCol+5)+"px");
+			}
+			else
+			{
+				dateLabel.setWidth((param.largeurCol+2)+"px");
+			}
+			
 			header1.addComponent(dateLabel);
-			dateLabel.setSizeFull();
-			header1.setExpandRatio(dateLabel, 1.0f);	
+			index++;
+			
 		}
 		mainLayout.addComponent(header1);
 	}
@@ -206,23 +216,6 @@ abstract public class PopupBooleanGrid extends CorePopup
 		return pageLength;
 	}
 
-
-
-	/**
-	 * Calcul de la largeur totale de la table
-	 * @return
-	 */
-	private String getLargeurTotal()
-	{
-		// La colonne additionnelle
-		int addCol = 0;
-		if (param.leftPartLine2!=null)
-		{
-			addCol++;
-		}
-		
-		return (param.nbCol+1+addCol)*(param.largeurCol+param.espaceInterCol)+"px";
-	}
 
 	private void addRow(int lig)
 	{

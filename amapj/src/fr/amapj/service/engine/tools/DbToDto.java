@@ -18,14 +18,14 @@
  * 
  * 
  */
- package fr.amapj.model.engine;
+ package fr.amapj.service.engine.tools;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Query;
 
-public class DbTools
+public class DbToDto
 {
 
 	/**

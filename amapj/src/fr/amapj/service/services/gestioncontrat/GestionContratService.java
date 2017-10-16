@@ -31,12 +31,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import fr.amapj.common.AmapjRuntimeException;
-import fr.amapj.common.CollectionUtils;
-import fr.amapj.common.CollectionUtils.ListDiff;
 import fr.amapj.common.DateUtils;
 import fr.amapj.common.SQLUtils;
 import fr.amapj.model.engine.transaction.DbRead;
@@ -53,6 +48,11 @@ import fr.amapj.model.models.contrat.reel.ContratCell;
 import fr.amapj.model.models.fichierbase.Producteur;
 import fr.amapj.model.models.fichierbase.Produit;
 import fr.amapj.model.models.fichierbase.Utilisateur;
+import fr.amapj.service.engine.tools.DbToDto;
+import fr.amapj.service.engine.tools.DtoToDb;
+import fr.amapj.service.engine.tools.DtoToDb.ElementToAdd;
+import fr.amapj.service.engine.tools.DtoToDb.ElementToUpdate;
+import fr.amapj.service.engine.tools.DtoToDb.ListDiff;
 import fr.amapj.service.services.authentification.PasswordManager;
 import fr.amapj.service.services.gestioncontratsigne.update.GestionContratSigneUpdateService;
 import fr.amapj.service.services.mescontrats.ContratColDTO;
@@ -71,13 +71,7 @@ import fr.amapj.view.views.gestioncontrat.editorpart.FrequenceLivraison;
  */
 public class GestionContratService
 {
-	private final static Logger logger = LogManager.getLogger();
-
-	public GestionContratService()
-	{
-
-	}
-
+	
 	// PARTIE REQUETAGE POUR AVOIR LA LISTE DES CONTRATS
 
 	/**
@@ -88,21 +82,11 @@ public class GestionContratService
 	public List<ModeleContratSummaryDTO> getModeleContratInfo()
 	{
 		EntityManager em = TransactionHelper.getEm();
-
-		List<ModeleContratSummaryDTO> res = new ArrayList<ModeleContratSummaryDTO>();
-
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<ModeleContrat> cq = cb.createQuery(ModeleContrat.class);
-
-		List<ModeleContrat> mcs = em.createQuery(cq).getResultList();
-		for (ModeleContrat mc : mcs)
-		{
-			ModeleContratSummaryDTO mcInfo = createModeleContratInfo(em, mc);
-			res.add(mcInfo);
-		}
-
-		return res;
-
+		
+		Query q = em.createQuery("select mc from ModeleContrat mc WHERE mc.etat!=:etat");
+		q.setParameter("etat",EtatModeleContrat.ARCHIVE);
+		
+		return DbToDto.transform(q, (ModeleContrat mc)->createModeleContratInfo(em, mc));
 	}
 
 	public ModeleContratSummaryDTO createModeleContratInfo(EntityManager em, ModeleContrat mc)
@@ -726,18 +710,17 @@ public class GestionContratService
 		ModeleContrat mc = em.find(ModeleContrat.class, modeleContrat.id);
 
 		// Calcul de la liste des nouvelles dates 
-		List<Date> newListDate = getAllDates(modeleContrat.dateDebut, modeleContrat.dateFin, modeleContrat.frequence,modeleContrat.dateLivs);
-		if (newListDate.size()==0)
+		List<Date> newList = getAllDates(modeleContrat.dateDebut, modeleContrat.dateFin, modeleContrat.frequence,modeleContrat.dateLivs);
+		if (newList.size()==0)
 		{
 			throw new AmapjRuntimeException("Vous ne pouvez pas créer un contrat avec 0 date de livraison");
 		}
-		List<ModeleContratDate> newList = CollectionUtils.convert(newListDate,e->{ ModeleContratDate a = new ModeleContratDate();a.setDateLiv(e);return a;});
 		
 		// Calcul de la liste des anciennes dates
 		List<ModeleContratDate> oldList = getAllDates(em, mc);
 
 		// Calcul de la différence entre les deux listes
-		ListDiff<ModeleContratDate> diff = CollectionUtils.diffList(oldList, newList, e->e.getDateLiv());
+		ListDiff<ModeleContratDate, Date, Date> diff = DtoToDb.diffList(oldList, newList, e->e.getDateLiv(),e->e);
 		
 		// On efface les dates en trop
 		GestionContratSigneUpdateService update  = new GestionContratSigneUpdateService();
@@ -747,9 +730,9 @@ public class GestionContratService
 		}
 		
 		// On crée les nouvelles dates 
-		for (ModeleContratDate modeleContratDate : diff.toAdd)
+		for (ElementToAdd<Date> dateLiv : diff.toAdd)
 		{
-			update.addOneDateLiv(em,modeleContratDate.getDateLiv(),mc);
+			update.addOneDateLiv(em,dateLiv.dto,mc);
 		}
 	}
 
@@ -838,10 +821,9 @@ public class GestionContratService
 	
 	
 	/**
-	 * Perlet la mise à jour des produits d'un contrat dans une transaction
+	 * Permet la mise à jour des produits d'un contrat dans une transaction
 	 * en ecriture
-	 * 
-	 * TODO avoir un truc plus fin pour effacer uniquement ce qui est nécessaire 
+	 *  
 	 */
 	@DbWrite
 	public void updateProduitModeleContrat(final ModeleContratDTO modeleContrat)
@@ -849,25 +831,37 @@ public class GestionContratService
 		EntityManager em = TransactionHelper.getEm();
 		
 		ModeleContrat mc = em.find(ModeleContrat.class, modeleContrat.id);
-		
-		// On supprime d'abord tous les produits
-		suppressAllProduits(em, mc);
-		
-		// Création de toutes les lignes pour chacun des produits
-		List<LigneContratDTO> produits = modeleContrat.getProduits();
-		int index = 0;
-		for (LigneContratDTO lig : produits)
+
+		// Calcul de la liste des anciens produits en base 
+		List<ModeleContratProduit> dbList = getAllProduit(em, mc);
+				
+		// Calcul de la liste des nouveaux produits
+		List<LigneContratDTO> dtoList = modeleContrat.getProduits();
+		if (dtoList.size()==0)
 		{
-			ModeleContratProduit mcp = new ModeleContratProduit();
-			mcp.setIndx(index);
-			mcp.setModeleContrat(mc);
-			mcp.setPrix(lig.getPrix().intValue());
-			mcp.setProduit(em.find(Produit.class, lig.produitId));
-
-			em.persist(mcp);
-
-			index++;
-
+			throw new AmapjRuntimeException("Vous ne pouvez pas créer un contrat avec 0 produits");
+		}
+		
+		// Calcul de la différence entre les deux listes
+		ListDiff<ModeleContratProduit, LigneContratDTO, Long> diff = DtoToDb.diffList(dbList, dtoList, e->e.getProduit().getId(),e->e.produitId);
+		
+		// On efface les produits en trop
+		GestionContratSigneUpdateService update  = new GestionContratSigneUpdateService();
+		for (ModeleContratProduit mcp : diff.toSuppress)
+		{
+			update.suppressOneProduit(mcp.getId());
+		}
+		
+		// On crée les nouveaux produits avec le bon index 
+		for (ElementToAdd<LigneContratDTO> toAdd : diff.toAdd)
+		{
+			update.addOneProduit(em,toAdd.dto.produitId,toAdd.dto.prix,toAdd.index,mc);
+		}
+		
+		// On met à jour les produits existants 
+		for (ElementToUpdate<ModeleContratProduit, LigneContratDTO> toUpdate : diff.toUpdate)
+		{
+			update.updateModeleContratProduit(em,toUpdate.db.getId(),toUpdate.dto.prix,toUpdate.index);
 		}
 	}
 
@@ -1121,6 +1115,28 @@ public class GestionContratService
 	}
 	
 	
+	/**
+	 * Retourne la derniere date de livraison d'un contrat
+	 * 
+	 */
+	@DbRead
+	public Date getLastDate(Long idModeleContrat)
+	{
+		EntityManager em = TransactionHelper.getEm();
+		
+		Query q = em.createQuery("select mcd from ModeleContratDate mcd WHERE mcd.modeleContrat.id=:id ORDER BY mcd.dateLiv desc");
+		q.setParameter("id",idModeleContrat);
+		
+		List<ModeleContratDate> dates = q.getResultList();
+		
+		if (dates.size()==0)
+		{
+			throw new AmapjRuntimeException("Le contrat "+idModeleContrat+" a aucune date de livraison !!");
+		}
+		
+		return dates.get(0).getDateLiv();
+		
+	}
 	
 
 }

@@ -25,9 +25,14 @@ import com.vaadin.data.util.BeanItem;
 import fr.amapj.service.services.gestioncontrat.GestionContratService;
 import fr.amapj.service.services.gestioncontrat.LigneContratDTO;
 import fr.amapj.service.services.gestioncontrat.ModeleContratDTO;
+import fr.amapj.service.services.produit.ProduitService;
 import fr.amapj.view.engine.collectioneditor.CollectionEditor;
 import fr.amapj.view.engine.collectioneditor.FieldType;
 import fr.amapj.view.engine.popup.formpopup.FormPopup;
+import fr.amapj.view.engine.popup.formpopup.validator.CollectionNoDuplicates;
+import fr.amapj.view.engine.popup.formpopup.validator.CollectionSizeValidator;
+import fr.amapj.view.engine.popup.formpopup.validator.ColumnNotNull;
+import fr.amapj.view.engine.popup.formpopup.validator.IValidator;
 import fr.amapj.view.engine.searcher.Searcher;
 import fr.amapj.view.views.searcher.SearcherList;
 
@@ -63,11 +68,16 @@ public class ModifProduitContratEditorPart extends FormPopup
 		prod.setEnabled(false);
 		
 		// Les produits
-		CollectionEditor<LigneContratDTO> f1 = new CollectionEditor<LigneContratDTO>("Produits", (BeanItem) item, "produits", LigneContratDTO.class);
-		f1.addSearcherColumn("produitId", "Nom du produit",FieldType.SEARCHER, null,SearcherList.PRODUIT,prod);
-		f1.addColumn("prix", "Prix du produit", FieldType.CURRENCY, null);
-		binder.bind(f1, "produits");
-		form.addComponent(f1);
+		
+		IValidator size = new CollectionSizeValidator<LigneContratDTO>(1, null);
+		IValidator noDuplicates = new CollectionNoDuplicates<LigneContratDTO>(e->e.produitId,e->new ProduitService().prettyString(e.produitId));
+							
+		//
+		addCollectionEditorField("Produits", "produits", LigneContratDTO.class,size,noDuplicates);
+		
+		addColumnSearcher("produitId", "Nom du produit",FieldType.SEARCHER, null,SearcherList.PRODUIT,prod,new ColumnNotNull<LigneContratDTO>(e->e.produitId));
+		addColumn("prix", "Prix du produit", FieldType.CURRENCY, null,new ColumnNotNull<LigneContratDTO>(e->e.prix));	
+	
 	}
 	
 	

@@ -75,7 +75,7 @@ public class MesLivraisonsService
 	 * dans une transaction en lecture
 	 */
 	@DbRead
-	public MesLivraisonsDTO getMesLivraisons(Date d,List<RoleList> roles,Long idUtilisateur)
+	public MesLivraisonsDTO getMesLivraisons(Date dateDebut,Date dateFin,List<RoleList> roles,Long idUtilisateur)
 	{
 		EntityManager em = TransactionHelper.getEm();
 
@@ -83,11 +83,9 @@ public class MesLivraisonsService
 
 		Utilisateur user = em.find(Utilisateur.class, idUtilisateur);
 
-		res.dateDebut = fr.amapj.common.DateUtils.firstMonday(d);
-		res.dateFin = DateUtils.addDays(res.dateDebut,6);
 		
 		// On récupère ensuite la liste de tous les cellules de contrats de cet utilisateur dans cet intervalle
-		List<ContratCell> cells = getAllQte(em, res.dateDebut,res.dateFin,user);
+		List<ContratCell> cells = getAllQte(em, dateDebut,dateFin,user);
 		
 		//
 		for (ContratCell cell : cells)
@@ -96,14 +94,14 @@ public class MesLivraisonsService
 		}
 		
 		// On récupère ensuite la liste de toutes les permanences de cet utilisateur dans cet intervalle
-		List<PeriodePermanenceDate> dds = getAllDistributionsForUtilisateur(em, res.dateDebut,res.dateFin,user);
+		List<PeriodePermanenceDate> dds = getAllDistributionsForUtilisateur(em, dateDebut,dateFin,user);
 		for (PeriodePermanenceDate dd : dds)
 		{
 			addDistribution(em,dd.datePerm,dd.id,res,dd.periodePermanence);
 		}
 		
 		// On récupère ensuite le planning mensuel si il y en a un
-		res.planningMensuel = computePlanningMensuel(em,res.dateDebut,res.dateFin,roles);
+		res.planningMensuel = computePlanningMensuel(em,dateDebut,dateFin,roles);
 		
 		return res;
 
@@ -245,7 +243,8 @@ public class MesLivraisonsService
 		// Récupération de la liste des mois
 		List<Date> months = getMonth(em,dateDebut,dateFin);
 		
-		boolean hasLivraison = hasLivraison(em, dateDebut, dateFin);
+		// Récupération de la liste des semaines
+		List<Date> weeks = getWeek(em,dateDebut,dateFin);
 		
 		// Récupération de la liste des editions
 		List<EditionSpecifique> editions = new EditionSpeService().getEtiquetteByType(TypEditionSpecifique.FEUILLE_EMARGEMENT);
@@ -274,9 +273,9 @@ public class MesLivraisonsService
 				}
 				else
 				{
-					if (hasLivraison)
+					for (Date week : weeks)
 					{
-						EGFeuilleEmargement planningMensuel = new EGFeuilleEmargement(editionSpecifique.getId(), dateDebut, suffix);
+						EGFeuilleEmargement planningMensuel = new EGFeuilleEmargement(editionSpecifique.getId(), week, suffix);
 						res.add(planningMensuel);
 					}
 				}
@@ -331,20 +330,33 @@ public class MesLivraisonsService
 	
 	
 	/**
-	 * Indique si il y a au moins une livraison cette semaine
+	 * Retourne la liste des semaines de cette pages mes livraisons
 	 * @param dto
 	 * @return
 	 */
-	private boolean hasLivraison(EntityManager em, Date dateDebut, Date dateFin)
+	private List<Date> getWeek(EntityManager em, Date dateDebut, Date dateFin)
 	{
-		// On extrait toutes les livraisons sur l'intervalle 
-		Query q = em.createQuery("select count(mcd.dateLiv) from ModeleContratDate mcd WHERE " +
+		// On extrait toutes les livraisons sur l'intervalle et on en déduit la liste des semaines
+		Query q = em.createQuery("select distinct(mcd.dateLiv) from ModeleContratDate mcd WHERE " +
 				"mcd.dateLiv>=:deb AND " +
-				"mcd.dateLiv<=:fin ");
+				"mcd.dateLiv<=:fin " +
+				"order by mcd.dateLiv");
 		q.setParameter("deb", dateDebut, TemporalType.DATE);
 		q.setParameter("fin", dateFin, TemporalType.DATE);
 		
-		return LongUtils.toInt(q.getSingleResult())>0;
+		List<Date> mcds = q.getResultList();
+		
+		List<Date> res = new ArrayList<Date>();
+		
+		for (Date mcd : mcds)
+		{
+			Date week = fr.amapj.common.DateUtils.firstMonday(mcd);
+			if (res.contains(week)==false)
+			{
+				res.add(week);
+			}
+		}
+		return res;
 	}
 	
 	
@@ -385,19 +397,16 @@ public class MesLivraisonsService
 	 * Retourne la liste des livraisons pour le producteur spécifié 
 	 */
 	@DbRead
-	public MesLivraisonsDTO getLivraisonProducteur(Date d,Long idProducteur)
+	public MesLivraisonsDTO getLivraisonProducteur(Date dateDebut,Date dateFin,Long idProducteur)
 	{
 		EntityManager em = TransactionHelper.getEm();
 		
 		MesLivraisonsDTO res = new MesLivraisonsDTO();
 
 		Producteur producteur = em.find(Producteur.class, idProducteur);
-
-		res.dateDebut = fr.amapj.common.DateUtils.firstMonday(d);
-		res.dateFin = DateUtils.addDays(res.dateDebut,6);
 		
 		// On récupère ensuite la liste de tous les cellules de contrats de cet utilisateur dans cet intervalle
-		List<ContratCell> cells = getAllQte(em, res.dateDebut,res.dateFin,producteur);
+		List<ContratCell> cells = getAllQte(em, dateDebut,dateFin,producteur);
 		
 		//
 		for (ContratCell cell : cells)

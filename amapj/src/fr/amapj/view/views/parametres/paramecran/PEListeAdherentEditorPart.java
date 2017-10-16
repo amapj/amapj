@@ -23,9 +23,7 @@
 import com.vaadin.data.util.BeanItem;
 
 import fr.amapj.model.models.acces.RoleList;
-import fr.amapj.model.models.param.paramecran.AbstractParamEcran;
 import fr.amapj.model.models.param.paramecran.PEListeAdherent;
-import fr.amapj.service.services.parametres.ParamEcranDTO;
 import fr.amapj.service.services.parametres.ParametresService;
 import fr.amapj.view.engine.menu.MenuList;
 import fr.amapj.view.engine.popup.formpopup.WizardFormPopup;
@@ -41,10 +39,6 @@ public class PEListeAdherentEditorPart extends WizardFormPopup
 
 	private PEListeAdherent pe;
 
-	private boolean create;
-	
-	final static private MenuList menu = MenuList.LISTE_ADHERENTS;
-
 	public enum Step
 	{
 		GENERAL ;
@@ -55,26 +49,10 @@ public class PEListeAdherentEditorPart extends WizardFormPopup
 	 */
 	public PEListeAdherentEditorPart()
 	{
-		
-		ParamEcranDTO p = new ParametresService().getParamEcran(menu);
-		
-		this.create = (p==null);
+		pe = (PEListeAdherent) new ParametresService().loadParamEcran(MenuList.LISTE_ADHERENTS);
 		
 		setWidth(80);
-		popupTitle = "Paramètrage de l'écran \""+menu.getTitle()+"\"";
-		
-		if (create)
-		{
-			
-			this.pe = new PEListeAdherent();
-			this.pe.setMenu(menu);
-		}
-		else
-		{
-			this.pe = (PEListeAdherent) AbstractParamEcran.load(p);	
-		}	
-		
-	
+		popupTitle = "Paramètrage de l'écran \""+pe.getMenu().getTitle()+"\"";
 		
 		item = new BeanItem<PEListeAdherent>(this.pe);
 
@@ -114,8 +92,7 @@ public class PEListeAdherentEditorPart extends WizardFormPopup
 	@Override
 	protected void performSauvegarder()
 	{
-		ParamEcranDTO peDTO = pe.save();
-		new ParametresService().update(peDTO, create);
+		new ParametresService().update(pe);
 	}
 
 	@Override

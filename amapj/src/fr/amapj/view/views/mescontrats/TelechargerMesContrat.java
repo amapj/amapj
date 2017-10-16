@@ -33,6 +33,7 @@ import fr.amapj.service.services.editionspe.EditionSpeService;
 import fr.amapj.service.services.mescontrats.ContratDTO;
 import fr.amapj.service.services.parametres.ParametresService;
 import fr.amapj.view.engine.excelgenerator.TelechargerPopup;
+import fr.amapj.view.engine.menu.MenuList;
 import fr.amapj.view.engine.popup.PopupListener;
 import fr.amapj.view.engine.popup.corepopup.CorePopup;
 
@@ -54,7 +55,7 @@ public class TelechargerMesContrat
 		this.existingContrats = existingContrats;
 		popup = new TelechargerPopup("Impression de mes contrats",80);
 		
-		peMesContrats = new ParametresService().getPEMesContrats();
+		peMesContrats = (PEMesContrats) new ParametresService().loadParamEcran(MenuList.MES_CONTRATS);
 		needTitle = getNeedTitle();
 		
 		

@@ -31,6 +31,7 @@ import fr.amapj.service.services.parametres.ParametresService;
 import fr.amapj.service.services.producteur.ProdUtilisateurDTO;
 import fr.amapj.view.engine.grid.GridHeaderLine;
 import fr.amapj.view.engine.grid.currencyvector.PopupCurrencyVector;
+import fr.amapj.view.engine.menu.MenuList;
 import fr.amapj.view.engine.popup.formpopup.OnSaveException;
 import fr.amapj.view.engine.widgets.CurrencyTextFieldConverter;
 import fr.amapj.view.views.saisiecontrat.SaisieContrat.ModeSaisie;
@@ -58,7 +59,7 @@ public class PopupSaisiePaiement extends PopupCurrencyVector
 		super();
 		this.data = data;
 		this.paiementDTO = data.contratDTO.paiement;
-		this.peConf = new ParametresService().getPESaisiePaiement();
+		this.peConf =  (PESaisiePaiement) new ParametresService().loadParamEcran(MenuList.OUT_SAISIE_PAIEMENT);
 		
 		
 		//

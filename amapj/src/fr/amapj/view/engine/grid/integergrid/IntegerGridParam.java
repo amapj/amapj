@@ -49,9 +49,6 @@ public class IntegerGridParam
 	// Largeur des colonnes de saisie  en pixel, exemple 110
 	public int largeurCol;
 	
-	// Escpace entre les colonnes en pixel, exemple 3 
-	public int espaceInterCol;
-
 	// Grille en lecture seule
 	public boolean readOnly;
 	

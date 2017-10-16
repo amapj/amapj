@@ -20,13 +20,10 @@
  */
  package fr.amapj.view.views.advanced.maintenance;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.poi.util.IOUtils;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -35,7 +32,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
@@ -92,9 +88,6 @@ public class MaintenanceView extends BackOfficeLongView implements View
 		backupPanel.addStyleName("action");
 		backupPanel.setContent(getBackupPanel());
 		
-		Panel suppressionPanel = new Panel("Suppression complète d'un contrat vierge et des contrats associés");
-		suppressionPanel.addStyleName("action");
-		suppressionPanel.setContent(getSuppressionPanel());
 		
 		Panel diversPanel = new Panel("Outils d'admin");
 		diversPanel.addStyleName("action");
@@ -102,8 +95,6 @@ public class MaintenanceView extends BackOfficeLongView implements View
 		
 		
 		addComponent(backupPanel);
-		addEmptyLine(this);
-		addComponent(suppressionPanel);
 		addEmptyLine(this);
 		
 		//
@@ -138,36 +129,6 @@ public class MaintenanceView extends BackOfficeLongView implements View
 	}
 	
 	
-	private Component getSuppressionPanel()
-	{
-		VerticalLayout layout = new VerticalLayout();
-		layout.setMargin(true);
-		
-		addEmptyLine(layout);
-		addLabel(layout, "Cet outil vous permet de supprimer complètement un contrat vierge et tous les contrats signés associés.");
-		addEmptyLine(layout);
-		addLabel(layout, "ATTENTION !!! Les suppressions sont définitives !!! ATTENTION !!!!.");
-		
-
-		addEmptyLine(layout);
-		
-
-		Button b3 = new Button("Suppression complète d'un contrat ...", new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				PopupSuppressionTotaleContrat popup = new PopupSuppressionTotaleContrat();
-				CorePopup.open(popup);
-			}
-		});
-		
-		layout.addComponent(b3);
-				
-		addEmptyLine(layout);
-		
-		return layout;
-	}
 	
 	
 	private Component getDiversPanel()

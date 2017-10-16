@@ -46,7 +46,7 @@ import fr.amapj.view.engine.tools.DateTimeToStringConverter;
 import fr.amapj.view.engine.widgets.CurrencyTextFieldConverter;
 import fr.amapj.view.views.common.contratselector.ContratSelectorPart;
 import fr.amapj.view.views.common.contrattelecharger.TelechargerContrat;
-import fr.amapj.view.views.gestioncontratsignes.update.ChoixModifContratSigne;
+import fr.amapj.view.views.gestioncontratsignes.modifiermasse.ModifierEnMasseContratSigne;
 import fr.amapj.view.views.saisiecontrat.SaisieContrat;
 import fr.amapj.view.views.saisiecontrat.SaisieContrat.ModeSaisie;
 
@@ -152,7 +152,7 @@ public class GestionContratSignesListPart extends StandardListPart<ContratSigneD
 	private void handleModifMasse()
 	{
 		Long idModeleContrat = contratSelectorPart.getModeleContratId();
-		ChoixModifContratSigne.open(new ChoixModifContratSigne(idModeleContrat), this);
+		ModifierEnMasseContratSigne.open(new ModifierEnMasseContratSigne(idModeleContrat), this);
 	}
 
 	
@@ -243,6 +243,5 @@ public class GestionContratSignesListPart extends StandardListPart<ContratSigneD
 		Long idModeleContrat;
 		Long userId;
 	}
-	
 	
 }

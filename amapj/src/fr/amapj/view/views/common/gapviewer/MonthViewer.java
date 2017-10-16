@@ -18,12 +18,15 @@
  * 
  * 
  */
- package fr.amapj.view.views.common.semaineviewer;
+ package fr.amapj.view.views.common.gapviewer;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
+
+
+import org.apache.commons.lang.StringUtils;
 
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
@@ -39,16 +42,14 @@ import fr.amapj.view.engine.tools.BaseUiTools;
 
 
 /**
- * Permet de créer un bloc permettant la gestion d'un calendrier semaine / semaine
+ * Permet de créer un bloc permettant la gestion d'un calendrier mois / mois
  *
  */
-public class SemaineViewer 
+public class MonthViewer implements AbstractGapViewer
 {
 	
-	
-	
-	private SimpleDateFormat df1 = new SimpleDateFormat("EEEEE dd MMMMM yyyy");
-	private SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy");
+	private SimpleDateFormat df1 = new SimpleDateFormat("MMMMM yyyy");
+	private SimpleDateFormat df2 = new SimpleDateFormat("MM/yy");
 	
 	private Label titre;
 		
@@ -58,9 +59,10 @@ public class SemaineViewer
 
 	
 	
-	public SemaineViewer(PopupListener listener)
+	public MonthViewer(PopupListener listener)
 	{
-		date = fr.amapj.common.DateUtils.getDate();
+		date = DateUtils.getDate();
+		date = DateUtils.firstDayInMonth(date);
 		this.listener = listener;
 	}
 	
@@ -94,13 +96,15 @@ public class SemaineViewer
 		vl.addComponent(hl1);
 		
 		
-		// Bandeau avec la date de la semaine visualisée
+		// Bandeau avec la date du mois visualisée
 		titre = new Label();
 		hl1.addStyleName("titre");
 		titre.setSizeUndefined();
 		vl.addComponent(titre);
 		vl.setComponentAlignment(titre, Alignment.MIDDLE_CENTER);
 	
+		updateTitreValue();
+		
 		return vl;
 		
 	}
@@ -109,7 +113,8 @@ public class SemaineViewer
 	
 	private void avancer()
 	{
-		date = DateUtils.addDays(date, 7);
+		date = DateUtils.addMonth(date, 1);
+		updateTitreValue();
 		listener.onPopupClose();
 		
 	}
@@ -118,7 +123,8 @@ public class SemaineViewer
 
 	private void reculer()
 	{
-		date = DateUtils.addDays(date, -7);
+		date = DateUtils.addMonth(date, -1);
+		updateTitreValue();
 		listener.onPopupClose();
 		
 	}
@@ -143,11 +149,11 @@ public class SemaineViewer
 		{
 			if (toRight)
 			{
-				str = "SEMAINE SUIVANTE";
+				str = "MOIS SUIVANT";
 			}
 			else
 			{
-				str = "SEMAINE PRECEDENTE";
+				str = "MOIS PRECEDENT";
 			}
 		}
 		
@@ -178,21 +184,24 @@ public class SemaineViewer
 	}
 
 
-	public void updateTitreValue(Date dateDebut,Date dateFin)
+	private void updateTitreValue()
 	{
 
 		SimpleDateFormat dfx = BaseUiTools.isWidthBelow(480) ? df2 : df1;
-		titre.setValue(dfx.format(dateDebut)+" - "+dfx.format(dateFin));	
+		titre.setValue(StringUtils.capitalize(dfx.format(getDateDebut())));	
 	}
 
 
-	public Date getDate()
+	public Date getDateDebut()
 	{
 		return date;
 	}
 	
 
-	
-	
-
+	public Date getDateFin()
+	{
+		Date fin = DateUtils.addMonth(date, 1);
+		fin = DateUtils.addDays(fin, -1);
+		return fin;
+	}
 }

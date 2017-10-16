@@ -42,6 +42,7 @@ import fr.amapj.service.services.gestioncontratsigne.ContratSigneDTO;
 import fr.amapj.service.services.mescontrats.DatePaiementDTO;
 import fr.amapj.service.services.mespaiements.MesPaiementsService;
 import fr.amapj.service.services.parametres.ParametresService;
+import fr.amapj.view.engine.menu.MenuList;
 import fr.amapj.view.engine.popup.okcancelpopup.OKCancelPopup;
 import fr.amapj.view.engine.tools.BaseUiTools;
 import fr.amapj.view.engine.tools.TableBuilder;
@@ -83,7 +84,7 @@ public class ReceptionChequeEditorPart extends OKCancelPopup
 	
 		//
 		paiements = new MesPaiementsService().getPaiementAReceptionner(c.idContrat);
-		peConf = new ParametresService().getPEReceptionCheque();
+		peConf = (PEReceptionCheque) new ParametresService().loadParamEcran(MenuList.RECEPTION_CHEQUES);
 		//
 		popupTitle = "Réception chèques";
 		setWidth(60);

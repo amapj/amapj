@@ -21,6 +21,7 @@
  package fr.amapj.service.services.gestioncontratsigne.update;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -30,8 +31,11 @@ import fr.amapj.model.engine.transaction.DbWrite;
 import fr.amapj.model.engine.transaction.TransactionHelper;
 import fr.amapj.model.models.contrat.modele.ModeleContrat;
 import fr.amapj.model.models.contrat.modele.ModeleContratDate;
+import fr.amapj.model.models.contrat.modele.ModeleContratProduit;
+import fr.amapj.model.models.fichierbase.Produit;
 import fr.amapj.service.services.gestioncontrat.DateModeleContratDTO;
 import fr.amapj.service.services.gestioncontrat.ModeleContratDTO;
+import fr.amapj.service.services.mescontrats.ContratLigDTO;
 import fr.amapj.service.services.notification.DeleteNotificationService;
 
 public class GestionContratSigneUpdateService
@@ -69,6 +73,12 @@ public class GestionContratSigneUpdateService
 	{
 		EntityManager em = TransactionHelper.getEm();
 		
+		suppressOneDateLiv(em,idModeleContratDate);
+	}
+	
+	
+	private void suppressOneDateLiv(EntityManager em,Long idModeleContratDate)
+	{
 		ModeleContratDate mcd = em.find(ModeleContratDate.class, idModeleContratDate);
 		
 		// On efface les exclusions relatives à cette date
@@ -89,7 +99,73 @@ public class GestionContratSigneUpdateService
 		
 		SQLUtils.deleteAll(em, q);
 	}
+
+
+	/**
+	 * Cette méthode permet de supprimer un produit  d'un contrat 
+	 * Ce produit ne doit pas contenir de livraison pour un amapien 
+	 *  
+	 */
+	@DbWrite
+	public void suppressOneProduit(Long idModeleContratProduit)
+	{
+		EntityManager em = TransactionHelper.getEm();
+		
+		ModeleContratProduit mcp = em.find(ModeleContratProduit.class, idModeleContratProduit);
+		
+		// On efface les exclusions relatives à ce produit 
+		deleteAllProduitBarres(em, mcp);
+				
+		// On supprime le produit  
+		em.remove(mcp);
+	}
 	
+
+	private void deleteAllProduitBarres(EntityManager em, ModeleContratProduit mcp)
+	{
+		Query q = em.createQuery("select mce from ModeleContratExclude mce WHERE mce.produit=:mcp");
+		q.setParameter("mcp",mcp);
+		
+		SQLUtils.deleteAll(em, q);
+	}
+
+
+	public void addOneProduit(EntityManager em, Long produitId, Integer prix, int index, ModeleContrat mc)
+	{	
+		ModeleContratProduit mcp = new ModeleContratProduit();
+		mcp.setIndx(index);
+		mcp.setModeleContrat(mc);
+		mcp.setPrix(prix);
+		mcp.setProduit(em.find(Produit.class, produitId));
+
+		em.persist(mcp);
+		
+	}
+
+
+	public void updateModeleContratProduit(EntityManager em, Long idModeleContratProduit, Integer prix, int index)
+	{
+		ModeleContratProduit mcp = em.find(ModeleContratProduit.class, idModeleContratProduit);
+
+		mcp.setIndx(index);
+		mcp.setPrix(prix);
+
+	}
+
+	/**
+	 * Suppression d'une liste de date sur un contrat 
+	 */
+	@DbWrite
+	public void suppressManyDateLivs(List<ContratLigDTO> dateToSuppress)
+	{
+		EntityManager em = TransactionHelper.getEm();
+		
+		for (ContratLigDTO contratLigDTO : dateToSuppress)
+		{
+			suppressOneDateLiv(em, contratLigDTO.modeleContratDateId);
+		}
+		
+	}
 	
 	
 

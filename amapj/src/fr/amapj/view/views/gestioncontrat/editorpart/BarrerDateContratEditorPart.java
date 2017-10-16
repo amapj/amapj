@@ -31,6 +31,7 @@ import fr.amapj.service.services.mescontrats.ContratDTO;
 import fr.amapj.service.services.mescontrats.ContratLigDTO;
 import fr.amapj.service.services.mescontrats.MesContratsService;
 import fr.amapj.view.engine.grid.GridHeaderLine;
+import fr.amapj.view.engine.grid.GridSizeCalculator;
 import fr.amapj.view.engine.grid.booleangrid.PopupBooleanGrid;
 import fr.amapj.view.engine.widgets.CurrencyTextFieldConverter;
 
@@ -63,6 +64,7 @@ public class BarrerDateContratEditorPart extends PopupBooleanGrid
 	{
 		// Chargement de l'objet  à modifier
 		contratDTO = new MesContratsService().loadContrat(idModeleContrat,null);
+		contratDTO.expandExcluded();
 		
 		//
 		popupTitle = "Barrer des dates pour le contrat "+contratDTO.nom;
@@ -73,26 +75,12 @@ public class BarrerDateContratEditorPart extends PopupBooleanGrid
 		
 		param.nbCol = contratDTO.contratColumns.size();
 		param.nbLig = contratDTO.contratLigs.size();
-		if (contratDTO.excluded==null)
-		{
-			contratDTO.excluded = new boolean[param.nbLig][param.nbCol];
-			for (int i = 0; i < param.nbLig; i++)
-			{
-				for (int j = 0; j < param.nbCol; j++)
-				{
-					contratDTO.excluded[i][j] = false ;
-				}
-			}
-		}
 		param.box = contratDTO.excluded;
-		
 		param.largeurCol = 110;
-		param.espaceInterCol = 3;
 		
 				
 		// Construction du header 1
 		GridHeaderLine line1  =new GridHeaderLine();
-		line1.height = 70;
 		line1.styleName = "tete";
 		line1.cells.add("Produit");
 				
@@ -100,6 +88,7 @@ public class BarrerDateContratEditorPart extends PopupBooleanGrid
 		{
 			line1.cells.add(col.nomProduit);
 		}
+		GridSizeCalculator.autoSize(line1,param.largeurCol,"Arial",16);
 		
 	
 		// Construction du header 2
@@ -121,6 +110,7 @@ public class BarrerDateContratEditorPart extends PopupBooleanGrid
 		{
 			line3.cells.add(col.condtionnementProduit);
 		}
+		GridSizeCalculator.autoSize(line3,param.largeurCol,"Arial",16);
 		
 		param.headerLines.add(line1);
 		param.headerLines.add(line2);
@@ -136,7 +126,6 @@ public class BarrerDateContratEditorPart extends PopupBooleanGrid
 	
 	public void performSauvegarder()
 	{
-		
 		new GestionContratService().updateDateBarreesModeleContrat(contratDTO);
 	}
 	
@@ -149,11 +138,9 @@ public class BarrerDateContratEditorPart extends PopupBooleanGrid
 		int nbInscrits = new GestionContratService().getNbInscrits(idModeleContrat);
 		if (nbInscrits!=0)
 		{
-			String str = "Vous ne pouvez plus barrer certaines dates ou produits pour ce contrat<br/>"+
-						 "car "+nbInscrits+" adhérents ont déjà souscrits à ce contrat<br/>."+
-						 "Une seule solution est possible :<br/><ul>"+
-						 "<li>Supprimez les contrats signés par les adhérents, si ce sont des données de test</li>"+
-						 "</ul>";
+			String str = "Vous ne pouvez plus barrer simplement certaines dates ou produits pour ce contrat<br/>"+
+						 "car "+nbInscrits+" adhérents ont déjà souscrits à ce contrat.<br/><br/>"+
+						 "Vous devez aller dans \"Gestion des contrats signés\", puis vous cliquez sur le bouton \"Modifier en masse\",<br> puis sur \"Barrer certaines dates ou certains produits\", et un assistant vous aidera à barrer certains produits ou dates en prenant en compte les contrats signés.";
 			return str;
 		}
 		

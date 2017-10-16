@@ -486,7 +486,7 @@ public class AppInstanceService
 		//Query q = em.createQuery("select distinct(u) from Utilisateur u  where u.id in (select a.utilisateur.id from RoleAdmin a) OR u.id in (select t.utilisateur.id from RoleTresorier t)  order by u.nom,u.prenom");
 		Query q = em.createQuery("select distinct(u) from Utilisateur u  where u.id in (select a.utilisateur.id from RoleAdmin a) order by u.nom,u.prenom");
 		List<Utilisateur> us = q.getResultList();
-		str.append(CollectionUtils.asStringFinalSep(us, ",",t->dbName+"<"+t.getEmail()+">"));
+		str.append(CollectionUtils.asStringFinalSep(us, ",",t->"\""+dbName+"\" <"+t.getEmail()+">"));
 		
 		return null;
 	}

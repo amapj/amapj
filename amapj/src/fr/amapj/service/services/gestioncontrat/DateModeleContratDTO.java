@@ -30,7 +30,7 @@ import java.util.Date;
 public class DateModeleContratDTO
 {
 	public Date dateLiv;
-
+	
 	public Date getDateLiv()
 	{
 		return dateLiv;

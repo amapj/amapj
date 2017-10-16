@@ -28,6 +28,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
+import fr.amapj.model.models.param.paramecran.PELivraisonProducteur;
 import fr.amapj.service.services.edgenerator.excel.feuilledistribution.producteur.EGFeuilleDistributionProducteur;
 import fr.amapj.service.services.gestioncontrat.GestionContratService;
 import fr.amapj.service.services.meslivraisons.JourLivraisonsDTO;
@@ -35,11 +36,14 @@ import fr.amapj.service.services.meslivraisons.MesLivraisonsDTO;
 import fr.amapj.service.services.meslivraisons.MesLivraisonsService;
 import fr.amapj.service.services.meslivraisons.ProducteurLivraisonsDTO;
 import fr.amapj.service.services.meslivraisons.QteProdDTO;
+import fr.amapj.service.services.parametres.ParametresService;
 import fr.amapj.view.engine.excelgenerator.LinkCreator;
+import fr.amapj.view.engine.menu.MenuList;
 import fr.amapj.view.engine.popup.PopupListener;
 import fr.amapj.view.engine.template.FrontOfficeView;
 import fr.amapj.view.engine.tools.BaseUiTools;
-import fr.amapj.view.views.common.semaineviewer.SemaineViewer;
+import fr.amapj.view.views.common.gapviewer.AbstractGapViewer;
+import fr.amapj.view.views.common.gapviewer.GapViewerUtil;
 import fr.amapj.view.views.producteur.ProducteurSelectorPart;
 
 
@@ -63,7 +67,7 @@ public class ProducteurLivraisonsView extends FrontOfficeView implements PopupLi
 	static private String PANEL_UNJOUR = "unjour";
 
 	
-	private SemaineViewer semaineViewer;
+	private AbstractGapViewer gapViewer;
 	
 	
 	public String getMainStyleName()
@@ -81,8 +85,11 @@ public class ProducteurLivraisonsView extends FrontOfficeView implements PopupLi
 		
 		addComponent(producteurSelector.getChoixProducteurComponent());
 
-		semaineViewer = new SemaineViewer(this);
-		addComponent(semaineViewer.getComponent());
+		PELivraisonProducteur pe = (PELivraisonProducteur) new ParametresService().loadParamEcran(MenuList.LIVRAISONS_PRODUCTEUR);
+		
+		gapViewer = GapViewerUtil.createGapWiever(pe.modeAffichage, this);
+		
+		addComponent(gapViewer.getComponent());
 		
 		central = new VerticalLayout();
 		addComponent(central);
@@ -103,11 +110,8 @@ public class ProducteurLivraisonsView extends FrontOfficeView implements PopupLi
 		}
 		
 		//
-		MesLivraisonsDTO res = new MesLivraisonsService().getLivraisonProducteur(semaineViewer.getDate(), idProducteur);
+		MesLivraisonsDTO res = new MesLivraisonsService().getLivraisonProducteur(gapViewer.getDateDebut(),gapViewer.getDateFin(), idProducteur);
 		central.removeAllComponents();
-
-		// Titre
-		semaineViewer.updateTitreValue(res.dateDebut, res.dateFin);
 		
 		// Pour chaque jour, ajout des produits à livrer
 		for (JourLivraisonsDTO jour : res.jours)

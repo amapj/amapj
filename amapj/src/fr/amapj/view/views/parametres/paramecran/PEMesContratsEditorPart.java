@@ -23,9 +23,7 @@
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.shared.ui.label.ContentMode;
 
-import fr.amapj.model.models.param.paramecran.AbstractParamEcran;
 import fr.amapj.model.models.param.paramecran.PEMesContrats;
-import fr.amapj.service.services.parametres.ParamEcranDTO;
 import fr.amapj.service.services.parametres.ParametresService;
 import fr.amapj.view.engine.menu.MenuList;
 import fr.amapj.view.engine.popup.formpopup.WizardFormPopup;
@@ -40,10 +38,6 @@ public class PEMesContratsEditorPart extends WizardFormPopup
 
 	private PEMesContrats pe;
 
-	private boolean create;
-	
-	final static private MenuList menu = MenuList.MES_CONTRATS;
-
 	public enum Step
 	{
 		IMPRESSION_CONTRAT , ADHESION ;
@@ -54,25 +48,10 @@ public class PEMesContratsEditorPart extends WizardFormPopup
 	 */
 	public PEMesContratsEditorPart()
 	{
-		
-		ParamEcranDTO p = new ParametresService().getParamEcran(menu);
-		
-		this.create = (p==null);
+		pe = (PEMesContrats) new ParametresService().loadParamEcran(MenuList.MES_CONTRATS);
 		
 		setWidth(80);
-		popupTitle = "Paramètrage de l'écran \""+menu.getTitle()+"\"";
-		
-		if (create)
-		{
-			
-			this.pe = new PEMesContrats();
-			this.pe.setMenu(menu);
-		}
-		else
-		{
-			this.pe = (PEMesContrats) AbstractParamEcran.load(p);	
-		}	
-		
+		popupTitle = "Paramètrage de l'écran \""+pe.getMenu().getTitle()+"\"";
 
 		item = new BeanItem<PEMesContrats>(this.pe);
 
@@ -124,8 +103,7 @@ public class PEMesContratsEditorPart extends WizardFormPopup
 	@Override
 	protected void performSauvegarder()
 	{
-		ParamEcranDTO peDTO = pe.save();
-		new ParametresService().update(peDTO, create);
+		new ParametresService().update(pe);
 	}
 
 	@Override

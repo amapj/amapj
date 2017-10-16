@@ -18,7 +18,7 @@
  * 
  * 
  */
- package fr.amapj.model.models.param.paramecran;
+ package fr.amapj.model.models.param.paramecran.common;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

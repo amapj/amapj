@@ -26,19 +26,21 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import fr.amapj.service.services.edgenerator.excel.emargement.EGFeuilleEmargement;
+import fr.amapj.model.models.param.paramecran.PELivraisonAmapien;
 import fr.amapj.service.services.meslivraisons.JourLivraisonsDTO;
+import fr.amapj.service.services.meslivraisons.JourLivraisonsDTO.InfoPermanence;
 import fr.amapj.service.services.meslivraisons.MesLivraisonsDTO;
 import fr.amapj.service.services.meslivraisons.MesLivraisonsService;
 import fr.amapj.service.services.meslivraisons.ProducteurLivraisonsDTO;
 import fr.amapj.service.services.meslivraisons.QteProdDTO;
-import fr.amapj.service.services.meslivraisons.JourLivraisonsDTO.InfoPermanence;
+import fr.amapj.service.services.parametres.ParametresService;
 import fr.amapj.service.services.session.SessionManager;
-import fr.amapj.view.engine.excelgenerator.LinkCreator;
+import fr.amapj.view.engine.menu.MenuList;
 import fr.amapj.view.engine.popup.PopupListener;
 import fr.amapj.view.engine.template.FrontOfficeView;
 import fr.amapj.view.engine.tools.BaseUiTools;
-import fr.amapj.view.views.common.semaineviewer.SemaineViewer;
+import fr.amapj.view.views.common.gapviewer.AbstractGapViewer;
+import fr.amapj.view.views.common.gapviewer.GapViewerUtil;
 import fr.amapj.view.views.common.utilisateurselector.UtilisateurSelectorPart;
 
 
@@ -60,7 +62,7 @@ public class LivraisonAmapienView extends FrontOfficeView implements PopupListen
 	
 	private VerticalLayout livraison;
 	
-	private SemaineViewer semaineViewer;
+	private AbstractGapViewer semaineViewer;
 	
 	private UtilisateurSelectorPart utilisateurSelector;
 	
@@ -83,7 +85,10 @@ public class LivraisonAmapienView extends FrontOfficeView implements PopupListen
 		
 		addComponent(utilisateurSelector.getChoixUtilisateurComponent());
 		
-		semaineViewer = new SemaineViewer(this);
+		
+		PELivraisonAmapien pe = (PELivraisonAmapien) new ParametresService().loadParamEcran(MenuList.LIVRAISON_AMAPIEN);
+		
+		semaineViewer = GapViewerUtil.createGapWiever(pe.modeAffichage, this);
 		addComponent(semaineViewer.getComponent());
 		
 		VerticalLayout central = new VerticalLayout();
@@ -114,10 +119,7 @@ public class LivraisonAmapienView extends FrontOfficeView implements PopupListen
 			return ;
 		}
 		
-		
-		
-		MesLivraisonsDTO res = new MesLivraisonsService().getMesLivraisons(semaineViewer.getDate(),SessionManager.getUserRoles(),idUtilisateur);
-		semaineViewer.updateTitreValue(res.dateDebut, res.dateFin);
+		MesLivraisonsDTO res = new MesLivraisonsService().getMesLivraisons(semaineViewer.getDateDebut(),semaineViewer.getDateFin(),SessionManager.getUserRoles(),idUtilisateur);
 		
 		// Une ligne vide
 		BaseUiTools.addEmptyLine(planning);

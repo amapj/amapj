@@ -40,7 +40,7 @@ import fr.amapj.service.services.gestioncontrat.DateModeleContratDTO;
 import fr.amapj.service.services.gestioncontrat.GestionContratService;
 import fr.amapj.service.services.gestioncontrat.LigneContratDTO;
 import fr.amapj.service.services.gestioncontrat.ModeleContratDTO;
-import fr.amapj.view.engine.collectioneditor.CollectionEditor;
+import fr.amapj.service.services.produit.ProduitService;
 import fr.amapj.view.engine.collectioneditor.FieldType;
 import fr.amapj.view.engine.popup.formpopup.WizardFormPopup;
 import fr.amapj.view.engine.popup.formpopup.validator.CollectionNoDuplicates;
@@ -81,7 +81,7 @@ public class GestionContratEditorPart extends WizardFormPopup
 		add(Step.INFO_GENERALES, ()->drawInfoGenerales(),()->checkInfoGenerales());
 		add(Step.DATE_LIVRAISON, ()->drawDateLivraison(),()->checkDateLivraison());
 		add(Step.DATE_FIN_INSCRIPTION, ()->drawFinInscription());
-		add(Step.CHOIX_PRODUITS, ()->drawChoixProduits(),()->checkChoixProduits());
+		add(Step.CHOIX_PRODUITS, ()->drawChoixProduits());
 		add(Step.TYPE_PAIEMENT , ()->drawTypePaiement());
 		add(Step.DETAIL_PAIEMENT , ()->drawDetailPaiement());
 	}
@@ -301,44 +301,21 @@ public class GestionContratEditorPart extends WizardFormPopup
 		// Titre
 		setStepTitle("la liste des produits et des prix");
 				
-		// Champ 7
-		CollectionEditor<LigneContratDTO> f1 = new CollectionEditor<LigneContratDTO>("Produits", (BeanItem) item, "produits", LigneContratDTO.class);
-		f1.addSearcherColumn("produitId", "Nom du produit",FieldType.SEARCHER, null,SearcherList.PRODUIT,prod);
-		f1.addColumn("prix", "Prix du produit", FieldType.CURRENCY, null);
-		binder.bind(f1, "produits");
-		form.addComponent(f1);
-
+		// 
+		
+		IValidator size = new CollectionSizeValidator<LigneContratDTO>(1, null);
+		IValidator noDuplicates = new CollectionNoDuplicates<LigneContratDTO>(e->e.produitId,e->new ProduitService().prettyString(e.produitId));
+							
+		//
+		addCollectionEditorField("Produits", "produits", LigneContratDTO.class,size,noDuplicates);
+		
+		addColumnSearcher("produitId", "Nom du produit",FieldType.SEARCHER, null,SearcherList.PRODUIT,prod,new ColumnNotNull<LigneContratDTO>(e->e.produitId));
+		addColumn("prix", "Prix du produit", FieldType.CURRENCY, null,new ColumnNotNull<LigneContratDTO>(e->e.prix));	
+		
 	}
 
 
-	private String checkChoixProduits()
-	{
-		if (checkProduits()==false)
-		{
-			return "Il y a des erreurs dans la saisie des produits</br>"+
-				   "Il y a des produits non renseignés ou des prix non renseignés</br>"+
-				   "Vous ne devez pas avoir de lignes vides non plus<br/>";
-		}
-		return null;
-	}
 	
-	
-	private boolean checkProduits()
-	{
-		List<LigneContratDTO> produits = modeleContrat.produits;
-		for (LigneContratDTO lig : produits)
-		{
-			if (lig.prix==null)
-			{
-				return false;
-			}
-			if (lig.produitId==null)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
 	
 	
 

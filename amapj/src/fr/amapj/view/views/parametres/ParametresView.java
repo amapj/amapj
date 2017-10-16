@@ -27,6 +27,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 
+import fr.amapj.model.models.param.paramecran.PELivraisonProducteur;
 import fr.amapj.service.services.parametres.ParametresDTO;
 import fr.amapj.service.services.parametres.ParametresService;
 import fr.amapj.view.engine.popup.PopupListener;
@@ -34,7 +35,10 @@ import fr.amapj.view.engine.popup.corepopup.CorePopup;
 import fr.amapj.view.engine.popup.formpopup.FormPopup;
 import fr.amapj.view.engine.template.BackOfficeLongView;
 import fr.amapj.view.views.parametres.paramecran.PEListeAdherentEditorPart;
+import fr.amapj.view.views.parametres.paramecran.PELivraisonAmapienEditorPart;
+import fr.amapj.view.views.parametres.paramecran.PELivraisonProducteurEditorPart;
 import fr.amapj.view.views.parametres.paramecran.PEMesContratsEditorPart;
+import fr.amapj.view.views.parametres.paramecran.PEMesLivraisonsEditorPart;
 import fr.amapj.view.views.parametres.paramecran.PEReceptionChequeEditorPart;
 import fr.amapj.view.views.parametres.paramecran.PESaisiePaiementEditorPart;
 
@@ -92,12 +96,18 @@ public class ParametresView extends BackOfficeLongView implements PopupListener
 		addButton("Ecran \"Mes contrats\" , Généralités",e -> CorePopup.open(new PEMesContratsEditorPart(),listener));
 		addButton("Ecran \"Mes contrats\" , Saisie des paiements par l'amapien",e -> CorePopup.open(new PESaisiePaiementEditorPart(),listener));
 
+		addButton("Ecran \"Mes livraisons\"",e -> 	CorePopup.open(new PEMesLivraisonsEditorPart(),listener));
+
 		addButton("Ecran \"Liste des adhérents\"",e -> 	CorePopup.open(new PEListeAdherentEditorPart(),listener));
-			
+		
+		addButton("Ecran \"Livraison d'un producteur\"",e -> 	CorePopup.open(new PELivraisonProducteurEditorPart(),listener));
+		
+		addButton("Ecran \"Livraison d'un amapien\"",e -> 	CorePopup.open(new PELivraisonAmapienEditorPart(),listener));
+		
 		addButton("Ecran \"Réception des chèques\"",e -> CorePopup.open(new PEReceptionChequeEditorPart(),listener));
 
 		
-	
+		
 		
 		refresh();
 		

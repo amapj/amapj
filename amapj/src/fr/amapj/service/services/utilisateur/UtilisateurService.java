@@ -28,13 +28,13 @@ import javax.persistence.Query;
 
 import fr.amapj.common.LongUtils;
 import fr.amapj.common.RandomUtils;
-import fr.amapj.model.engine.DbTools;
 import fr.amapj.model.engine.transaction.DbRead;
 import fr.amapj.model.engine.transaction.DbWrite;
 import fr.amapj.model.engine.transaction.TransactionHelper;
 import fr.amapj.model.models.acces.RoleList;
 import fr.amapj.model.models.fichierbase.EtatUtilisateur;
 import fr.amapj.model.models.fichierbase.Utilisateur;
+import fr.amapj.service.engine.tools.DbToDto;
 import fr.amapj.service.services.access.AccessManagementService;
 import fr.amapj.service.services.authentification.PasswordManager;
 import fr.amapj.service.services.mailer.MailerMessage;
@@ -68,7 +68,7 @@ public class UtilisateurService
 	{
 		EntityManager em = TransactionHelper.getEm();
 		List<Utilisateur> us = getUtilisateurs(includeInactif);
-		return DbTools.transform(us, (Utilisateur u) ->createUtilisateurDto(em, u));
+		return DbToDto.transform(us, (Utilisateur u) ->createUtilisateurDto(em, u));
 	}
 
 	

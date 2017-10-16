@@ -242,6 +242,13 @@ public class CollectionUtils
 	{
 		sortInternal(ls, new GetField[] { f1 }, new boolean[] { true });
 	}
+	
+	
+	public static <T> void sortWithCache(List<T> ls, GetField<T> f1)
+	{
+		sortInternalWithCache(ls, new GetField[] { f1 }, new boolean[] { true });
+	}
+	
 
 	public static <T> void sort(List<T> ls, GetField<T> f1, boolean asc1)
 	{
@@ -267,6 +274,20 @@ public class CollectionUtils
 	{
 		sortInternal(ls, new GetField[] { f1, f2 }, new boolean[] { asc1, asc2 });
 	}
+	
+	/**
+	 * Permet de trier des objets suivant 2 champs de l'objet
+	 * 
+	 * Les objets avec le champ null sont en premier (les plus petits)
+	 * 
+	 * Cette implementation utilise un cache , la méthode f1 ou f2 est ainsi appellée une seule fois 
+	 */
+	public static <T> void sortWithCache(List<T> ls, GetField<T> f1, boolean asc1, GetField<T> f2, boolean asc2)
+	{
+		sortInternalWithCache(ls, new GetField[] { f1, f2 }, new boolean[] { asc1, asc2 });
+	}
+	
+	
 
 	/**
 	 * Permet de trier des objets suivant 3 champs de l'objet
@@ -362,6 +383,84 @@ public class CollectionUtils
 
 		Collections.sort(ls, c);
 	}
+	
+	
+	
+	static private class SortCache<T>
+	{
+		public T t;
+		
+		public Object[] elts;
+		
+		public boolean[] calculated;
+		
+		public GetField<T>[] fs;
+		
+		public SortCache(T t,GetField<T>[] fs)
+		{
+			this.t = t;
+			this.fs = fs;
+			
+			elts = new Object[fs.length];
+			calculated = new boolean[fs.length];
+			for (int i = 0; i < calculated.length; i++)
+			{
+				calculated[i] = false;
+			}
+		}
+		
+		public Object getElt(int index)
+		{
+			if (calculated[index]==false)
+			{
+				elts[index] = fs[index].getField(t);
+				calculated[index]=true;
+			}
+			return elts[index];
+		}
+		
+		
+	}
+	
+	
+	/**
+	 * Permet de trier des objets suivant plusieurs champs de l'objet
+	 * 
+	 * Les objets avec le champ null sont en premier (les plus petits)
+	 * 
+	 * avec utilisation d'un cache pour calculer les elements de comparaisons une seule fois
+	 *  
+	 */
+	public static <T> void sortInternalWithCache(List<T> ls, GetField<T>[] fs, boolean[] asc)
+	{
+		// 
+		List<SortCache<T>> caches = new ArrayList<CollectionUtils.SortCache<T>>();
+		for(T t : ls)
+		{
+			SortCache<T> cache = new SortCache<T>(t,fs);
+			caches.add(cache);
+		}
+		
+		// 
+		GetField<SortCache<T>>[] fs2 = new GetField[fs.length];
+		for (int i = 0; i < fs2.length; i++)
+		{
+			final int index = i;
+			fs2[i] = (SortCache<T> e)->e.getElt(index);
+		}
+		
+		// On realise le tri 
+		sortInternal(caches, fs2, asc);
+		
+		// On recree la liste triée en la vidant et en la remplissant avec les nouveaux elements triés
+		ls.clear();
+		
+		for (SortCache<T> cache : caches)
+		{
+			ls.add(cache.t);
+		}
+		
+	}
 
 	// FIND MATCHING
 	
@@ -379,6 +478,25 @@ public class CollectionUtils
 			}
 		}
 		return null;
+	}
+	
+	
+	/**
+	 * Permet de retrouver l'index d' un element d'une liste , qui matche un certain nombre de critere
+	 * 
+	 *  Retourne -1 si l'élement n' a pas été trouvé 
+	 */
+	public static <T> int findIndex(List<T> ls, ToBoolean<T> f1)
+	{
+		for (int i = 0; i < ls.size(); i++)
+		{
+			T t = ls.get(i);
+			if (f1.toBoolean(t))
+			{
+				return i;
+			}
+		}
+		return -1;
 	}
 	
 	
@@ -460,75 +578,6 @@ public class CollectionUtils
 	public static <T> boolean exists(List<T> ls, ToBoolean<T> f1)
 	{
 		return findMatching(ls, f1)!=null;
-	}
-	
-	
-	
-	
-	// Différence entre deux listes
-	
-	
-	static public class ListDiff<T>
-	{
-		// Liste des élements à ajouter
-		public List<T> toAdd;
-		
-		// Liste des éléments à supprimer 
-		public List<T> toSuppress;
-		
-	}
-	
-	/**
-	 * Permet de calculer la différence entre deux listes
-	 * 
-	 * Retourne la liste des éléments à ajouter et la liste des élements à supprimer 
-	 * pour transformer oldList en newList 
-	 * 
-	 * compare retourne le champ qui servira pour la comparaison 
-	 */
-	public static <T> ListDiff<T> diffList(List<T> oldList, List<T> newList,GetField<T> compare)
-	{
-		ListDiff<T> res = new ListDiff<T>();
-		
-		res.toAdd = new ArrayList<T>();
-		res.toSuppress = new ArrayList<T>();
-		
-		
-		for (T t : oldList)
-		{
-			Object val = compare.getField(t);
-			if (isNotIn(newList,val,compare))
-			{
-				res.toSuppress.add(t);
-			}
-		}
-		
-		for (T t : newList)
-		{
-			Object val = compare.getField(t);
-			if (isNotIn(oldList,val,compare))
-			{
-				res.toAdd.add(t);
-			}
-		}
-
-		
-		
-		return res;
-	}
-	
-	
-	private static <T> boolean isNotIn(List<T> ls, Object val1 , GetField<T> compare)
-	{
-		for (T t : ls)
-		{
-			Object val2 = compare.getField(t);
-			if (ObjectUtils.equals(val1, val2))
-			{
-				return false;
-			}
-		}
-		return true;
 	}
 	
 	

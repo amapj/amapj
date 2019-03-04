@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -22,19 +22,34 @@
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
 import fr.amapj.common.GenericUtils.GetFieldTyped;
 
 /**
- * Outils generique pour le formatage
- * 
- *
+ * Outils generique pour le formatage des dates et autres 
  */
 
 public class FormatUtils
 {
+	
+
+	// PARTIE FORMATTAGE DE LA DATE + HEURE  
+	
+	/**
+	 * Retourne un formatter au format dd/MM/yyyy HH:mm:ss
+	 */
+	static public SimpleDateFormat getTimeStd()
+	{
+		return new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	}
+	
+	
+	
+	// PARTIE FORMATTAGE DE LA DATE D'UN JOUR 
 
 	/**
 	 * Retourne un formatter de date au format classique dd/MM/yy 
@@ -46,11 +61,90 @@ public class FormatUtils
 	
 	/**
 	 * Retourne un formatter de date au format complet  
+	 * 
+	 * Exemple : lundi 12 mars 2018
 	 */
 	static public SimpleDateFormat getFullDate()
 	{
 		return new SimpleDateFormat("EEEEE dd MMMMM yyyy");
 	}
+	
+	
+	/**
+	 * Retourne un formatter de date pour les noms de fichiers 
+	 * 
+	 * Exemple : lundi 12 mars 2018
+	 */
+	static public SimpleDateFormat getDateFile()
+	{
+		return new SimpleDateFormat("dd-MM-yyyy");
+	}
+	
+	
+	
+	// PARTIE FORMATTAGE DE LA DATE D'UN MOIS
+	
+	
+	/**
+	 * Retourne un formatter de mois pour les noms de fichiers 
+	 * 
+	 * Exemple : 03-2018
+	 */
+	static public SimpleDateFormat getMoisFile()
+	{
+		return new SimpleDateFormat("MM-yyyy");
+	}
+	
+	
+	/**
+	 * Retourne un formatter de mois au format full text
+	 * 
+	 * Exemple : Mars 2018
+	 */
+	static public SimpleDateFormat getMoisFullText()
+	{
+		return new SimpleDateFormat("MMMMM yyyy");
+	}
+	
+	
+	// PARTIE FORMATTAGE DE LA DATE D'UN TRIMESTRE
+	
+	
+	/**
+	 * Permet de formatter un trimestre pour les noms de fichiers 
+	 * 
+	 * Exemple : Q1-2018
+	 */
+	static public String formatTrimestreFile(Date startDate)
+	{
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("Q-yyyy");
+		return "T"+DateUtils.asLocalDate(startDate).format(formatter);
+
+	}
+	
+	
+	/**
+	 * Retourne un formatter de trimestre au format full text
+	 * startDate doit être la date du premier jour du trimestre 
+	 */
+	static public String  formatTrimestreFullText(Date startDate)
+	{
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM");
+		LocalDate l = DateUtils.asLocalDate(startDate);
+		
+		String str = l.format(formatter);
+		l=l.plusMonths(1);
+		str = str+" - "+l.format(formatter);
+		l=l.plusMonths(1);
+		str = str+" - "+l.format(formatter);
+		
+		formatter = DateTimeFormatter.ofPattern("yyyy");
+		
+		str = str+" - "+l.format(formatter);
+		
+		return str;
+	}
+
 	
 	
 	/**

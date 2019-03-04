@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -24,6 +24,7 @@ import fr.amapj.common.AmapjRuntimeException;
 import fr.amapj.service.services.editionspe.EditionSpeDTO;
 import fr.amapj.view.engine.popup.PopupListener;
 import fr.amapj.view.engine.popup.swicthpopup.SwitchPopup;
+import fr.amapj.view.views.editionspe.bilanlivraison.BilanLivraisonEditorPart;
 import fr.amapj.view.views.editionspe.bulletinadhesion.BulletinAdhesionEditorPart;
 import fr.amapj.view.views.editionspe.engagement.EngagementEditorPart;
 
@@ -55,6 +56,8 @@ public class ChoixEditionSpecifiqueEditorPart extends SwitchPopup
 		
 		addLine("Une nouvelle feuille d'émargement (mensuelle ou hebdomadaire)", new FeuilleEmargementEditorPart(true, null));
 		
+		addLine("Un nouveau bilan de livraison", new BilanLivraisonEditorPart(true, null));
+		
 	}
 	
 	/**
@@ -81,7 +84,10 @@ public class ChoixEditionSpecifiqueEditorPart extends SwitchPopup
 			open(new BulletinAdhesionEditorPart(false, dto), listener);
 			break;
 			
-			
+		case BILAN_LIVRAISON:
+			open(new BilanLivraisonEditorPart(false, dto), listener);
+			break;
+		
 		default:
 			throw new AmapjRuntimeException("Erreur"); 
 			

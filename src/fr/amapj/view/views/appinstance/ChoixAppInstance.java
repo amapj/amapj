@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -20,21 +20,20 @@
  */
  package fr.amapj.view.views.appinstance;
 
+import fr.amapj.service.services.appinstance.AppInstanceService;
+import fr.amapj.view.engine.popup.copypopup.CopyPopup;
 import fr.amapj.view.engine.popup.swicthpopup.SwitchPopup;
 
 /**
- * Permet de choisir son action 
+ *  
  */
 public class ChoixAppInstance extends SwitchPopup
 {
 	
-	/**
-	 * 
-	 */
 	public ChoixAppInstance()
 	{
 		popupTitle = "Autres actions sur les instances";
-		setWidth(50);
+		setWidth(60);
 		
 	}
 
@@ -43,7 +42,9 @@ public class ChoixAppInstance extends SwitchPopup
 	{
 		line1 = "Veuillez indiquer ce que vous souhaitez faire :";
 
-		addLine("Extraire les mails de tous les administrateurs", new PopupCopyAllMail());
+		addLine("Extraire les mails de tous les administrateurs", new CopyPopup("Mails des administrateurs", ()->new AppInstanceService().getAllMails()));
+		
+		addLine("Extraire les mails de tous les administrateurs + tresoriers + stats", new CopyPopup("Mails admin + stats", ()->new AppInstanceService().getStatInfo()));
 		
 	}
 

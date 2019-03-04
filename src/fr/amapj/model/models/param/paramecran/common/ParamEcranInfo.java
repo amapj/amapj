@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -28,6 +28,7 @@ import fr.amapj.model.models.param.paramecran.PEMesContrats;
 import fr.amapj.model.models.param.paramecran.PEMesLivraisons;
 import fr.amapj.model.models.param.paramecran.PEReceptionCheque;
 import fr.amapj.model.models.param.paramecran.PESaisiePaiement;
+import fr.amapj.model.models.param.paramecran.PESyntheseMultiContrat;
 import fr.amapj.view.engine.menu.MenuList;
 
 /**
@@ -59,6 +60,9 @@ public class ParamEcranInfo
 			
 		case RECEPTION_CHEQUES:
 			return PEReceptionCheque.class;
+			
+		case SYNTHESE_MULTI_CONTRAT:
+			return PESyntheseMultiContrat.class;
 			
 		case OUT_SAISIE_PAIEMENT:
 			return PESaisiePaiement.class;

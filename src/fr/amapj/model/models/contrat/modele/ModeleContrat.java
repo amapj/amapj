@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -109,6 +109,18 @@ public class ModeleContrat implements Identifiable
 	// Parametre de mise en forme graphique
 	@ManyToOne
 	public ExtendedParam miseEnFormeGraphique;
+	
+	
+	// Gestion des jokers
+	public int jokerNbMin = 0;
+	
+	public int jokerNbMax = 0;
+	
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	public JokerMode jokerMode;
+	
+	public int jokerDelai;
 	
 	
 

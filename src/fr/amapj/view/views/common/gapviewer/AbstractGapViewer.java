@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -24,6 +24,8 @@ import java.util.Date;
 
 import com.vaadin.ui.VerticalLayout;
 
+import fr.amapj.common.periode.TypPeriode;
+
 
 /**
  * Permet de créer un bloc permettant la gestion d'un calendrier semaine / semaine
@@ -37,5 +39,7 @@ public interface AbstractGapViewer
 	public Date getDateDebut();
 	
 	public Date getDateFin();
+	
+	public TypPeriode getTypPeriode();
 	
 }

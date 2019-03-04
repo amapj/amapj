@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -64,12 +64,39 @@ abstract public class AbstractPdfGenerator implements CoreGenerator
 	
 	abstract public String getNameToDisplay(EntityManager em);
 	
+	private String nameToDisplaySuffix;
+	
+	/**
+	 * Permet de positionner un suffixe au file name, par exemple pour préciser son format
+	 * Ce suffixe est à la fin du nom de fichier, mais avant l'extension 
+	 */
+	public void setNameToDisplaySuffix(String nameToDisplaySuffix)
+	{
+		this.nameToDisplaySuffix = nameToDisplaySuffix;
+	}	
+	
+	@Override
+	public String getNameToDisplaySuffix()
+	{
+		return nameToDisplaySuffix;
+	}
+	
 	
 	public String getExtension()
 	{
 		return "pdf";
 	}
 	
+	/**
+	 * Cette méthode doit être utilisée pour les tests unitaires uniquement
+	 * Retourne le contenu HTML du document 
+	 */
+	public String getHtmlContentForTest()
+	{
+		PdfGeneratorTool pdfGeneratorTool = new CoreGeneratorService().getFichierPdf(this);
+		String html = pdfGeneratorTool.getFinalDoc();
+		return html;
+	}
 	
 	@Override
 	public InputStream getContent()
@@ -81,6 +108,12 @@ abstract public class AbstractPdfGenerator implements CoreGenerator
 		
 		String addCmdLine = pdfGeneratorTool.getParameterForCommandLine();
 		
+		return convertHtmlToPdf(html,addCmdLine,deleteFileOnClose);
+	}
+	
+	
+	static public InputStream convertHtmlToPdf(String html, String addCmdLine, boolean deleteFileOnClose)
+	{
 		try
 		{
 			File in = File.createTempFile("inpdf", ".html"); 
@@ -117,9 +150,10 @@ abstract public class AbstractPdfGenerator implements CoreGenerator
 		} 
 		catch (IOException | InterruptedException | TimeoutException e)
 		{
-			throw new AmapjRuntimeException();
+			throw new AmapjRuntimeException(e);
 		}
 	}
+	
 	
 	
 	public void test() throws Exception

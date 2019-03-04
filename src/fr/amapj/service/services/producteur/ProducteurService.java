@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -77,6 +77,22 @@ public class ProducteurService
 		return res;
 		
 	}
+	
+	/**
+	 * Permet de charger un producteur
+	 */
+	@DbRead
+	public ProducteurDTO loadProducteur(Long idProducteur)
+	{
+		EntityManager em = TransactionHelper.getEm();
+		
+		Producteur p = em.find(Producteur.class, idProducteur);
+		ProducteurDTO dto = createProducteurDto(em,p);
+		
+		return dto;
+		
+	}
+	
 
 	
 	public ProducteurDTO createProducteurDto(EntityManager em, Producteur p)
@@ -344,6 +360,49 @@ public class ProducteurService
 		GestionContratService service = new GestionContratService();
 		
 		return DbToDto.transform(q, (ModeleContrat mc)->service.createModeleContratInfo(em, mc));
+	}
+
+	
+	
+	// Partie Notification
+	
+	
+	/**
+	 * Retourne le délai de notification
+	 * Retourne null si il n'y a pas de notification à faire pour ce producteur 
+	 */
+	@DbRead
+	public Integer getDelaiNotification(Long idProducteur)
+	{
+		EntityManager em = TransactionHelper.getEm();
+		Producteur producteur = em.find(Producteur.class, idProducteur);
+		if (needNotification(producteur, em)==false)
+		{
+			return null;
+		}
+		return producteur.delaiModifContrat;
+	}
+	
+
+	/**
+	 * Retourne true si ce producteur demande à être notifié 
+	 */
+	public boolean needNotification(Producteur producteur, EntityManager em)
+	{
+		// On compte le nombre d'utilisateurs producteurs voulant être notifiés 
+		Query q = em.createQuery("select count(c) from ProducteurUtilisateur c WHERE c.producteur=:p and c.notification=:etat");
+		q.setParameter("p", producteur);
+		q.setParameter("etat", EtatNotification.AVEC_NOTIFICATION_MAIL);
+		int nbUtilisateurs = SQLUtils.count(q);
+		
+		// On compte le nombre de referent voulant être notifiés 
+		q = em.createQuery("select count(c) from ProducteurReferent c WHERE c.producteur=:p and c.notification=:etat");
+		q.setParameter("p", producteur);
+		q.setParameter("etat", EtatNotification.AVEC_NOTIFICATION_MAIL);
+		int nbReferents = SQLUtils.count(q);
+		
+		
+		return (nbUtilisateurs+nbReferents)>0;
 	}
 
 }

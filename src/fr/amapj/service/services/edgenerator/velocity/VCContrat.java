@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -178,6 +178,12 @@ public class VCContrat
 	
 	public String montantProduitTVA(double taux)
 	{
+		// Si contrat vierge, pas de montant produit 
+		if (montantProduit.length()==0)
+		{
+			return "";
+		}
+		
 		double montant = new Double(montantProduit)*100;
 		double mntTVA = montant-montant/(1+taux/100.0);
 		

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -32,6 +32,7 @@ import com.vaadin.data.util.PropertysetItem;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
@@ -55,8 +56,10 @@ import fr.amapj.view.engine.collectioneditor.FieldType;
 import fr.amapj.view.engine.collectioneditor.columns.ColumnInfo;
 import fr.amapj.view.engine.enumselector.EnumSearcher;
 import fr.amapj.view.engine.popup.corepopup.CorePopup;
+import fr.amapj.view.engine.popup.corepopup.CorePopup.ColorStyle;
 import fr.amapj.view.engine.popup.errorpopup.ErrorPopup;
 import fr.amapj.view.engine.popup.formpopup.validator.IValidator;
+import fr.amapj.view.engine.popup.messagepopup.MessagePopup;
 import fr.amapj.view.engine.searcher.Searcher;
 import fr.amapj.view.engine.searcher.SearcherDefinition;
 import fr.amapj.view.engine.tools.BaseUiTools;
@@ -244,11 +247,32 @@ abstract public class AbstractFormPopup extends CorePopup
 	protected TextField addIntegerField(String title, String propertyId)
 	{
 		TextField f = BaseUiTools.createIntegerField(title);
-		f.setId("amapj.popup."+propertyId);
 		binder.bind(f, propertyId);
 		form.addComponent(f);
 		return f;
 	}
+	
+	protected TextField addIntegerField(String title, String propertyId,String helpContent)
+	{
+		TextField f = BaseUiTools.createIntegerField(null);
+		binder.bind(f, propertyId);
+		
+		Button aide = new Button();
+		aide.setIcon(FontAwesome.QUESTION_CIRCLE);
+		aide.addStyleName("borderless-colored");
+		aide.addStyleName("question-mark");
+		aide.addClickListener(e->handleAide(helpContent));
+		
+		HorizontalLayout hl = new HorizontalLayout();
+		hl.setCaption(title);
+		hl.addComponent(f);
+		hl.addComponent(aide);
+		
+		form.addComponent(hl);
+		return f;
+	}
+	
+	
 	
 	
 	protected TextField addCurrencyField(String title, String propertyId,boolean allowNegativeNumber)
@@ -331,6 +355,35 @@ abstract public class AbstractFormPopup extends CorePopup
         return ckEditorTextField;
 	}
 	
+	
+	// BLOC Aide
+	
+	protected Button addHelpButton(String title, String helpContent)
+	{
+		Button aide = new Button(title);
+		aide.setIcon(FontAwesome.QUESTION_CIRCLE);
+		aide.addStyleName("borderless-colored");
+		aide.addStyleName("question-mark");
+		aide.addClickListener(e->handleAide(helpContent));
+		
+		HorizontalLayout hl = new HorizontalLayout();
+		hl.setWidth(100,Unit.PERCENTAGE);
+		hl.addComponent(aide);
+		hl.setComponentAlignment(aide, Alignment.MIDDLE_RIGHT);
+		
+		form.addComponent(hl);
+		
+		return aide;
+	}
+	
+	private static void handleAide(String helpContent)
+	{
+		MessagePopup m = new MessagePopup("Aide", ContentMode.HTML, ColorStyle.GREEN, helpContent);
+		MessagePopup.open(m);
+	}
+	
+	
+	// BLOC Gestion des collections
 	
 	private CollectionEditor currentCollectionEditor;
 	

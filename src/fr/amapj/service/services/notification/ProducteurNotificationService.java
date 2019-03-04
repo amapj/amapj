@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -34,7 +34,6 @@ import org.apache.logging.log4j.Logger;
 import fr.amapj.common.CollectionUtils;
 import fr.amapj.common.DateUtils;
 import fr.amapj.common.FormatUtils;
-import fr.amapj.common.SQLUtils;
 import fr.amapj.common.StackUtils;
 import fr.amapj.model.engine.transaction.Call;
 import fr.amapj.model.engine.transaction.DbRead;
@@ -56,6 +55,7 @@ import fr.amapj.service.services.mailer.MailerService;
 import fr.amapj.service.services.mescontrats.ContratStatusService;
 import fr.amapj.service.services.parametres.ParametresDTO;
 import fr.amapj.service.services.parametres.ParametresService;
+import fr.amapj.service.services.producteur.ProducteurService;
 import fr.amapj.service.services.utilisateur.util.UtilisateurUtil;
 
 
@@ -78,8 +78,9 @@ public class ProducteurNotificationService
 		//
 		List<Producteur> prods = q.getResultList();
 		
-		// On filtre ensuite pour garder uniquement les producteurs qui ont demandé à être notifié 
-		prods = CollectionUtils.filter(prods, e->needNotification(e,em));
+		// On filtre ensuite pour garder uniquement les producteurs qui ont demandé à être notifié
+		ProducteurService service = new ProducteurService();
+		prods = CollectionUtils.filter(prods, e->service.needNotification(e,em));
 		
 		
 		for (Producteur producteur : prods)
@@ -99,28 +100,6 @@ public class ProducteurNotificationService
 		}
 	}
 	
-	
-	
-	
-
-	private boolean needNotification(Producteur producteur, EntityManager em)
-	{
-		// On compte le nombre d'utilisateurs producteurs voulant être notifiés 
-		Query q = em.createQuery("select count(c) from ProducteurUtilisateur c WHERE c.producteur=:p and c.notification=:etat");
-		q.setParameter("p", producteur);
-		q.setParameter("etat", EtatNotification.AVEC_NOTIFICATION_MAIL);
-		int nbUtilisateurs = SQLUtils.count(q);
-		
-		// On compte le nombre de referent voulant être notifiés 
-		q = em.createQuery("select count(c) from ProducteurReferent c WHERE c.producteur=:p and c.notification=:etat");
-		q.setParameter("p", producteur);
-		q.setParameter("etat", EtatNotification.AVEC_NOTIFICATION_MAIL);
-		int nbReferents = SQLUtils.count(q);
-		
-		
-		return (nbUtilisateurs+nbReferents)>0;
-	}
-
 
 
 

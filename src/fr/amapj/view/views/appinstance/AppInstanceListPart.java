@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -28,9 +28,11 @@ import fr.amapj.service.services.appinstance.AppInstanceDTO;
 import fr.amapj.service.services.appinstance.AppInstanceService;
 import fr.amapj.view.engine.listpart.ButtonType;
 import fr.amapj.view.engine.listpart.StandardListPart;
+import fr.amapj.view.engine.popup.copypopup.CopyPopup;
 import fr.amapj.view.engine.popup.suppressionpopup.PopupSuppressionListener;
 import fr.amapj.view.engine.popup.suppressionpopup.SuppressionPopup;
 import fr.amapj.view.engine.popup.suppressionpopup.UnableToSuppressException;
+import fr.amapj.view.engine.popup.swicthpopup.DirectSwitchPopup;
 import fr.amapj.view.engine.tools.DateTimeToStringConverter;
 
 
@@ -120,7 +122,14 @@ public class AppInstanceListPart extends StandardListPart<AppInstanceDTO> implem
 	
 	private void handleAutre()
 	{
-		ChoixAppInstance.open(new ChoixAppInstance(), this);
+		DirectSwitchPopup popup = new DirectSwitchPopup("Autres actions sur les instances",60);
+			
+		popup.setLine1("Veuillez indiquer ce que vous souhaitez faire :");
+
+		popup.addLine("Extraire les mails de tous les administrateurs", new CopyPopup("Mails des administrateurs", ()->new AppInstanceService().getAllMails()));
+		popup.addLine("Extraire les mails de tous les administrateurs + tresoriers + stats", new CopyPopup("Mails admin + stats", ()->new AppInstanceService().getStatInfo()));
+			
+		popup.open(this);
 	}
 	
 	private void handleStart()

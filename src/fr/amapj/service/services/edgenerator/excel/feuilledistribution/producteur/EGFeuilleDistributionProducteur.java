@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -42,6 +42,8 @@ import fr.amapj.service.services.editionspe.EditionSpeService;
 import fr.amapj.service.services.gestioncontrat.GestionContratService;
 import fr.amapj.service.services.mescontrats.ContratDTO;
 import fr.amapj.service.services.mescontrats.MesContratsService;
+import fr.amapj.service.services.parametres.ParametresDTO;
+import fr.amapj.service.services.parametres.ParametresService;
 
 
 /**
@@ -143,7 +145,9 @@ public class EGFeuilleDistributionProducteur extends AbstractExcelGenerator
 		List<ModeleContratDate> ds = new ArrayList<>();
 		ds.add(date);
 		
-		String firstLine = "FEUILLE DE DISTRIBUTION PRODUCTEUR DU "+df3.format(date.getDateLiv());
+		ParametresDTO param = new ParametresService().getParametres();
+		
+		String firstLine = param.nomAmap+" - Feuille de distribution producteur du "+df3.format(date.getDateLiv());
 		String sheetName = df.format(date.getDateLiv());
 		
 		grilleTool.performSheet(et,firstLine,sheetName,mc,prods,ds,utilisateurs,nbColGauche,contrats);

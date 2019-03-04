@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -47,6 +47,7 @@ public class ExcelCellAutoSize
 		int cellWidth;
 		String fontName;
 		int fontSize;
+		boolean isBold;
 	}
 	
 	private List<ExcelSize> cells;
@@ -71,11 +72,18 @@ public class ExcelCellAutoSize
 	
 	public void addCell(int cellWidth,String fontName,int fontSize)
 	{
+		addCell(cellWidth, fontName, fontSize, false);
+	}
+	
+	public void addCell(int cellWidth,String fontName,int fontSize,boolean isBold)
+	{
 		current = new ExcelSize();
 		
 		current.cellWidth = cellWidth;
 		current.fontName = fontName;
 		current.fontSize = fontSize;
+		current.isBold = isBold;
+		
 		
 		current.lines =  new ArrayList<String>();
 		
@@ -160,7 +168,7 @@ public class ExcelCellAutoSize
 		int lineCnt = 0;
 		for (String line : cell.lines)
 		{
-			lineCnt = lineCnt + getLineCount(line, cell.cellWidth, cell.fontName, cell.fontSize);
+			lineCnt = lineCnt + getLineCount(line, cell.cellWidth, cell.fontName, cell.fontSize,cell.isBold);
 		}
 		return lineCnt;
 	}
@@ -168,9 +176,10 @@ public class ExcelCellAutoSize
 	
 	/**
 	 * Permet de calculer le nombre de lignes d'un texte 
+	 * @param isBold 
 	 * 
 	 */
-	private int getLineCount(String cellValue,int cellWidth,String fontName,int fontSize)
+	private int getLineCount(String cellValue,int cellWidth,String fontName,int fontSize, boolean isBold)
 	{
 		if (cellValue.length()==0)
 		{
@@ -183,6 +192,10 @@ public class ExcelCellAutoSize
 		
 		AttributedString attrStr = new AttributedString(cellValue);
 		attrStr.addAttribute(TextAttribute.FONT, currFont);
+		if (isBold)
+		{
+			attrStr.addAttribute(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD);
+		}
 
 		// Use LineBreakMeasurer to count number of lines needed for the text
 		FontRenderContext frc = new FontRenderContext(null, true, true);

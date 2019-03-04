@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -40,14 +40,14 @@ import fr.amapj.model.models.editionspe.AbstractEditionSpeJson;
 import fr.amapj.model.models.editionspe.EditionSpecifique;
 import fr.amapj.model.models.editionspe.TypEditionSpecifique;
 import fr.amapj.model.models.editionspe.adhesion.BulletinAdhesionJson;
+import fr.amapj.model.models.editionspe.bilanlivraison.BilanLivraisonJson;
 import fr.amapj.model.models.editionspe.emargement.FeuilleEmargementJson;
 import fr.amapj.model.models.editionspe.engagement.EngagementJson;
 import fr.amapj.model.models.editionspe.etiquette.EtiquetteProducteurJson;
 import fr.amapj.view.engine.popup.suppressionpopup.UnableToSuppressException;
 
 /**
- * Permet la gestion des étiquettes
- * 
+ * Permet la gestion des éditions spécifiques
  */
 public class EditionSpeService
 {
@@ -358,6 +358,9 @@ public class EditionSpeService
 		case BULLETIN_ADHESION:
 			return BulletinAdhesionJson.class;
 		
+		case BILAN_LIVRAISON:
+			return BilanLivraisonJson.class;
+		
 		default:
 			throw new AmapjRuntimeException("Type non pris en compte");
 		}
@@ -381,6 +384,10 @@ public class EditionSpeService
 		else if (speJson instanceof BulletinAdhesionJson)
 		{
 			return TypEditionSpecifique.BULLETIN_ADHESION;
+		}
+		else if (speJson instanceof BilanLivraisonJson)
+		{
+			return TypEditionSpecifique.BILAN_LIVRAISON;
 		}
 		
 		throw new AmapjRuntimeException();

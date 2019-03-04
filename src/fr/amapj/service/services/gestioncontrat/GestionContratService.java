@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -45,6 +45,7 @@ import fr.amapj.model.models.contrat.reel.ContratCell;
 import fr.amapj.model.models.fichierbase.Producteur;
 import fr.amapj.model.models.fichierbase.Produit;
 import fr.amapj.model.models.fichierbase.Utilisateur;
+import fr.amapj.model.models.param.ChoixOuiNon;
 import fr.amapj.service.engine.tools.DbToDto;
 import fr.amapj.service.engine.tools.DtoToDb;
 import fr.amapj.service.engine.tools.DtoToDb.ElementToAdd;
@@ -282,6 +283,11 @@ public class GestionContratService
 		info.dateRemiseCheque = mc.getDateRemiseCheque();
 		info.nature = mc.nature;
 		info.cartePrepayeeDelai = mc.cartePrepayeeDelai;
+		info.jokerNbMin = mc.jokerNbMin;
+		info.jokerNbMax = mc.jokerNbMax;
+		info.jokerAutorise = mc.jokerNbMax!=0 ? ChoixOuiNon.OUI : ChoixOuiNon.NON;
+		info.jokerMode = mc.jokerMode;
+		info.jokerDelai = mc.jokerDelai;
 
 		// Avec une sous requete, on obtient la liste de toutes les dates de
 		// livraison
@@ -375,6 +381,10 @@ public class GestionContratService
 		mc.setDateFinInscription(modeleContrat.dateFinInscription);
 		mc.nature = modeleContrat.nature;
 		mc.cartePrepayeeDelai = modeleContrat.cartePrepayeeDelai;
+		mc.jokerNbMin = modeleContrat.jokerNbMin;
+		mc.jokerNbMax = modeleContrat.jokerNbMax;
+		mc.jokerMode = modeleContrat.jokerMode;
+		mc.jokerDelai = modeleContrat.jokerDelai;
 		
 		
 		// Informations sur le paiement
@@ -949,6 +959,23 @@ public class GestionContratService
 		
 		return res;
 	}
+	
+	// MISE A JOUR DES INFORMATIONS JOKERS
+	
+	@DbWrite
+	public void updateJoker(ModeleContratDTO modeleContrat)
+	{
+		EntityManager em = TransactionHelper.getEm();
+		
+		ModeleContrat mc = em.find(ModeleContrat.class, modeleContrat.id);
+		
+		mc.jokerNbMin = modeleContrat.jokerNbMin;
+		mc.jokerNbMax = modeleContrat.jokerNbMax;
+		mc.jokerMode = modeleContrat.jokerMode;
+		mc.jokerDelai = modeleContrat.jokerDelai;	
+	}
+	
+	
 
 	// MISE A JOUR POUR BASE DE DEMO
 	@DbWrite

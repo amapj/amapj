@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -25,8 +25,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.validation.constraints.NotNull;
+
 import fr.amapj.model.models.contrat.modele.GestionPaiement;
+import fr.amapj.model.models.contrat.modele.JokerMode;
 import fr.amapj.model.models.contrat.modele.NatureContrat;
+import fr.amapj.model.models.param.ChoixOuiNon;
 import fr.amapj.view.views.gestioncontrat.editorpart.FrequenceLivraison;
 
 /**
@@ -66,6 +72,16 @@ public class ModeleContratDTO
 	public Date dernierCheque;
 	
 	public String textPaiement;
+	
+	public ChoixOuiNon jokerAutorise;
+	
+	public int jokerNbMin = 0;
+	
+	public int jokerNbMax = 0;
+	
+	public JokerMode jokerMode;
+	
+	public int jokerDelai;
 	
 	
 	public List<DateModeleContratDTO> dateLivs = new ArrayList<DateModeleContratDTO>();
@@ -262,6 +278,56 @@ public class ModeleContratDTO
 	public void setCartePrepayeeDelai(int cartePrepayeeDelai)
 	{
 		this.cartePrepayeeDelai = cartePrepayeeDelai;
+	}
+
+	public ChoixOuiNon getJokerAutorise()
+	{
+		return jokerAutorise;
+	}
+
+	public void setJokerAutorise(ChoixOuiNon jokerAutorise)
+	{
+		this.jokerAutorise = jokerAutorise;
+	}
+
+	public int getJokerNbMin()
+	{
+		return jokerNbMin;
+	}
+
+	public void setJokerNbMin(int jokerNbMin)
+	{
+		this.jokerNbMin = jokerNbMin;
+	}
+
+	public int getJokerNbMax()
+	{
+		return jokerNbMax;
+	}
+
+	public void setJokerNbMax(int jokerNbMax)
+	{
+		this.jokerNbMax = jokerNbMax;
+	}
+
+	public JokerMode getJokerMode()
+	{
+		return jokerMode;
+	}
+
+	public void setJokerMode(JokerMode jokerMode)
+	{
+		this.jokerMode = jokerMode;
+	}
+
+	public int getJokerDelai()
+	{
+		return jokerDelai;
+	}
+
+	public void setJokerDelai(int jokerDelai)
+	{
+		this.jokerDelai = jokerDelai;
 	}
 
 	

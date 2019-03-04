@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -20,10 +20,13 @@
  */
  package fr.amapj.view.views.contratsamapien;
 
+import java.util.Date;
 import java.util.List;
 
 import com.vaadin.ui.Table.Align;
 
+import fr.amapj.common.DateUtils;
+import fr.amapj.common.periode.TypPeriode;
 import fr.amapj.model.engine.IdentifiableUtil;
 import fr.amapj.model.models.fichierbase.Producteur;
 import fr.amapj.model.models.fichierbase.Utilisateur;
@@ -31,11 +34,17 @@ import fr.amapj.service.services.access.AccessManagementService;
 import fr.amapj.service.services.contratsamapien.AmapienContratDTO;
 import fr.amapj.service.services.contratsamapien.AmapienContratsService;
 import fr.amapj.service.services.dbservice.DbService;
+import fr.amapj.service.services.edgenerator.excel.EGBilanAdhesion;
+import fr.amapj.service.services.edgenerator.excel.cheque.EGSyntheseCheque;
+import fr.amapj.service.services.edgenerator.excel.cheque.EGSyntheseCheque.Mode;
+import fr.amapj.service.services.edgenerator.excel.livraison.EGLivraisonAmapien;
+import fr.amapj.service.services.edgenerator.pdf.PGBulletinAdhesion;
 import fr.amapj.service.services.gestioncontratsigne.ContratSigneDTO;
 import fr.amapj.service.services.mescontrats.ContratDTO;
 import fr.amapj.service.services.mescontrats.MesContratsService;
 import fr.amapj.service.services.session.SessionManager;
 import fr.amapj.service.services.utilisateur.UtilisateurService;
+import fr.amapj.view.engine.excelgenerator.TelechargerPopup;
 import fr.amapj.view.engine.listpart.ButtonType;
 import fr.amapj.view.engine.listpart.StandardListPart;
 import fr.amapj.view.engine.popup.cascadingpopup.CInfo;
@@ -92,12 +101,13 @@ public class ContratsAmapienListPart extends StandardListPart<AmapienContratDTO>
 	@Override
 	protected void drawButton() 
 	{
-		addButton("Ajouter un nouveau contrat", ButtonType.ALWAYS, ()->handleAjouter());
+		addButton("Ajouter nouveau contrat", ButtonType.ALWAYS, ()->handleAjouter());
 		addButton("Visualiser", ButtonType.EDIT_MODE, ()->handleVisualiser());
-		addButton("Modifier les quantités", ButtonType.EDIT_MODE, ()->handleModifier());
-		addButton("Réceptionner les chèques",ButtonType.EDIT_MODE,()->handleReceptionCheque());
-		addButton("Modifier les chéques", ButtonType.EDIT_MODE, ()->handleModifierCheque());
-		addButton("Supprimer le contrat", ButtonType.EDIT_MODE, ()->handleSupprimer());
+		addButton("Modifier quantités", ButtonType.EDIT_MODE, ()->handleModifier());
+		addButton("Réceptionner chèques",ButtonType.EDIT_MODE,()->handleReceptionCheque());
+		addButton("Modifier chéques", ButtonType.EDIT_MODE, ()->handleModifierCheque());
+		addButton("Supprimer contrat", ButtonType.EDIT_MODE, ()->handleSupprimer());
+		addButton("Télécharger ...", ButtonType.ALWAYS, ()->handleTelecharger());
 
 		addSearchField("Rechercher par nom");
 	}
@@ -257,5 +267,23 @@ public class ContratsAmapienListPart extends StandardListPart<AmapienContratDTO>
 		CorePopup.open(new ReceptionChequeEditorPart(dto.idContrat,dto.nomUtilisateur,dto.prenomUtilisateur),this);
 	}
 	
+	private void handleTelecharger()
+	{
+		Long idUtilisateur = utilisateurSelector.getUtilisateurId();
+		
+		TelechargerPopup popup = new TelechargerPopup("Informations d'un amapien",80);
+	
+		Date startDate = DateUtils.getDateWithNoTime();
+		popup.addGenerator(new EGLivraisonAmapien(TypPeriode.A_PARTIR_DE, startDate, null, idUtilisateur));
+		
+		popup.addSeparator();
+		popup.addGenerator(new EGSyntheseCheque(Mode.CHEQUE_A_REMETTRE,idUtilisateur));
+		popup.addGenerator(new EGSyntheseCheque(Mode.CHEQUE_AMAP,idUtilisateur));
+		popup.addGenerator(new EGSyntheseCheque(Mode.CHEQUE_REMIS_PRODUCTEUR,idUtilisateur));
+		popup.addGenerator(new EGSyntheseCheque(Mode.TOUS,idUtilisateur));
+		
+		
+		CorePopup.open(popup,this);	
+	}
 	
 }

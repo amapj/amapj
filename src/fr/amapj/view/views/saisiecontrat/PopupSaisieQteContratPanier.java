@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -21,19 +21,22 @@
  package fr.amapj.view.views.saisiecontrat;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
+import java.util.List;
 
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 
-import fr.amapj.common.AmapjRuntimeException;
 import fr.amapj.service.services.mescontrats.ContratColDTO;
 import fr.amapj.service.services.mescontrats.ContratDTO;
 import fr.amapj.view.engine.grid.GridHeaderLine;
 import fr.amapj.view.engine.grid.GridSizeCalculator;
 import fr.amapj.view.engine.grid.integergrid.PopupIntegerGrid;
+import fr.amapj.view.engine.popup.PopupListener;
+import fr.amapj.view.engine.popup.messagepopup.MessagePopup;
 import fr.amapj.view.engine.tools.BaseUiTools;
 import fr.amapj.view.engine.widgets.CurrencyTextFieldConverter;
+import fr.amapj.view.views.saisiecontrat.ContratAboManager.ContratAbo;
 import fr.amapj.view.views.saisiecontrat.SaisieContrat.ModeSaisie;
 import fr.amapj.view.views.saisiecontrat.SaisieContrat.SaisieContratData;
 
@@ -42,7 +45,7 @@ import fr.amapj.view.views.saisiecontrat.SaisieContrat.SaisieContratData;
  * de type "Panier", c'est à dire sans le choix des dates 
  *  
  */
-public class PopupSaisieQteContratPanier extends PopupIntegerGrid
+public class PopupSaisieQteContratPanier extends PopupIntegerGrid implements PopupListener
 {	
 	SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 	
@@ -53,7 +56,8 @@ public class PopupSaisieQteContratPanier extends PopupIntegerGrid
 	// Largeur de la colonne description des produits 
 	private int largeurColonne = 500; //TODO faire varier en fonction de la taille de l'écran
 	
-	
+	// Informations condensée du contrat
+	private ContratAbo abo;
 	
 	/**
 	 * 
@@ -64,13 +68,7 @@ public class PopupSaisieQteContratPanier extends PopupIntegerGrid
 		
 		this.data = data;
 		this.contratDTO = data.contratDTO;
-		
-		// On bloque si le contrat n'est pas régulier (on aurait du etre aiguillé avant sur un autre popup) 
-		if (contratDTO.isRegulier()==false)
-		{
-			throw new AmapjRuntimeException("Erreur : vous ne pouvez pas voir / modifier ce contrat");
-		}
-		
+		this.abo = new ContratAboManager().computeContratAbo(contratDTO);
 		
 		//
 		popupTitle = "Mon contrat "+contratDTO.nom;
@@ -83,6 +81,13 @@ public class PopupSaisieQteContratPanier extends PopupIntegerGrid
 	
 	public void loadParam()
 	{
+		// Partie jokers
+		if (contratDTO.jokerNbMax>0)
+		{
+			param.messageSpecifiqueBottom = computeJokerMessage();
+		}
+		
+		//
 		param.nbLig = contratDTO.contratColumns.size();
 		param.nbCol = 1;
 		param.qte = computeQte();
@@ -91,12 +96,7 @@ public class PopupSaisieQteContratPanier extends PopupIntegerGrid
 		
 		// tableau des prix
 		param.prix = new int[param.nbLig][param.nbCol];
-		for (int i = 0; i < param.nbLig; i++)
-		{
-			ContratColDTO col = contratDTO.contratColumns.get(i);
-			int nbLivraison = getNbLivraison(i);
-			param.prix[i][0] = col.prix*nbLivraison;
-		}
+		fillTableauPrix();
 		param.libPrixTotal = "Prix Total";
 		
 
@@ -118,8 +118,20 @@ public class PopupSaisieQteContratPanier extends PopupIntegerGrid
 		{
 			param.leftPartLine.add(getText(col));
 		}	
-	}
+		
 	
+	}
+
+
+	private void fillTableauPrix()
+	{
+		for (int i = 0; i < param.nbLig; i++)
+		{
+			ContratColDTO col = contratDTO.contratColumns.get(i);
+			int nbLivraison = getNbLivraison(i);
+			param.prix[i][0] = col.prix*nbLivraison;
+		}
+	}
 
 	private int[][] computeQte()
 	{
@@ -127,7 +139,7 @@ public class PopupSaisieQteContratPanier extends PopupIntegerGrid
 		
 		for (int j = 0; j < contratDTO.contratColumns.size(); j++)
 		{
-			res[j][0] = contratDTO.extractFirstQte(j);
+			res[j][0] = abo.qte[j];
 		}
 		
 		return res;
@@ -179,22 +191,17 @@ public class PopupSaisieQteContratPanier extends PopupIntegerGrid
 
 	/**
 	 * On calcule le nombre de livraison pour ce produit 
-	 * en tenant compte des dates exclues 
+	 * en tenant compte des dates exclues et des dates jokers
 	 * 
 	 * @param indexProduit
 	 * @return
 	 */
 	private int getNbLivraison(int indexProduit)
 	{
-		if (contratDTO.excluded==null)
-		{
-			return contratDTO.contratLigs.size();
-		}
-		
 		int nbLivraison = 0;
 		for (int i = 0; i < contratDTO.contratLigs.size(); i++)
 		{
-			if (contratDTO.excluded[i][indexProduit]==false)
+			if (contratDTO.isExcluded(i,indexProduit)==false && abo.isJoker(i)==false)
 			{
 				nbLivraison++;
 			}
@@ -217,6 +224,14 @@ public class PopupSaisieQteContratPanier extends PopupIntegerGrid
 	{
 		// Extraction des quantités
 		int[][] qte = extractQte();
+		
+		// On vérifie si on atteint le nombre minimum de jokers
+		String msg = new ContratAboManager().checkJokerMin(contratDTO, qte);
+		if (msg!=null)
+		{
+			MessagePopup.open(new MessagePopup("Impossible de continuer",ContentMode.HTML,ColorStyle.RED,msg));
+			return false;
+		}
 		
 		// On copie dans le contratDto
 		contratDTO.qte = qte;
@@ -278,6 +293,13 @@ public class PopupSaisieQteContratPanier extends PopupIntegerGrid
 		Button detailDate = addButton("Détail des dates de livraison", e->handleDetailDate());
 		setButtonAlignement(detailDate, Alignment.TOP_LEFT);
 		
+		if (contratDTO.jokerNbMax>0)
+		{
+			String caption = data.modeSaisie==ModeSaisie.READ_ONLY ? "Voir mes jokers" : "Choisir mes jokers"; 
+			Button jokerBtn = addButton(caption, e->handleJoker());
+			setButtonAlignement(jokerBtn, Alignment.TOP_LEFT);
+		}
+		
 		super.createButtonBar();
 	}
 
@@ -289,28 +311,62 @@ public class PopupSaisieQteContratPanier extends PopupIntegerGrid
 		// On affiche 
 		PopupDetailDate.open(new PopupDetailDate(contratDTO,qte));
 	}
+	
+	
+	private void handleJoker()
+	{
+		PopupSaisieJoker.open(new PopupSaisieJoker(abo,contratDTO,data.modeSaisie==ModeSaisie.READ_ONLY),this);	
+	}
+	
+	
+	
 
 	/**
 	 * Extraction des quantités et remise en forme classique 
 	 */
 	private int[][] extractQte()
 	{
-		int[][] qte = new int[contratDTO.contratLigs.size()][contratDTO.contratColumns.size()];
+		// On lit dans la grille de saisie
 		for (int j = 0; j < contratDTO.contratColumns.size(); j++)
 		{
 			// On lit la quantité saisie
 			int qteSaisie = param.qte[j][0];
 			
-			// On l'applique à toutes les dates (sauf si exclusion) 
-			for (int i = 0; i < contratDTO.contratLigs.size(); i++)
-			{
-				if (contratDTO.excluded==null || contratDTO.excluded[i][j]==false)
-				{
-					qte[i][j] = qteSaisie;
-				}
-			}
+			//
+			abo.qte[j] = qteSaisie;
 		}
-		return qte;
+		
+		return new ContratAboManager().extractQte(abo, contratDTO);
+	
+	}
+	
+
+	/**
+	 * Permet le rafraichissement de l'ecran quand on revient des jokers 
+	 */
+	@Override
+	public void onPopupClose()
+	{
+		// On rafraichit tout d'abord le texte des jokers
+		updateLabelMessageSpecifiqueBottom(computeJokerMessage());
+		
+		// On rafaichit ensuite les libellés 
+		List<ContratColDTO> contratColumns = contratDTO.contratColumns;
+		for (int i = 0; i < contratColumns.size(); i++)
+		{
+			ContratColDTO col = contratColumns.get(i);
+			updateFirstCol(i, getText(col));
+		}	
+		
+		// Il faut ensuite mettre à jour la matrice de prix
+		fillTableauPrix();
+		updatePrixTotal();
+		
+	}
+
+	private String computeJokerMessage()
+	{
+		return new ContratAboManager().computeJokerMessage(contratDTO, abo.dateJokers.size());
 	}
 	
 }

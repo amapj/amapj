@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -40,6 +40,8 @@ public interface CoreGenerator
 	public InputStream getContent();
 	
 	public String getFileName(EntityManager em);
+	
+	public String getNameToDisplaySuffix();
 	
 	public String getNameToDisplay(EntityManager em);
 

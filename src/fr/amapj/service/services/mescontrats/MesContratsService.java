@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -35,7 +35,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import fr.amapj.common.DateUtils;
-import fr.amapj.common.SQLUtils;
 import fr.amapj.model.engine.transaction.DbRead;
 import fr.amapj.model.engine.transaction.DbWrite;
 import fr.amapj.model.engine.transaction.TransactionHelper;
@@ -59,6 +58,7 @@ import fr.amapj.service.services.producteur.ProducteurService;
 import fr.amapj.view.engine.popup.formpopup.OnSaveException;
 import fr.amapj.view.engine.popup.suppressionpopup.UnableToSuppressException;
 import fr.amapj.view.engine.widgets.CurrencyTextFieldConverter;
+import fr.amapj.view.views.saisiecontrat.ContratAboManager;
 
 /**
  * Permet la gestion des contrats
@@ -170,6 +170,7 @@ public class MesContratsService
 					dto.nature = mc.nature;
 					dto.isModifiable = null;
 					dto.isSupprimable = null;
+					dto.isJoker = null;
 					dto.cartePrepayee = cartePrepayee;
 					
 					res.newContrats.add(dto);
@@ -237,6 +238,7 @@ public class MesContratsService
 				dto.nature = mc.nature; 
 				dto.isModifiable = isModifiable;
 				dto.isSupprimable = statusService.isSupprimable(contrat,em,cartePrepayeeDTO,now,isModifiable);
+				dto.isJoker = new ContratAboManager().hasJokerButton(mc,isModifiable);
 				dto.cartePrepayee = cartePrepayeeDTO;
 				
 	
@@ -276,6 +278,10 @@ public class MesContratsService
 		dto.nomProducteur = mc.getProducteur().nom;
 		dto.dateFinInscription = mc.getDateFinInscription();
 		dto.nature = mc.nature;
+		dto.jokerNbMin = mc.jokerNbMin;
+		dto.jokerNbMax = mc.jokerNbMax;
+		dto.jokerMode = mc.jokerMode;
+		dto.jokerDelai = mc.jokerDelai;
 		
 		// On calcule les informations sur les cartes prepayées et s'il est modifiable 
 		CartePrepayeeDTO cartePrepayeeDTO = new MesCartesPrepayeesService().computeCartePrepayee(mc,em,now);
@@ -284,6 +290,7 @@ public class MesContratsService
 		boolean isModifiable = statusService.isModifiable(mc,em,cartePrepayeeDTO,now);
 		dto.isModifiable = isModifiable;
 		dto.isSupprimable = statusService.isSupprimable(contrat, em, cartePrepayeeDTO, now, isModifiable);
+		dto.isJoker = null;
 		dto.cartePrepayee = cartePrepayeeDTO;
 
 		// Avec une sous requete, on récupere la liste des produits

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -179,6 +179,8 @@ public class DevToolsView extends BackOfficeLongView implements View
 		
 		Button b4 = new Button("La gestion des entités JPA - égalité", e->jpaEntity());
 		
+		Button b5 = new Button("Transformation HTML To Pdf", e->htmlToPdf());
+		
 		
 		
 		
@@ -195,6 +197,8 @@ public class DevToolsView extends BackOfficeLongView implements View
 		layout.addComponent(b3);
 		addEmptyLine(layout);
 		layout.addComponent(b4);
+		addEmptyLine(layout);
+		layout.addComponent(b5);
 		addEmptyLine(layout);
 		
 		
@@ -215,6 +219,11 @@ public class DevToolsView extends BackOfficeLongView implements View
 		PopupJpaEntityEquality.open(new PopupJpaEntityEquality());
 	}
 	
+	
+	private void htmlToPdf()
+	{
+		PopupHtmlToPdf.open(new PopupHtmlToPdf());
+	}
 	
 	
 	private void generateEror()

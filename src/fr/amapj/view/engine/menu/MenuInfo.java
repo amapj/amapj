@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -66,6 +66,7 @@ import fr.amapj.view.views.receptioncheque.ReceptionChequeListPart;
 import fr.amapj.view.views.remiseproducteur.RemiseProducteurListPart;
 import fr.amapj.view.views.sendmail.SendMailView;
 import fr.amapj.view.views.suiviacces.SuiviAccesView;
+import fr.amapj.view.views.synthesemulticontrat.SyntheseMultiContratView;
 import fr.amapj.view.views.tableaudebord.TableauDeBordView;
 import fr.amapj.view.views.utilisateur.UtilisateurListPart;
 
@@ -120,6 +121,7 @@ public class MenuInfo
 		menus.add(new MenuDescription(MenuList.CONTRATS_AMAPIEN,  ContratsAmapienListPart.class , RoleList.REFERENT ));
 		menus.add(new MenuDescription(MenuList.LIVRAISON_AMAPIEN,  LivraisonAmapienView.class , RoleList.REFERENT ));
 		menus.add(new MenuDescription(MenuList.CONTRAT_ARCHIVE,  ArchivageContratListPart.class , RoleList.REFERENT ));
+		menus.add(new MenuDescription(MenuList.SYNTHESE_MULTI_CONTRAT,  SyntheseMultiContratView.class , RoleList.REFERENT ));
 		
 		// Partie permanence
 		menus.add(new MenuDescription(MenuList.PERIODE_PERMANENCE, PeriodePermanenceListPart.class , RoleList.REFERENT , ModuleList.PLANNING_DISTRIBUTION ).setCategorie("PERMANENCES"));

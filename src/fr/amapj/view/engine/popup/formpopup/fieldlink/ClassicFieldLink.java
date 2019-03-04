@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -20,6 +20,8 @@
  */
  package fr.amapj.view.engine.popup.formpopup.fieldlink;
 
+import java.util.Arrays;
+
 import org.vaadin.openesignforms.ckeditor.CKEditorTextField;
 
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -35,6 +37,8 @@ import fr.amapj.view.engine.searcher.Searcher;
 /**
  * Permet de créer un lien classique entre un choix OUI/NON et la saisie dans un searcher
  * et la présence eventuelle d'un texte à saisir 
+ * 
+ * TODO supprimer cette classe et la remplacer par FieldLink  
  *
  */
 public class ClassicFieldLink
@@ -45,6 +49,8 @@ public class ClassicFieldLink
 	public Searcher searcher;
 	
 	public TextField textField;
+	
+	public TextField textField2;
 	
 	public TextArea textArea;
 	
@@ -66,7 +72,7 @@ public class ClassicFieldLink
 	public void doLink()
 	{
 		//
-		notNull.noCheckIf(box, ChoixOuiNon.NON);
+		notNull.checkIf(box, Arrays.asList(ChoixOuiNon.OUI),"Choix OUI/NON"); // TODO 
 		
 		//
 		box.addValueChangeListener(e->valueChanged(e));
@@ -79,6 +85,11 @@ public class ClassicFieldLink
 		{
 			textField.setEnabled(box.getValue()==ChoixOuiNon.OUI);
 		}
+		if (textField2!=null)
+		{
+			textField2.setEnabled(box.getValue()==ChoixOuiNon.OUI);
+		}
+		
 		if (textArea!=null)
 		{
 			textArea.setEnabled(box.getValue()==ChoixOuiNon.OUI);
@@ -113,6 +124,15 @@ public class ClassicFieldLink
 			if (choix==ChoixOuiNon.NON)
 			{
 				textField.setValue("");
+			}
+		}
+		
+		if (textField2!=null)
+		{
+			textField2.setEnabled(choix==ChoixOuiNon.OUI);
+			if (choix==ChoixOuiNon.NON)
+			{
+				textField2.setValue("");
 			}
 		}
 		

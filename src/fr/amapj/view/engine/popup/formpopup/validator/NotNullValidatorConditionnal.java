@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -20,6 +20,8 @@
  */
  package fr.amapj.view.engine.popup.formpopup.validator;
 
+import java.util.List;
+
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.ComboBox;
 
@@ -35,7 +37,10 @@ public class NotNullValidatorConditionnal implements IValidator
 	
 	private ComboBox box;
 	
-	private Enum[] enums;
+	// Liste des valeurs pour lesquelles il faut faire la verification 
+	private List<Enum<?>> enums;
+
+	private String comboName;
 	
 	public NotNullValidatorConditionnal()
 	{
@@ -43,41 +48,30 @@ public class NotNullValidatorConditionnal implements IValidator
 	}
 
 
-
-
 	@Override
 	public void performValidate(Object value,ValidatorHolder 	a)
 	{
-		for (Enum enu : enums)
+		Enum enu = (Enum) box.getValue();
+		if (enums.contains(enu)==false)
 		{
-			if (box.getValue()==enu)
-			{
-				return;
-			}
+			return;
 		}
 		
 		if (value==null)
 		{
 			String msg = null;
-			if (enums.length==0)
+			if (enums.size()==0)
 			{
 				msg = "Le champ \""+a.title+"\" doit être renseigné";
 			}
-			else if (enums.length==1)
-			{
-				msg ="Le champ \""+a.title+"\" doit être renseigné OU vous devez positionner  le champ \""+box.getCaption()+"\" à la valeur "+enums[0];
-			}
 			else
 			{
-				msg ="Le champ \""+a.title+"\" doit être renseigné OU vous devez positionner  le champ \""+box.getCaption()+"\" à l'une des valeurs suivantes : "+StringUtils.asString(enums, ",");
+				msg ="Le champ \""+a.title+"\" doit être renseigné OU vous devez positionner  le champ \""+comboName+"\" à une valeur différente de "+StringUtils.asString(enums, ",");
 			}
 			
 	    	 a.addMessage(msg);
 	     }	    		 
 	}
-
-
-
 
 	@Override
 	public boolean canCheckOnFly()
@@ -86,12 +80,15 @@ public class NotNullValidatorConditionnal implements IValidator
 	}
 	
 	/**
-	 * Si la valeur de combox est egale à enum, alors on ne fait pas la verif 
+	 * Les verifications sont faites uniquement si la box a une valeur comprise dans la liste enums 
+	 * @param comboName 
 	 */
-	public void noCheckIf(ComboBox box,Enum... enums)
+	public void checkIf(ComboBox box,List<Enum<?>> enums, String comboName)
 	{
 		this.box = box;
 		this.enums = enums;
+		this.comboName = comboName;
+		
 	}
 	
 	@Override

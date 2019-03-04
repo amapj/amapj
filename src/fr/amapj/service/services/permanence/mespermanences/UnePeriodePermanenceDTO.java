@@ -23,6 +23,7 @@
 import java.util.Date;
 
 import fr.amapj.model.models.permanence.periode.NaturePeriodePermanence;
+import fr.amapj.model.models.permanence.periode.RegleInscriptionPeriodePermanence;
 
 /**
  * Description d'une periode de permanence pour un utilisateur 
@@ -54,5 +55,6 @@ public class UnePeriodePermanenceDTO
 	// Dans le cas des contrats flottant, contient la premiere date de permanence modifiable 
 	public Date firstDateModifiable;
 	
+	public RegleInscriptionPeriodePermanence regleInscription;
 	
 }

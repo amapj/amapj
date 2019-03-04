@@ -29,14 +29,7 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.internet.MimeBodyPart;
 
-import com.rits.cloning.Cloner;
-import com.vaadin.data.util.BeanItem;
-
 import fr.amapj.common.AmapjRuntimeException;
-import fr.amapj.common.CollectionUtils;
-import fr.amapj.common.DebugUtil;
-import fr.amapj.service.services.gestioncontrat.LigneContratDTO;
-import fr.amapj.service.services.logview.LogViewDTO;
 import fr.amapj.service.services.mailer.MailerStorage;
 import fr.amapj.view.engine.popup.formpopup.FormPopup;
 import fr.amapj.view.engine.popup.formpopup.OnSaveException;
@@ -82,32 +75,9 @@ public class PopupMailStorage extends FormPopup
 
 
 
-	private void openPieceJointe(Message e)
+	private void openPieceJointe(Message message)
 	{
-		try
-		{
-			Multipart mp = (Multipart) e.getContent();
-			int count = mp.getCount();
-			if (count==1)
-			{
-				return;
-			}
-			
-			
-			for (int i = 1; i < count; i++)
-			{
-				DebugUtil.trace("Piece "+i+" ");
-				MimeBodyPart part = (MimeBodyPart) mp.getBodyPart(i);
-				DebugUtil.trace("Content "+i+" "+part.getContent());
-				
-			}
-			
-			
-		} 
-		catch (IOException | MessagingException e1)
-		{
-			throw new AmapjRuntimeException(e1);
-		}
+		PopupAttachementDisplay.open(new PopupAttachementDisplay(message));
 	}
 
 	private String getNbPiecesJointes(Message e)

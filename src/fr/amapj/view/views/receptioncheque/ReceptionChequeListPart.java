@@ -182,8 +182,8 @@ public class ReceptionChequeListPart extends StandardListPart<ContratSigneDTO>
 
 	private void handleReceptionCheque()
 	{
-		ContratSigneDTO c = getSelectedLine();
-		CorePopup.open(new ReceptionChequeEditorPart(c),this);
+		ContratSigneDTO dto = getSelectedLine();
+		CorePopup.open(new ReceptionChequeEditorPart(dto.idContrat,dto.nomUtilisateur,dto.prenomUtilisateur),this);
 	}
 
 

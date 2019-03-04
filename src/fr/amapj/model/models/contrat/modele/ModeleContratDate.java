@@ -34,7 +34,6 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import fr.amapj.model.engine.Identifiable;
-import fr.amapj.model.engine.Mdm;
 
 @Entity
 @Table( uniqueConstraints=
@@ -46,32 +45,16 @@ public class ModeleContratDate implements Identifiable
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+	public Long id;
 
 	@NotNull
 	@ManyToOne
-	private ModeleContrat modeleContrat;
+	public ModeleContrat modeleContrat;
 	
 	@NotNull
 	@Temporal(TemporalType.DATE)
-	private Date dateLiv;
+	public Date dateLiv;
 	
-	public enum P implements Mdm
-	{
-		ID("id") ,  MODELECONTRAT("modeleContrat") , DATELIV("dateLiv") ;
-		
-		private String propertyId;   
-		   
-	    P(String propertyId) 
-	    {
-	        this.propertyId = propertyId;
-	    }
-	    public String prop() 
-	    { 
-	    	return propertyId; 
-	    }
-		
-	} ;
 
 	public Long getId()
 	{

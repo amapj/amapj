@@ -32,7 +32,7 @@ public class MesPermanencesUtils
 	
 	static public String getLibCompteur(UnePeriodePermanenceDTO periodePermanenceDTO)
 	{
-		String msg = "Vous êtes inscrit sur "+periodePermanenceDTO.nbInscription+" dates, vous devez vous inscrire pour "+periodePermanenceDTO.nbSouhaite+" dates.";
+		String msg = "Vous êtes inscrit sur "+periodePermanenceDTO.nbInscription+" positions, vous devez vous inscrire pour "+periodePermanenceDTO.nbSouhaite+" positions.";
 		int delta = (periodePermanenceDTO.nbSouhaite-periodePermanenceDTO.nbInscription);
 		if (delta<=0)
 		{
@@ -44,6 +44,19 @@ public class MesPermanencesUtils
 		}
 		return msg;
 	}
+	
+	/**
+	 * Retourne true si l'adhérent doit encore s'inscrire 
+	 * 
+	 * @param periodePermanenceDTO
+	 * @return
+	 */
+	static public boolean needSubcribeMore(UnePeriodePermanenceDTO periodePermanenceDTO)
+	{
+		int delta = (periodePermanenceDTO.nbSouhaite-periodePermanenceDTO.nbInscription);
+		return delta>0;
+	}
+	
 	
 	
 	

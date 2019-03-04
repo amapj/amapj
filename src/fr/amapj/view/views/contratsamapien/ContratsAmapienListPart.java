@@ -35,11 +35,13 @@ import fr.amapj.service.services.gestioncontratsigne.ContratSigneDTO;
 import fr.amapj.service.services.mescontrats.ContratDTO;
 import fr.amapj.service.services.mescontrats.MesContratsService;
 import fr.amapj.service.services.session.SessionManager;
+import fr.amapj.service.services.utilisateur.UtilisateurService;
 import fr.amapj.view.engine.listpart.ButtonType;
 import fr.amapj.view.engine.listpart.StandardListPart;
 import fr.amapj.view.engine.popup.cascadingpopup.CInfo;
 import fr.amapj.view.engine.popup.cascadingpopup.CascadingData;
 import fr.amapj.view.engine.popup.cascadingpopup.CascadingPopup;
+import fr.amapj.view.engine.popup.corepopup.CorePopup;
 import fr.amapj.view.engine.popup.suppressionpopup.PopupSuppressionListener;
 import fr.amapj.view.engine.popup.suppressionpopup.SuppressionPopup;
 import fr.amapj.view.engine.popup.suppressionpopup.UnableToSuppressException;
@@ -49,6 +51,7 @@ import fr.amapj.view.engine.widgets.CurrencyTextFieldConverter;
 import fr.amapj.view.views.common.utilisateurselector.UtilisateurSelectorPart;
 import fr.amapj.view.views.gestioncontratsignes.PopupSaisieUtilisateur;
 import fr.amapj.view.views.gestioncontratsignes.GestionContratSignesListPart.AjouterData;
+import fr.amapj.view.views.receptioncheque.ReceptionChequeEditorPart;
 import fr.amapj.view.views.saisiecontrat.SaisieContrat;
 import fr.amapj.view.views.saisiecontrat.SaisieContrat.ModeSaisie;
 
@@ -92,6 +95,7 @@ public class ContratsAmapienListPart extends StandardListPart<AmapienContratDTO>
 		addButton("Ajouter un nouveau contrat", ButtonType.ALWAYS, ()->handleAjouter());
 		addButton("Visualiser", ButtonType.EDIT_MODE, ()->handleVisualiser());
 		addButton("Modifier les quantités", ButtonType.EDIT_MODE, ()->handleModifier());
+		addButton("Réceptionner les chèques",ButtonType.EDIT_MODE,()->handleReceptionCheque());
 		addButton("Modifier les chéques", ButtonType.EDIT_MODE, ()->handleModifierCheque());
 		addButton("Supprimer le contrat", ButtonType.EDIT_MODE, ()->handleSupprimer());
 
@@ -222,8 +226,7 @@ public class ContratsAmapienListPart extends StandardListPart<AmapienContratDTO>
 	private CInfo successSaisieContrat(AjouterData data)
 	{
 		Long userId = data.userId;
-		Utilisateur u = (Utilisateur) new DbService().getOneElement(Utilisateur.class, userId);
-		String message = "Contrat de "+u.getPrenom()+" "+u.getNom();
+		String message = "Contrat de "+new UtilisateurService().prettyString(userId);
 					
 		SaisieContrat.saisieContrat(data.idModeleContrat,null,userId,message,ModeSaisie.QTE_CHEQUE_REFERENT,this);
 		
@@ -246,6 +249,12 @@ public class ContratsAmapienListPart extends StandardListPart<AmapienContratDTO>
 	
 		SaisieContrat.saisieContrat(dto.idModeleContrat,dto.idContrat,dto.idUtilisateur,message,ModeSaisie.CHEQUE_SEUL,this);
 		
+	}
+	
+	private void handleReceptionCheque()
+	{
+		AmapienContratDTO dto = getSelectedLine();
+		CorePopup.open(new ReceptionChequeEditorPart(dto.idContrat,dto.nomUtilisateur,dto.prenomUtilisateur),this);
 	}
 	
 	

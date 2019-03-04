@@ -31,6 +31,7 @@ import fr.amapj.service.services.gestioncontratsigne.ContratSigneDTO;
 import fr.amapj.service.services.gestioncontratsigne.GestionContratSigneService;
 import fr.amapj.service.services.mescontrats.ContratDTO;
 import fr.amapj.service.services.mescontrats.MesContratsService;
+import fr.amapj.service.services.utilisateur.UtilisateurService;
 import fr.amapj.view.engine.listpart.ButtonType;
 import fr.amapj.view.engine.listpart.StandardListPart;
 import fr.amapj.view.engine.popup.PopupListener;
@@ -229,8 +230,7 @@ public class GestionContratSignesListPart extends StandardListPart<ContratSigneD
 	private CInfo successSaisieUtilisateur(AjouterData data)
 	{
 		Long userId = data.userId;
-		Utilisateur u = (Utilisateur) new DbService().getOneElement(Utilisateur.class, userId);
-		String message = "Contrat de "+u.getPrenom()+" "+u.getNom();
+		String message = "Contrat de "+new UtilisateurService().prettyString(userId);
 					
 		SaisieContrat.saisieContrat(data.idModeleContrat,null,userId,message,ModeSaisie.QTE_CHEQUE_REFERENT,this);
 		

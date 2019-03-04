@@ -82,6 +82,10 @@ public class PeriodePermanence implements Identifiable
 	public int flottantDelai;
 	
 	
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	// Permet de savoir les controles réalisés lors des inscriptions 
+    public RegleInscriptionPeriodePermanence regleInscription;
 
 
 	public Long getId()

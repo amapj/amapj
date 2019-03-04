@@ -160,9 +160,9 @@ public class BulletinAdhesionEditorPart extends WizardFormPopup
 		etiquetteDTO.setText(c);
 			
 		// Titre
-		setStepTitle("le contenu du contrat");
+		setStepTitle("le contenu du bulletin");
 		
-		addCKEditorField("text");    
+		addCKEditorFieldForDocument("text");    
 	}
 	
 	

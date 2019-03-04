@@ -172,9 +172,11 @@ public class PeriodePermanenceService
 		ddto.idPeriodePermanenceDate = pd.id;
 		ddto.datePerm = pd.datePerm;
 		ddto.nbPlace = pd.nbPlace;
+		ddto.regleInscription = pd.periodePermanence.regleInscription;
 		
 		return ddto;
 	}
+	
 	
 	public PermanenceCellDTO createPermanenceCellDTO(PermanenceCell pc)
 	{
@@ -290,6 +292,7 @@ public class PeriodePermanenceService
 		dto.etat = p.etat;
 		dto.nature = p.nature;
 		dto.pourcentageInscription = getPourcentageInscription(p,em);
+		dto.regleInscription = p.regleInscription;
 		
 		return dto;
 	}
@@ -464,6 +467,7 @@ public class PeriodePermanenceService
 		p.flottantDelai = dto.flottantDelai;
 		p.etat = EtatPeriodePermanence.CREATION;
 		p.nature = dto.nature;
+		p.regleInscription = dto.regleInscription;
 		
 		em.persist(p);
 

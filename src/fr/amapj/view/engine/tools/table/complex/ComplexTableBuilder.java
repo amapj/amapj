@@ -324,7 +324,15 @@ public class ComplexTableBuilder<T>
 			return createCheckBox((Boolean) col.toVal.toValue(bean), col.width);
 			
 		case BUTTON:
-			return createButton( col.toVal.toValue(bean).toString(), col.width,col.onClic,bean);
+			String str = (String) col.toVal.toValue(bean);
+			if (str!=null)
+			{
+				return createButton( str, col.width,col.onClic,bean);
+			}
+			else
+			{
+				return null;
+			}
 			
 		case LINK:
 			return createLink( col.toVal.toValue(bean).toString(), col.width,col.generator,bean);
@@ -476,6 +484,49 @@ public class ComplexTableBuilder<T>
 		return tf;
 	}
 	
+	/**
+	 * Retourne le Button à la ligne lineNumber et à la colonne property
+	 */
+	public Button getButton(int lineNumber,String property)
+	{
+		Item item = t.getItem(lineNumber);
+		
+		Button tf = (Button) item.getItemProperty(property).getValue();
+		return tf;
+	}
+	
+	/**
+	 * Retourne le Button correspondant à la ligne t et à la colonne property
+	 */
+	public Button getButton(T t,String property)
+	{
+		int lineNumber = beans.indexOf(t);
+		return getButton(lineNumber, property);
+	}
+	
+	
+	
+	/**
+	 * Retourne le Label à la ligne lineNumber et à la colonne property
+	 */
+	public Label getLabel(int lineNumber,String property)
+	{
+		Item item = t.getItem(lineNumber);
+		
+		Label tf = (Label) item.getItemProperty(property).getValue();
+		return tf;
+	}
+	
+	/**
+	 * Retourne le Label correspondant à la ligne t et à la colonne property
+	 */
+	public Label getLabel(T t,String property)
+	{
+		int lineNumber = beans.indexOf(t);
+		return getLabel(lineNumber, property);
+	}
+
+	
 	
 	
 	public void reload(List<T> beans)
@@ -513,6 +564,12 @@ public class ComplexTableBuilder<T>
 		
 		T dto = beans.get(index); 
 		return dto;
+	}
+
+	public void addStyleName(String styleName)
+	{
+		t.addStyleName(styleName);
+		
 	}
 
 }

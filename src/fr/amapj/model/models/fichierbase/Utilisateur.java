@@ -50,47 +50,47 @@ public class Utilisateur  implements Identifiable
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+	public Long id;
 
 	@NotNull
 	@Size(min = 1, max = 100)
 	@Column(length = 100)
-	private String prenom;
+	public String prenom;
 	
 	@NotNull
 	@Size(min = 1, max = 100)
 	@Column(length = 100)
-	private String nom;
+	public String nom;
 	
 	@Size(min = 0, max = 150)
 	@Column(length = 150)
 	// Contient l'adresse e mail
-	private String email;
+	public String email;
 	
 	@Size(min = 0, max = 150)
 	@Column(length = 150)
 	// Contient le password encrypté
-	private String password;
+	public String password;
 	
 	@Size(min = 0, max = 150)
 	@Column(length = 150)
 	// Contient le salt permettant d'encrypter le password 
-	private String salt;
+	public String salt;
 	
 	@Size(min = 0, max = 150)
 	@Column(length = 150)
 	// Contient le slat calculé à la demande du reset du password 
-	private String resetPasswordSalt;
+	public String resetPasswordSalt;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	// Contient le slat calculé à la demande du reset du password 
-	private Date resetPasswordDate;
+	public Date resetPasswordDate;
 	
 	
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	// Permet d'indiquer si cet utilisateur est actif ou inactif
-    private EtatUtilisateur etatUtilisateur = EtatUtilisateur.ACTIF;
+	public EtatUtilisateur etatUtilisateur = EtatUtilisateur.ACTIF;
 	
 	
 	// Liste des élements d'informations générales
@@ -98,20 +98,20 @@ public class Utilisateur  implements Identifiable
 	
 	@Size(min = 0, max = 25)
 	// numéro de  téléphone 1
-	private String numTel1;
+	public String numTel1;
 	
 	@Size(min = 0, max = 25)
 	// numéro de  téléphone 2
-	private String numTel2;
+	public String numTel2;
 	
 	@Size(min = 0, max = 150)
-	private String libAdr1;
+	public String libAdr1;
 	
 	@Size(min = 0, max = 150)
-	private String codePostal;
+	public String codePostal;
 
 	@Size(min = 0, max = 150)
-	private String ville;
+	public String ville;
 	
 	
 	public enum P implements Mdm

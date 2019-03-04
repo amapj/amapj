@@ -38,7 +38,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import fr.amapj.model.engine.Identifiable;
-import fr.amapj.model.engine.Mdm;
+import fr.amapj.model.models.extendedparam.ExtendedParam;
 import fr.amapj.model.models.fichierbase.Producteur;
 
 @Entity
@@ -51,30 +51,30 @@ public class ModeleContrat implements Identifiable
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+	public Long id;
 
 	@NotNull
 	@Size(min = 1, max = 100)
 	@Column(length = 100)
-	private String nom;
+	public String nom;
 	
 	@NotNull
 	@Size(min = 1, max = 255)
 	@Column(length = 255)
-	private String description;
+	public String description;
 	
 
 	@NotNull
 	@ManyToOne
-	private Producteur producteur;
+	public Producteur producteur;
 	
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	// Permet de savoir l'état du modele de contrat
-    private EtatModeleContrat etat = EtatModeleContrat.CREATION;
+	public EtatModeleContrat etat = EtatModeleContrat.CREATION;
 	
 	@Temporal(TemporalType.DATE)
-	private Date dateFinInscription;
+	public Date dateFinInscription;
 	
 	
 	// Paiement
@@ -82,49 +82,33 @@ public class ModeleContrat implements Identifiable
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	// Permet de savoir l'état du modele de contrat
-    private GestionPaiement gestionPaiement = GestionPaiement.NON_GERE;
+	public GestionPaiement gestionPaiement = GestionPaiement.NON_GERE;
 	
 	@Size(min = 0, max = 2048)
 	@Column(length = 2048)
 	// Texte qui sera affiché dans le cas ou il n'y a pas de paiement
-	private String textPaiement;
+	public String textPaiement;
 	
 	// Libellé du chéque 
 	@Size(min = 0, max = 255)
 	@Column(length = 255)
-	private String libCheque;
+	public String libCheque;
 	
 	// Date de remise des chéques
 	@Temporal(TemporalType.DATE)
-	private Date dateRemiseCheque;
+	public Date dateRemiseCheque;
 	
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	// Permet de savoir l'état du modele de contrat
-    public NatureContrat nature;
+	public NatureContrat nature;
 	
 	// Delai en cas de contrat "carte prépayée" 
 	public int cartePrepayeeDelai;
 	
-	
-	
-	public enum P implements Mdm
-	{
-		ID("id") , NOM("nom") , DESCRIPTION("description") , PRODUCTEUR("producteur") , ETAT("etat") , DATEFININSCRIPTION("dateFinInscription"),
-		LIBCHEQUE("libCheque") , DATEREMISECHEQUE("dateRemiseCheque");
-		
-		private String propertyId;   
-		   
-	    P(String propertyId) 
-	    {
-	        this.propertyId = propertyId;
-	    }
-	    public String prop() 
-	    { 
-	    	return propertyId; 
-	    }
-		
-	} ;
+	// Parametre de mise en forme graphique
+	@ManyToOne
+	public ExtendedParam miseEnFormeGraphique;
 	
 	
 

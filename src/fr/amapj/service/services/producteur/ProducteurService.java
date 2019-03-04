@@ -27,10 +27,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import fr.amapj.common.LongUtils;
+import fr.amapj.common.SQLUtils;
 import fr.amapj.model.engine.IdentifiableUtil;
 import fr.amapj.model.engine.transaction.DbRead;
 import fr.amapj.model.engine.transaction.DbWrite;
 import fr.amapj.model.engine.transaction.TransactionHelper;
+import fr.amapj.model.models.contrat.modele.ModeleContrat;
 import fr.amapj.model.models.editionspe.EditionSpecifique;
 import fr.amapj.model.models.fichierbase.EtatNotification;
 import fr.amapj.model.models.fichierbase.Producteur;
@@ -38,6 +40,9 @@ import fr.amapj.model.models.fichierbase.ProducteurReferent;
 import fr.amapj.model.models.fichierbase.ProducteurUtilisateur;
 import fr.amapj.model.models.fichierbase.Utilisateur;
 import fr.amapj.model.models.param.ChoixOuiNon;
+import fr.amapj.service.engine.tools.DbToDto;
+import fr.amapj.service.services.gestioncontrat.GestionContratService;
+import fr.amapj.service.services.gestioncontrat.ModeleContratSummaryDTO;
 import fr.amapj.view.engine.popup.suppressionpopup.UnableToSuppressException;
 
 /**
@@ -111,10 +116,10 @@ public class ProducteurService
 		for (ProducteurReferent pr : prs)
 		{
 			ProdUtilisateurDTO dto = new ProdUtilisateurDTO();
-			dto.idUtilisateur = pr.getReferent().getId();
-			dto.nom = pr.getReferent().getNom();
-			dto.prenom = pr.getReferent().getPrenom();
-			
+			dto.idUtilisateur = pr.referent.id;
+			dto.nom = pr.referent.nom;
+			dto.prenom = pr.referent.prenom;
+			dto.etatNotification = (pr.notification==EtatNotification.AVEC_NOTIFICATION_MAIL);
 			res.add(dto);
 		}
 		return res;
@@ -152,7 +157,7 @@ public class ProducteurService
 
 	// PARTIE MISE A JOUR DES PRODUCTEURS
 	@DbWrite
-	public Long update(final ProducteurDTO dto,final boolean create)
+	public Long update(ProducteurDTO dto,boolean create)
 	{
 		EntityManager em = TransactionHelper.getEm();
 		
@@ -203,12 +208,8 @@ public class ProducteurService
 		// Suppression de tous les référents
 		Query q = em.createQuery("select c from ProducteurUtilisateur c WHERE c.producteur=:p");
 		q.setParameter("p", p);
-		List<ProducteurUtilisateur> prs =  q.getResultList();
-		for (ProducteurUtilisateur pr : prs)
-		{
-			em.remove(pr);
-		}
-		
+		SQLUtils.deleteAll(em, q);
+				
 		// On recree les nouveaux
 		int indx = 0;
 		for (ProdUtilisateurDTO util : dto.utilisateurs)
@@ -237,20 +238,24 @@ public class ProducteurService
 		// Suppression de tous les référents
 		Query q = em.createQuery("select c from ProducteurReferent c WHERE c.producteur=:p");
 		q.setParameter("p", p);
-		List<ProducteurReferent> prs =  q.getResultList();
-		for (ProducteurReferent pr : prs)
-		{
-			em.remove(pr);
-		}
+		SQLUtils.deleteAll(em, q);
 		
 		// On recree les nouveaux
 		int indx = 0;
 		for (ProdUtilisateurDTO referent : dto.referents)
 		{
 			ProducteurReferent pr = new ProducteurReferent();
-			pr.setProducteur(p);
-			pr.setReferent(em.find(Utilisateur.class, referent.idUtilisateur));
-			pr.setIndx(indx);
+			pr.producteur = p;
+			pr.referent = em.find(Utilisateur.class, referent.idUtilisateur);
+			pr.indx = indx;
+			if (referent.etatNotification==true)
+			{
+				pr.notification = EtatNotification.AVEC_NOTIFICATION_MAIL;
+			}
+			else
+			{
+				pr.notification = EtatNotification.SANS_NOTIFICATION_MAIL;
+			}
 			
 			em.persist(pr);
 			indx++;
@@ -324,6 +329,21 @@ public class ProducteurService
 	}
 	
 
-	
+	/**
+	 * Permet de charger la liste de tous les modeles de contrats de ce producteur
+	 * On affiche tous les contrats, y compris les archivés 
+	 */
+	@DbRead
+	public List<ModeleContratSummaryDTO> getModeleContratInfo(Long idProducteur)
+	{
+		EntityManager em = TransactionHelper.getEm();
+		
+		Query q = em.createQuery("select mc from ModeleContrat mc WHERE mc.producteur.id=:id");
+		q.setParameter("id",idProducteur);
+		
+		GestionContratService service = new GestionContratService();
+		
+		return DbToDto.transform(q, (ModeleContrat mc)->service.createModeleContratInfo(em, mc));
+	}
 
 }

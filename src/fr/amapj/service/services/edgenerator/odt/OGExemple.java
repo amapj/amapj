@@ -98,7 +98,7 @@ public class OGExemple extends AbstractOdtGenerator
 		VCBuilder.addAmap(ctx);
 		VCBuilder.addDateInfo(ctx);
 		VCBuilder.addAmapien(ctx, utilisateur);
-		VCBuilder.addContrat(ctx, c, em);
+		VCBuilder.addContrat(ctx, c.getModeleContrat(),c, em);
 		VCBuilder.addProducteur(ctx, producteur);
 		List<ProdUtilisateurDTO> refs=new ProducteurService().getReferents(em, producteur);
 		if (refs.size()>=1)

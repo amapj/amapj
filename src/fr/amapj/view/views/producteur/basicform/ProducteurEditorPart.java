@@ -32,11 +32,15 @@ import fr.amapj.model.models.param.ChoixOuiNon;
 import fr.amapj.service.services.producteur.ProdUtilisateurDTO;
 import fr.amapj.service.services.producteur.ProducteurDTO;
 import fr.amapj.service.services.producteur.ProducteurService;
-import fr.amapj.view.engine.collectioneditor.CollectionEditor;
+import fr.amapj.service.services.utilisateur.UtilisateurDTO;
+import fr.amapj.service.services.utilisateur.UtilisateurService;
+import fr.amapj.service.services.utilisateur.util.UtilisateurUtil;
 import fr.amapj.view.engine.collectioneditor.FieldType;
 import fr.amapj.view.engine.popup.formpopup.OnSaveException;
 import fr.amapj.view.engine.popup.formpopup.WizardFormPopup;
 import fr.amapj.view.engine.popup.formpopup.fieldlink.ClassicFieldLink;
+import fr.amapj.view.engine.popup.formpopup.validator.CollectionNoDuplicates;
+import fr.amapj.view.engine.popup.formpopup.validator.ColumnNotNull;
 import fr.amapj.view.engine.popup.formpopup.validator.IValidator;
 import fr.amapj.view.engine.popup.formpopup.validator.NotNullValidator;
 import fr.amapj.view.engine.popup.formpopup.validator.UniqueInDatabaseValidator;
@@ -101,7 +105,7 @@ public class ProducteurEditorPart extends WizardFormPopup
 	{
 		add(Step.GENERAL,()->addFieldGeneral());
 		add(Step.DOCUMENTS,()->addFieldDocuments());
-		add(Step.UTILISATEUR,()->addFieldUtilisateur(),()->checkFieldUtilisateur());
+		add(Step.UTILISATEUR,()->addFieldUtilisateur(),()->checkFieldUtilisateurs());
 		add(Step.REFERENTS,()->addFieldReferents(),()->checkFieldReferents());
 	}
 
@@ -177,36 +181,37 @@ public class ProducteurEditorPart extends WizardFormPopup
 		
 		addLabel("Vous pouvez laisser cette liste vide dans un premier temps", ContentMode.HTML);
 		
-		CollectionEditor<ProdUtilisateurDTO> f1 = new CollectionEditor<ProdUtilisateurDTO>("Liste des producteurs", (BeanItem) item, "utilisateurs", ProdUtilisateurDTO.class);
-		f1.addSearcherColumn("idUtilisateur", "Nom du producteur",FieldType.SEARCHER, null,SearcherList.UTILISATEUR_ACTIF,null);
-		f1.addColumn("etatNotification","Notification par mail",FieldType.CHECK_BOX,true);
-		binder.bind(f1, "utilisateurs");
-		form.addComponent(f1);
-	}
-	
-	private String checkFieldUtilisateur()
-	{
-		if (isCorrectFieldUtilisateur()==true)
-		{
-			return null;
-		}
 		
-		return 	"Il y a des erreurs dans la saisie des noms des producteurs<br/>"+
-				"Vous ne devez pas avoir de lignes vides<br/>"+
-				"Vous devez bien choisir dans la liste des noms proposés";
+		IValidator noDuplicates = new CollectionNoDuplicates<ProdUtilisateurDTO>(e->e.idUtilisateur,e->new UtilisateurService().prettyString(e.idUtilisateur));
+		addCollectionEditorField("Liste des producteurs", "utilisateurs", ProdUtilisateurDTO.class,noDuplicates);	
+		addColumnSearcher("idUtilisateur", "Nom du producteur",FieldType.SEARCHER, null,SearcherList.UTILISATEUR_ACTIF,null,new ColumnNotNull<ProdUtilisateurDTO>(e->e.idUtilisateur));
+		addColumn("etatNotification","Notification par mail",FieldType.CHECK_BOX,true);	
+		
 	}
 	
-	private boolean isCorrectFieldUtilisateur()
+	/**
+	 * On verifie que l'on ne cherche pas à notifier un producteur qui n'a pas d'email 
+	 */
+	private String checkFieldUtilisateurs()
 	{
 		List<ProdUtilisateurDTO> us = producteurDTO.utilisateurs;
+		return checkHasEmail(us);
+	}
+	
+	private String checkHasEmail(List<ProdUtilisateurDTO> us)
+	{	
 		for (ProdUtilisateurDTO lig : us)
 		{
-			if (lig.idUtilisateur==null)
+			if (lig.idUtilisateur!=null && lig.etatNotification==true)
 			{
-				return false;
+				UtilisateurDTO dto = new UtilisateurService().loadUtilisateurDto(lig.idUtilisateur);
+				if (UtilisateurUtil.canSendMailTo(dto.email)==false)
+				{
+					return "L'utilisateur "+dto.nom+" "+dto.prenom+" n'a pas d'adresse e mail. Vous ne pouvez donc pas le notifier."; 
+				}
 			}
 		}
-		return true;
+		return null;
 	}
 	
 	
@@ -217,39 +222,23 @@ public class ProducteurEditorPart extends WizardFormPopup
 		
 		addLabel("Vous pouvez laisser cette liste vide dans un premier temps", ContentMode.HTML);
 		
-		CollectionEditor<ProdUtilisateurDTO> f1 = new CollectionEditor<ProdUtilisateurDTO>("Liste des référents", (BeanItem) item, "referents", ProdUtilisateurDTO.class);
-		f1.addSearcherColumn("idUtilisateur", "Nom des référents",FieldType.SEARCHER, null,SearcherList.UTILISATEUR_ACTIF,null);
-		binder.bind(f1, "referents");
-		form.addComponent(f1);
+		
+		IValidator noDuplicates = new CollectionNoDuplicates<ProdUtilisateurDTO>(e->e.idUtilisateur,e->new UtilisateurService().prettyString(e.idUtilisateur));
+		addCollectionEditorField("Liste des référents", "referents", ProdUtilisateurDTO.class,noDuplicates);	
+		addColumnSearcher("idUtilisateur", "Nom des référents",FieldType.SEARCHER, null,SearcherList.UTILISATEUR_ACTIF,null,new ColumnNotNull<ProdUtilisateurDTO>(e->e.idUtilisateur));
+		addColumn("etatNotification","Notification par mail",FieldType.CHECK_BOX,false);	
 	
 	}
 	
+	/**
+	 * On verifie que l'on ne cherche pas à notifier un producteur qui n'a pas d'email 
+	 */
 	private String checkFieldReferents()
 	{
-		if (isCorrectFieldReferents()==true)
-		{
-			return null;
-		}
-		
-		return 	"Il y a des erreurs dans la saisie des noms des référents<br/>"+
-				"Vous ne devez pas avoir de lignes vides<br/>"+
-				"Vous devez bien choisir dans la liste des noms proposés";
-	}
-	
-	
-	private boolean isCorrectFieldReferents()
-	{
 		List<ProdUtilisateurDTO> us = producteurDTO.referents;
-		for (ProdUtilisateurDTO lig : us)
-		{
-			if (lig.idUtilisateur==null)
-			{
-				return false;
-			}
-		}
-		return true;
+		return checkHasEmail(us);
+		
 	}
-	
 
 
 	@Override

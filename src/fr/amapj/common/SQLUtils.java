@@ -26,8 +26,6 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import fr.amapj.model.models.contrat.modele.ModeleContratExclude;
-
 
 
 public class SQLUtils
@@ -61,6 +59,16 @@ public class SQLUtils
 		
 		throw new AmapjRuntimeException("Type inconnu:"+o.getClass());
 		
+	}
+	
+	
+	/**
+	 * Permet de réaliser un count
+	 * 
+	 */
+	public static int count(Query q)
+	{
+		return toInt(q.getSingleResult());
 	}
 	
 	

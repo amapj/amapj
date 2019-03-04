@@ -33,6 +33,7 @@ import fr.amapj.model.engine.transaction.DbWrite;
 import fr.amapj.model.engine.transaction.TransactionHelper;
 import fr.amapj.model.models.acces.RoleList;
 import fr.amapj.model.models.fichierbase.EtatUtilisateur;
+import fr.amapj.model.models.fichierbase.Produit;
 import fr.amapj.model.models.fichierbase.Utilisateur;
 import fr.amapj.service.engine.tools.DbToDto;
 import fr.amapj.service.services.access.AccessManagementService;
@@ -90,6 +91,14 @@ public class UtilisateurService
 		dto.ville = u.getVille();
 		
 		return dto;
+	}
+	
+	@DbRead
+	public UtilisateurDTO loadUtilisateurDto(Long idUtilisateur)
+	{
+		EntityManager em = TransactionHelper.getEm();
+		Utilisateur u = em.find(Utilisateur.class, idUtilisateur);
+		return createUtilisateurDto(em, u);
 	}
 
 
@@ -439,7 +448,22 @@ public class UtilisateurService
 		
 	}
 	
-	
+	/**
+	 *
+	 */
+	@DbRead
+	public String prettyString(Long idUtilisateur)
+	{
+		EntityManager em = TransactionHelper.getEm();
+		
+		if (idUtilisateur==null)
+		{
+			return "";
+		}
+		
+		Utilisateur p = em.find(Utilisateur.class, idUtilisateur);
+		return p.nom+" "+p.prenom;
+	}
 	
 
 }

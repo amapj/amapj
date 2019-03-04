@@ -32,6 +32,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import org.apache.poi.ss.usermodel.CellStyle;
+
 import fr.amapj.common.DateUtils;
 import fr.amapj.model.models.contrat.modele.ModeleContrat;
 import fr.amapj.model.models.contrat.modele.ModeleContratDate;
@@ -231,7 +233,14 @@ public class EGGrilleTool
 			// On itere sur les produits
 			for (int j = 0; j < contratDto.contratColumns.size(); j++)
 			{	
-				et.setCellQte(index, contratDto.qte[i][j], et.switchColor(et.nonGrasCentreBordure, k));
+				CellStyle style = et.nonGrasCentreBordure;
+				if (contratDto.isExcluded(i, j))
+				{
+					style = et.nonGrasCentreBordureDiagonal;
+				}
+				
+				
+				et.setCellQte(index, contratDto.qte[i][j], et.switchColor(style, k));
 				index++;
 			}
 		}

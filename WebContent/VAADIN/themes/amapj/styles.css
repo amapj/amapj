@@ -12946,6 +12946,7 @@ div.v-layout.v-horizontal.v-widget {
 	padding: 0px;
 	border: 1px solid gray;
 	border-radius: 4px;
+	line-height: 1.4;
 }
 
 .amapj .v-verticallayout-grille-permanence .v-label-role {
@@ -12957,6 +12958,7 @@ div.v-layout.v-horizontal.v-widget {
 	padding: 0px;
 	border: 1px solid gray;
 	border-radius: 4px;
+	line-height: 1.4;
 }
 
 .amapj .v-verticallayout-grille-permanence .v-label-place-libre {
@@ -12968,6 +12970,7 @@ div.v-layout.v-horizontal.v-widget {
 	padding: 0px;
 	border: 1px solid gray;
 	border-radius: 4px;
+	line-height: 1.4;
 }
 
 .amapj .v-verticallayout-grille-permanence .v-label-place-occupee {
@@ -12979,6 +12982,7 @@ div.v-layout.v-horizontal.v-widget {
 	padding: 0px;
 	border: 1px solid gray;
 	border-radius: 4px;
+	line-height: 1.4;
 }
 
 .amapj .v-verticallayout-grille-permanence .v-label-place-moi {
@@ -12990,6 +12994,7 @@ div.v-layout.v-horizontal.v-widget {
 	padding: 0px;
 	border: 1px solid gray;
 	border-radius: 4px;
+	line-height: 1.4;
 }
 
 .amapj .v-verticallayout-grille-permanence .v-button-inscrire {

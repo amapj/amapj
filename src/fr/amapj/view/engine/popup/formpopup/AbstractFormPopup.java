@@ -30,6 +30,7 @@ import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.PropertysetItem;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
@@ -259,7 +260,42 @@ abstract public class AbstractFormPopup extends CorePopup
 	}
 	
 	
-	protected CKEditorTextField addCKEditorField(String propertyId)
+	/**
+	 * Permet la création d'un CKEditor très basique, pour l'édition d'un texte qui sera ensuite affiché dans un label 
+	 */
+	protected CKEditorTextField addCKEditorFieldForLabel(String title,String propertyId)
+	{
+		CKEditorConfig config = new CKEditorConfig();
+        config.disableElementsPath();
+        config.disableSpellChecker();
+        config.setWidth("100%");
+        config.setFullPage(false);
+        config.setAllowedContent("true");
+        config.setForcePasteAsPlainText(true);
+        config.setEnterMode("BR");
+        config.setResizeEnabled(false);
+        
+        String contextPath = AppConfiguration.getConf().getContextPath();
+        config.setContentsCss(contextPath+"/VAADIN/ck_for_label.css");
+        
+        config.addCustomToolbarLine("{ name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline' ] }");
+        
+        CKEditorTextField ckEditorTextField = new CKEditorTextField(config);
+        ckEditorTextField.setWidth("100%");
+        ckEditorTextField.setHeight(4,Unit.CM); 
+        ckEditorTextField.setCaption(title);
+		
+        binder.bind(ckEditorTextField, propertyId);
+        form.addComponent(ckEditorTextField);
+        
+        return ckEditorTextField;
+	}
+	
+	
+	/**
+	 * Permet la création d'un CKEditor pour l'édition d'un document (comme les contrats d'engagements)
+	 */
+	protected CKEditorTextField addCKEditorFieldForDocument(String propertyId)
 	{
         CKEditorConfig config = new CKEditorConfig();
         config.useCompactTags();
@@ -289,7 +325,7 @@ abstract public class AbstractFormPopup extends CorePopup
         ckEditorTextField.setWidth("100%");
         ckEditorTextField.setHeight("16cm"); // TODO comment faire pour le calculer juste ?
 		
-        binder.bind(ckEditorTextField, "text");
+        binder.bind(ckEditorTextField, propertyId);
         form.addComponent(ckEditorTextField);
         
         return ckEditorTextField;

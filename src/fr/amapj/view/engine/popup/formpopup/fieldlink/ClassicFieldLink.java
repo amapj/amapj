@@ -20,8 +20,11 @@
  */
  package fr.amapj.view.engine.popup.formpopup.fieldlink;
 
+import org.vaadin.openesignforms.ckeditor.CKEditorTextField;
+
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 
 import fr.amapj.model.models.param.ChoixOuiNon;
@@ -42,6 +45,10 @@ public class ClassicFieldLink
 	public Searcher searcher;
 	
 	public TextField textField;
+	
+	public TextArea textArea;
+	
+	public CKEditorTextField ckEditor;
 
 	// Sera appliqué sur le searcher
 	NotNullValidatorConditionnal notNull;
@@ -72,6 +79,15 @@ public class ClassicFieldLink
 		{
 			textField.setEnabled(box.getValue()==ChoixOuiNon.OUI);
 		}
+		if (textArea!=null)
+		{
+			textArea.setEnabled(box.getValue()==ChoixOuiNon.OUI);
+		}
+		if (ckEditor!=null)
+		{
+			// Attention : il y a un bug dans le wrapper ckeditor, le setEnabled ne fonctionne pas
+			ckEditor.setViewWithoutEditor(!(box.getValue()==ChoixOuiNon.OUI));
+		}
 		
 		
 	}
@@ -99,6 +115,25 @@ public class ClassicFieldLink
 				textField.setValue("");
 			}
 		}
+		
+		if (textArea!=null)
+		{
+			textArea.setEnabled(choix==ChoixOuiNon.OUI);
+			if (choix==ChoixOuiNon.NON)
+			{
+				textArea.setValue("");
+			}
+		}
+		if (ckEditor!=null)
+		{
+			// Attention : il y a un bug dans le wrapper ckeditor, le setEnabled ne fonctionne pas
+			ckEditor.setViewWithoutEditor(!(choix==ChoixOuiNon.OUI));
+			if (choix==ChoixOuiNon.NON)
+			{
+				ckEditor.setValue("");
+			}
+		}
+		
 	}
 	
 

@@ -63,7 +63,11 @@ public class ChoixModifEditorPart extends SwitchPopup
 		addLine("Les informations de paiement", new ModifPaiementContratEditorPart(id));
 		
 		addLine("Supprimer / ajouter des dates de paiement", new ModifDatePaiementContratEditorPart(id));
-
+		
+		addSeparator();
+		
+		addLine("Modifier la mise en forme graphique", new MiseEnFormeModeleContratEditorPart(id));
+		
 	}
 
 }

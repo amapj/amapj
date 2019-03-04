@@ -184,6 +184,12 @@ public class PermanenceNotificationService
 
 	private String replaceWithContext(String in,PermanenceCell dpu,EntityManager em,Utilisateur u,ParametresDTO param)
 	{
+		// Si le champ a été laissé vide, on positione une valeur par défaut 
+		if (in==null || in.trim().length()==0)
+		{
+			in = "Permanence AMAP";
+		}
+		
 		// Calcul du contexte
 		SimpleDateFormat df = new SimpleDateFormat("EEEEE dd MMMMM yyyy");
 		

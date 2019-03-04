@@ -20,14 +20,24 @@
  */
  package fr.amapj.service.engine.generator.excel;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTBorder;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTBorderPr;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.STBorderStyle;
+import org.apache.poi.hssf.record.ExtendedFormatRecord;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFPrintSetup;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.BorderFormatting;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormat;
@@ -39,9 +49,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.ss.util.WorkbookUtil;
+import org.apache.poi.xssf.model.StylesTable;
+import org.apache.poi.xssf.model.ThemesTable;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.extensions.XSSFCellBorder;
 
 import fr.amapj.common.AmapjRuntimeException;
 import fr.amapj.model.models.editionspe.AbstractEditionSpeJson;
@@ -85,12 +98,16 @@ public class ExcelGeneratorTool
 	
 	
 	public CellStyle nonGrasCentreBordure;
+	public CellStyle nonGrasCentreBordureDiagonal;
+	public CellStyle nonGrasCentreBordureDiagonalColor;
 	public CellStyle nonGrasCentreBordureColor;
 	public CellStyle nonGrasCentreBordureGray;
 	public CellStyle nonGrasGaucheBordure;
 	public CellStyle nongrasGaucheWrappe;
 	public CellStyle nonGrasGaucheNonWrappe;
 	public CellStyle nonGrasGaucheBordureGray;
+	
+	
 	
 	
 	public CellStyle prixCentreBordure;
@@ -245,6 +262,12 @@ public class ExcelGeneratorTool
 		nonGrasCentreBordure.setWrapText(true);
 		beWhite(nonGrasCentreBordure);
 
+		nonGrasCentreBordureDiagonal = duplicate(nonGrasCentreBordure);
+		addDiagonalBorder(nonGrasCentreBordureDiagonal);
+		
+		nonGrasCentreBordureDiagonalColor = duplicate(nonGrasCentreBordureDiagonal);
+		beOrange(nonGrasCentreBordureDiagonalColor);
+		
 		nonGrasCentreBordureColor = duplicate(nonGrasCentreBordure);
 		beOrange(nonGrasCentreBordureColor);
 		
@@ -348,6 +371,77 @@ public class ExcelGeneratorTool
 		style.setBorderTop(CellStyle.BORDER_THIN);
 		style.setTopBorderColor(IndexedColors.BLACK.getIndex());
 	}
+	
+	
+	/**
+	 * Permet d'ajouter une croix (deux diagnonales) sur la cellule
+	 * 
+	 * Voir la classe DiagonalBorder pour plus d'explications sur HSSFWorkbook
+	 * 
+	 * Voir 
+	 * https://stackoverflow.com/questions/39529042/apache-poi-how-to-add-diagonal-border
+	 * pour plus d'explications sur XSSFWorkbook
+	 */
+	private void addDiagonalBorder(CellStyle style)
+	{
+		short lineStyle = CellStyle.BORDER_THIN;
+		
+		try
+		{
+			if (wb instanceof HSSFWorkbook )
+			{
+				Field f = HSSFCellStyle.class.getDeclaredField("_format");
+				f.setAccessible(true);
+				
+				ExtendedFormatRecord efr = (ExtendedFormatRecord) f.get(style);
+				
+				efr.setIndentNotParentBorder(true);
+				efr.setDiag((short)3);
+				
+				//   
+				efr.setAdtlDiag((short) 64);
+				efr.setAdtlDiagLineStyle(lineStyle);
+			}
+			else
+			{
+				Method m = XSSFCellStyle.class.getDeclaredMethod("getCTBorder");
+				m.setAccessible(true);
+				
+				Field f1 = XSSFCellStyle.class.getDeclaredField("_stylesSource");
+				f1.setAccessible(true);
+				
+				Field f2 = XSSFCellStyle.class.getDeclaredField("_theme");
+				f2.setAccessible(true);
+				
+				
+				CTBorder ct = (CTBorder) m.invoke(style);
+				CTXf _cellXf = ( (XSSFCellStyle) style).getCoreXf();
+				StylesTable _stylesSource = (StylesTable) f1.get(style);
+				ThemesTable _theme = (ThemesTable) f2.get(style);
+				
+				
+				CTBorderPr pr = ct.isSetDiagonal() ? ct.getDiagonal() : ct.addNewDiagonal();
+				if (lineStyle == BorderFormatting.BORDER_NONE)
+				{
+					ct.unsetDiagonal();
+				} else
+				{
+					ct.setDiagonalDown(true);
+					ct.setDiagonalUp(true);
+					pr.setStyle(STBorderStyle.Enum.forInt(lineStyle + 1));
+				}
+				int idx = _stylesSource.putBorder(new XSSFCellBorder(ct, _theme));
+				_cellXf.setBorderId(idx);
+				_cellXf.setApplyBorder(true);
+			}
+		}
+		catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e)
+		{
+			throw new AmapjRuntimeException(e);
+		}
+	}
+	
+	
 	
 	
 	/**
@@ -698,6 +792,10 @@ public class ExcelGeneratorTool
 			else if (style == nonGrasCentreBordure)
 			{
 				return nonGrasCentreBordureColor;
+			}
+			else if (style == nonGrasCentreBordureDiagonal)
+			{
+				return nonGrasCentreBordureDiagonalColor;
 			}
 			else
 			{

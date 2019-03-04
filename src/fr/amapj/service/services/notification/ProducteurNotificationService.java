@@ -21,6 +21,7 @@
  package fr.amapj.service.services.notification;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -30,8 +31,11 @@ import javax.persistence.Query;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import fr.amapj.common.CollectionUtils;
 import fr.amapj.common.DateUtils;
-import fr.amapj.model.engine.tools.TestTools;
+import fr.amapj.common.FormatUtils;
+import fr.amapj.common.SQLUtils;
+import fr.amapj.common.StackUtils;
 import fr.amapj.model.engine.transaction.Call;
 import fr.amapj.model.engine.transaction.DbRead;
 import fr.amapj.model.engine.transaction.NewTransaction;
@@ -43,13 +47,16 @@ import fr.amapj.model.models.fichierbase.Producteur;
 import fr.amapj.model.models.fichierbase.Utilisateur;
 import fr.amapj.model.models.stats.NotificationDone;
 import fr.amapj.model.models.stats.TypNotificationDone;
+import fr.amapj.service.engine.deamons.DeamonsContext;
 import fr.amapj.service.engine.generator.excel.AbstractExcelGenerator;
 import fr.amapj.service.services.edgenerator.excel.feuilledistribution.producteur.EGFeuilleDistributionProducteur;
 import fr.amapj.service.services.mailer.MailerAttachement;
 import fr.amapj.service.services.mailer.MailerMessage;
 import fr.amapj.service.services.mailer.MailerService;
+import fr.amapj.service.services.mescontrats.ContratStatusService;
 import fr.amapj.service.services.parametres.ParametresDTO;
 import fr.amapj.service.services.parametres.ParametresService;
+import fr.amapj.service.services.utilisateur.util.UtilisateurUtil;
 
 
 public class ProducteurNotificationService 
@@ -57,27 +64,38 @@ public class ProducteurNotificationService
 	private final static Logger logger = LogManager.getLogger();
 	
 	
-	public ProducteurNotificationService()
-	{
-		
-	}
-	
-	
 	@DbRead
-	public void sendProducteurNotification()
+	public void sendProducteurNotification(DeamonsContext deamonsContext)
 	{		
 		EntityManager em = TransactionHelper.getEm();
 		
-		// On recherche tous les producteurs qui ont un contrat dans le futur
+		// On recherche tous les producteurs qui ont un contrat dans le futur et à l'état actif 
 		Query q = em.createQuery("select distinct(mcd.modeleContrat.producteur) from ModeleContratDate mcd " +
 								"where mcd.dateLiv>=:d1 and mcd.modeleContrat.etat=:etat");
 		q.setParameter("d1", DateUtils.getDate());
 		q.setParameter("etat", EtatModeleContrat.ACTIF);
 		
+		//
 		List<Producteur> prods = q.getResultList();
+		
+		// On filtre ensuite pour garder uniquement les producteurs qui ont demandé à être notifié 
+		prods = CollectionUtils.filter(prods, e->needNotification(e,em));
+		
+		
 		for (Producteur producteur : prods)
 		{
-			sendNotificationProducteur(producteur,em);
+			logger.info("Debut de notification du producteur : "+producteur.nom);
+			try
+			{
+				sendNotificationProducteur(producteur,em,deamonsContext);
+			}
+			catch(Exception e)
+			{
+				// En cas d'erreur, on intercepte l'exception pour permettre la notification des autres producteurs
+				deamonsContext.nbError++;
+				logger.info("Erreur pour le producteur "+producteur.nom+"\n"+StackUtils.asString(e));
+			}
+			logger.info("Fin de notification du producteur : "+producteur.nom);
 		}
 	}
 	
@@ -85,7 +103,29 @@ public class ProducteurNotificationService
 	
 	
 
-	private void sendNotificationProducteur(Producteur producteur, EntityManager em)
+	private boolean needNotification(Producteur producteur, EntityManager em)
+	{
+		// On compte le nombre d'utilisateurs producteurs voulant être notifiés 
+		Query q = em.createQuery("select count(c) from ProducteurUtilisateur c WHERE c.producteur=:p and c.notification=:etat");
+		q.setParameter("p", producteur);
+		q.setParameter("etat", EtatNotification.AVEC_NOTIFICATION_MAIL);
+		int nbUtilisateurs = SQLUtils.count(q);
+		
+		// On compte le nombre de referent voulant être notifiés 
+		q = em.createQuery("select count(c) from ProducteurReferent c WHERE c.producteur=:p and c.notification=:etat");
+		q.setParameter("p", producteur);
+		q.setParameter("etat", EtatNotification.AVEC_NOTIFICATION_MAIL);
+		int nbReferents = SQLUtils.count(q);
+		
+		
+		return (nbUtilisateurs+nbReferents)>0;
+	}
+
+
+
+
+
+	private void sendNotificationProducteur(Producteur producteur, EntityManager em, DeamonsContext deamonsContext)
 	{
 		Query q = em.createQuery("select mcd from ModeleContratDate mcd where mcd.dateLiv>=:d1 and mcd.dateLiv<=:d2 and mcd.modeleContrat.producteur=:p");
 		
@@ -100,13 +140,38 @@ public class ProducteurNotificationService
 		q.setParameter("p", producteur);
 		
 		
+		ContratStatusService statusService = new ContratStatusService();
 		List<ModeleContratDate> mcds = q.getResultList();
 		for (ModeleContratDate modeleContratDate : mcds)
 		{
-			List<Utilisateur> users = getUserToNotify(em, producteur,modeleContratDate);
-			if (users.size()>0)
+			// On verifie d'abord si le contrat est encore modifiable pour cette date 
+			if (statusService.isDateModifiable(modeleContratDate, em, d1))
 			{
-				sendOneMessageNotificationProducteur(modeleContratDate,users,em);
+				SimpleDateFormat df = FormatUtils.getStdDate();
+				logger.info("La notification du modele de contrat "+modeleContratDate.modeleContrat.nom+
+							 " n'a pas été envoyé car la date de livraison "+df.format(modeleContratDate.dateLiv)+" est encore modifiable.");
+			}
+			else
+			{
+				// Le contrat n'est pas modifiable : on va pouvoir notifier 
+				
+				// On notifie d'abord les producteurs puis les référents
+				List<Utilisateur> users = getUserToNotify(em, producteur,modeleContratDate);
+				List<Utilisateur> referents = getReferentsToNotify(em, producteur,modeleContratDate);
+				
+				//
+				List<Utilisateur> dests = new ArrayList<Utilisateur>();
+				dests.addAll(users);
+				dests.addAll(referents);
+				
+				// On supprime les utilisateurs dont l'email se termine par #
+				dests = CollectionUtils.filter(dests, u->UtilisateurUtil.canSendMailTo(u.email)==true);
+				
+				// On réalise l'envoi 
+				if (users.size()>0)
+				{
+					sendOneMessageNotificationProducteur(modeleContratDate,dests,em,deamonsContext);
+				}
 			}
 		}	
 	}
@@ -114,11 +179,6 @@ public class ProducteurNotificationService
 	/**
 	 * Retourne la liste des utilisateurs de ce producteur à notifier et qui n'ont pas encore été notifié 
 	 * pour cette date 
-	 * 
-	 * @param em
-	 * @param producteur
-	 * @param modeleContratDate
-	 * @return
 	 */
 	private List<Utilisateur> getUserToNotify(EntityManager em, Producteur producteur, ModeleContratDate modeleContratDate)
 	{
@@ -135,9 +195,30 @@ public class ProducteurNotificationService
 		List<Utilisateur> us =  q.getResultList();
 		return us;
 	}
+	
+	
+	/**
+	 * Retourne la liste des référents de ce producteur à notifier et qui n'ont pas encore été notifié 
+	 * pour cette date 
+	 */
+	private List<Utilisateur> getReferentsToNotify(EntityManager em, Producteur producteur, ModeleContratDate modeleContratDate)
+	{
+		// On recherche tous les utilisateurs de ce producteurs qui veulent être notifiés
+		Query q = em.createQuery(   "select c.referent from ProducteurReferent c WHERE " +
+									"c.producteur=:p AND c.notification=:etat " +
+									"AND NOT EXISTS (select d from NotificationDone d where d.typNotificationDone=:typNotif and d.utilisateur=c.referent and d.modeleContratDate=:mcd) "+
+									"order by c.referent.nom,c.referent.prenom");
+		q.setParameter("p", producteur);
+		q.setParameter("etat", EtatNotification.AVEC_NOTIFICATION_MAIL);
+		q.setParameter("typNotif", TypNotificationDone.FEUILLE_LIVRAISON_PRODUCTEUR);
+		q.setParameter("mcd", modeleContratDate);
+		
+		List<Utilisateur> us =  q.getResultList();
+		return us;
+	}
 
 
-	private void sendOneMessageNotificationProducteur(ModeleContratDate modeleContratDate, List<Utilisateur> users,EntityManager em)
+	private void sendOneMessageNotificationProducteur(ModeleContratDate modeleContratDate, List<Utilisateur> users,EntityManager em, DeamonsContext deamonsContext)
 	{
 		// Construction du message
 		MailerMessage message  = new MailerMessage();
@@ -151,8 +232,17 @@ public class ProducteurNotificationService
 
 		for (Utilisateur utilisateur : users)
 		{
-			message.setEmail(utilisateur.getEmail());
-			sendMessageAndMemorize(message,modeleContratDate.getId(),utilisateur.getId());
+			try
+			{
+				message.setEmail(utilisateur.email);
+				sendMessageAndMemorize(message,modeleContratDate.getId(),utilisateur.getId());
+			}
+			catch(Exception e)
+			{
+				// En cas d'erreur, on intercepte l'exception pour permettre la notification des autres destinatires
+				deamonsContext.nbError++;
+				logger.error("Erreur pour notifier  "+utilisateur.email+"\n"+StackUtils.asString(e));
+			}
 		}
 	}
 
@@ -217,14 +307,5 @@ public class ProducteurNotificationService
 		
 		return buf.toString();
 	}
-
-	public static void main(String[] args)
-	{
-		TestTools.init();
-		ProducteurNotificationService service = new ProducteurNotificationService();
-		service.sendProducteurNotification();
-	}
-
-
 
 }

@@ -45,14 +45,28 @@ public class VCPersonne
 
 	public void load(Utilisateur u)
 	{
-		nom = s(u.getNom());
-		prenom = s(u.getPrenom());
-		email = s(u.getEmail());
-		numTel1 = s(u.getNumTel1());
-		numTel2 = s(u.getNumTel2());
-		libAdr1 = s(u.getLibAdr1());
-		codePostal = s(u.getCodePostal());
-		ville = s(u.getVille());
+		if (u!=null)
+		{
+			nom = s(u.getNom());
+			prenom = s(u.getPrenom());
+			email = s(u.getEmail());
+			numTel1 = s(u.getNumTel1());
+			numTel2 = s(u.getNumTel2());
+			libAdr1 = s(u.getLibAdr1());
+			codePostal = s(u.getCodePostal());
+			ville = s(u.getVille());
+		}
+		else
+		{
+			nom = "";
+			prenom = "";
+			email = "";
+			numTel1 = "";
+			numTel2 = "";
+			libAdr1 = "";
+			codePostal = "";
+			ville = "";
+		}
 	}
 	
 	/**

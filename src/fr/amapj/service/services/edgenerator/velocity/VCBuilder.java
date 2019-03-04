@@ -26,6 +26,7 @@ import org.apache.velocity.VelocityContext;
 
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 
+import fr.amapj.model.models.contrat.modele.ModeleContrat;
 import fr.amapj.model.models.contrat.reel.Contrat;
 import fr.amapj.model.models.cotisation.PeriodeCotisationUtilisateur;
 import fr.amapj.model.models.fichierbase.Producteur;
@@ -61,7 +62,12 @@ public class VCBuilder
 		ctx.put("amap", amap);
 	}
 	
-	
+	/**
+	 * Si u est null, correspond à la génération d'un contrat vierge 
+	 * 
+	 * @param ctx
+	 * @param u
+	 */
 	static public void addAmapien(VelocityContext ctx,Utilisateur u)
 	{
 		VCAmapien amapien = new VCAmapien();
@@ -104,10 +110,19 @@ public class VCBuilder
 		ctx.put("producteur", prod);
 	}
 	
-	static public void addContrat(VelocityContext ctx,Contrat c,EntityManager em)
+	/**
+	 * Si c est null, correspond à la création d'un document vierge 
+	 * 
+	 * mc n'est jamais null
+	 * 
+	 * @param ctx
+	 * @param c
+	 * @param em
+	 */
+	static public void addContrat(VelocityContext ctx,ModeleContrat mc,Contrat c,EntityManager em)
 	{
 		VCContrat cc = new VCContrat();
-		cc.load(c, em);
+		cc.load(mc , c, em);
 	
 		ctx.put("contrat", cc);
 	}

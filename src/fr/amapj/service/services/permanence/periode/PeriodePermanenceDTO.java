@@ -26,6 +26,7 @@ import java.util.List;
 
 import fr.amapj.model.models.permanence.periode.EtatPeriodePermanence;
 import fr.amapj.model.models.permanence.periode.NaturePeriodePermanence;
+import fr.amapj.model.models.permanence.periode.RegleInscriptionPeriodePermanence;
 import fr.amapj.view.engine.tools.TableItem;
 
 /**
@@ -80,7 +81,7 @@ public class PeriodePermanenceDTO implements TableItem
 	// La liste suivante est utilisée uniquement pour l'affectation des roles
 	public List<PeriodePermanenceRoleDTO> roles;
 		
-		
+	public RegleInscriptionPeriodePermanence regleInscription;
 
 	public Long getIdPeriodeCotisation()
 	{
@@ -285,6 +286,16 @@ public class PeriodePermanenceDTO implements TableItem
 	public void setRoles(List<PeriodePermanenceRoleDTO> roles)
 	{
 		this.roles = roles;
+	}
+
+	public RegleInscriptionPeriodePermanence getRegleInscription()
+	{
+		return regleInscription;
+	}
+
+	public void setRegleInscription(RegleInscriptionPeriodePermanence regleInscription)
+	{
+		this.regleInscription = regleInscription;
 	}
 	
 	

@@ -28,6 +28,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 import fr.amapj.common.StringUtils;
+import fr.amapj.model.models.contrat.modele.ModeleContrat;
 import fr.amapj.model.models.contrat.reel.Contrat;
 import fr.amapj.service.services.gestioncontrat.GestionContratService;
 import fr.amapj.service.services.gestioncontrat.ModeleContratDTO;
@@ -61,6 +62,8 @@ public class VCContrat
 	
 	public String libCheque;
 	
+	public String dateRemiseCheque;
+	
 	public String nbCheque;
 	
 	public String tableauDateProduit;
@@ -85,12 +88,18 @@ public class VCContrat
 	
 	public String amapienNbProduit;
 	
-	public void load(Contrat c,EntityManager em)
+	/**
+	 * 
+	 * @param mc : n'est jamais null
+	 * @param c  : peut être null dans le cas d'un vierge 
+	 * @param em
+	 */
+	public void load(ModeleContrat mc,Contrat c,EntityManager em)
 	{
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 			
-		ModeleContratSummaryDTO sum = new GestionContratService().createModeleContratInfo(em, c.getModeleContrat());
-		ModeleContratDTO dto = new GestionContratService().loadModeleContrat(c.getModeleContrat().getId());
+		ModeleContratSummaryDTO sum = new GestionContratService().createModeleContratInfo(em, mc);
+		ModeleContratDTO dto = new GestionContratService().loadModeleContrat(mc.getId());
 		
 		nom = s(dto.nom);
 		description = s(dto.description);
@@ -104,21 +113,29 @@ public class VCContrat
 		saison = getSaison(dto.dateDebut,dto.dateFin);
 		nbLivraison = ""+sum.nbLivraison;
 		libCheque = s(dto.libCheque);
-		nbCheque = ""+new MesPaiementsService().getNbChequeContrat(c, em);
+		dateRemiseCheque = "";
+		if (dto.dateRemiseCheque!=null)
+		{
+			dateRemiseCheque = df.format(dto.dateRemiseCheque);
+		}
 		
-		ContratDTO contratDTO = new MesContratsService().loadContrat(c.getModeleContrat().getId(), c.getId());
+		
+		
+		ContratDTO contratDTO;
+		boolean isVierge;
+		if (c!=null)
+		{
+			contratDTO =  new MesContratsService().loadContrat(mc.getId(), c.getId());
+			isVierge = false;
+		}
+		else
+		{
+			contratDTO =  new MesContratsService().loadContrat(mc.getId(), null);
+			isVierge = true;
+		}
 	
 		tableauDateProduit = getTableauDateProduit(em,contratDTO);
-		tableauDateCheque = getTableauCheque(em,contratDTO);
-		
-		int montantP = new GestionContratSigneService().getMontant(em, c);
-		montantProduit = new CurrencyTextFieldConverter().convertToString(montantP);
-		
-		int montantC = new MesPaiementsService().getMontantChequeSansAvoir(c, em);
-		montantCheque = new CurrencyTextFieldConverter().convertToString(montantC);
-		
-		int montantA = contratDTO.paiement.avoirInitial;
-		montantAvoir = new CurrencyTextFieldConverter().convertToString(montantA);
+		tableauDateCheque = getTableauCheque(em,contratDTO,isVierge);
 		
 		listeDateProduit = getListeDateProduit(em,contratDTO,false);
 		listeDateProduitCompact = getListeDateProduit(em,contratDTO,true);
@@ -126,8 +143,33 @@ public class VCContrat
 		listeDateCheque = getListeDateCheque(em,contratDTO,false);
 		listeDateChequeCompact = getListeDateCheque(em,contratDTO,true);
 		
-		amapienNbLivraison = ""+new GestionContratSigneService().getNbLivraisonContrat(c, em);
-		amapienNbProduit = ""+new GestionContratSigneService().getNbProduitContrat(c, em);
+		
+		//
+		if (c!=null)
+		{
+			nbCheque = ""+new MesPaiementsService().getNbChequeContrat(c, em);
+			
+			int montantP = new GestionContratSigneService().getMontant(em, c);
+			montantProduit = new CurrencyTextFieldConverter().convertToString(montantP);
+			
+			int montantC = new MesPaiementsService().getMontantChequeSansAvoir(c, em);
+			montantCheque = new CurrencyTextFieldConverter().convertToString(montantC);
+		
+			int montantA = contratDTO.paiement.avoirInitial;
+			montantAvoir = new CurrencyTextFieldConverter().convertToString(montantA);
+			
+			amapienNbLivraison = ""+new GestionContratSigneService().getNbLivraisonContrat(c, em);
+			amapienNbProduit = ""+new GestionContratSigneService().getNbProduitContrat(c, em);
+		}
+		else
+		{
+			nbCheque = "";
+			montantProduit = "";
+			montantCheque = "";
+			montantAvoir = "";
+			amapienNbLivraison = "";
+			amapienNbProduit = "";
+		}
 		
 	}
 	
@@ -218,7 +260,7 @@ public class VCContrat
 		return buf.toString();
 	}
 
-	private String getTableauCheque(EntityManager em, ContratDTO contratDTO)
+	private String getTableauCheque(EntityManager em, ContratDTO contratDTO,boolean isVierge)
 	{
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
 		StringBuffer buf = new StringBuffer();
@@ -248,7 +290,9 @@ public class VCContrat
 		
 		for (DatePaiementDTO date : paiement.datePaiements)
 		{
-			if (date.montant!=0)
+			// Si c'est un vierge : on met toujours la ligne
+			// Si c'est un contrat classique : on supprime les lignes sans paiement
+			if ( (date.montant!=0) || (isVierge==true))
 			{
 				buf.append("<tr>");
 				
@@ -257,7 +301,12 @@ public class VCContrat
 				buf.append("</td>");
 				
 				buf.append("<td style=\"width:30%\">");
-				buf.append("<p style=\"margin:0.1em\">"+new CurrencyTextFieldConverter().convertToString(date.montant)+" €</p>");
+				buf.append("<p style=\"margin:0.1em\">");
+				if (isVierge==false)
+				{
+					buf.append(""+new CurrencyTextFieldConverter().convertToString(date.montant)+" €");
+				}
+				buf.append("</p>");
 				buf.append("</td>");
 				
 				buf.append("</tr>");
@@ -607,5 +656,16 @@ public class VCContrat
 	{
 		this.dateFinInscription = dateFinInscription;
 	}
+
+	public String getDateRemiseCheque()
+	{
+		return dateRemiseCheque;
+	}
+
+	public void setDateRemiseCheque(String dateRemiseCheque)
+	{
+		this.dateRemiseCheque = dateRemiseCheque;
+	}
+	
 	
 }

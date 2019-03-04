@@ -21,17 +21,20 @@
  package fr.amapj.service.services.edgenerator.excel.feuilledistribution.amapien;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import fr.amapj.common.DateUtils;
 import fr.amapj.model.models.contrat.modele.ModeleContrat;
 import fr.amapj.model.models.contrat.reel.Contrat;
 import fr.amapj.model.models.fichierbase.Utilisateur;
 import fr.amapj.service.engine.generator.excel.AbstractExcelGenerator;
 import fr.amapj.service.engine.generator.excel.ExcelFormat;
 import fr.amapj.service.engine.generator.excel.ExcelGeneratorTool;
+import fr.amapj.service.services.edgenerator.excel.feuilledistribution.amapien.EGFeuilleDistributionAmapien.EGMode;
 
 
 /**
@@ -61,7 +64,21 @@ public class EGLiasseFeuilleDistributionAmapien  extends AbstractExcelGenerator
 		for (Contrat contrat : contrats)
 		{
 			Utilisateur u = contrat.getUtilisateur();
-			new EGFeuilleDistributionAmapien(contrat.getId()).addOnePage(em, et, u.getNom()+" "+u.getPrenom());
+			new EGFeuilleDistributionAmapien(EGMode.STD,modeleContratId,contrat.getId()).addOnePage(em, et, u.getNom()+" "+u.getPrenom());
+		}
+		
+		// Si pas de contrats : on met une feuille avec cette info, sinon le fichier est illisible 
+		if (contrats.size()==0)
+		{
+			et.addSheet("CONTRATS", 1, 20);
+		    
+			SimpleDateFormat df1 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+			
+			// Ligne 1 à 5
+			et.addRow("AUCUN CONTRAT SIGNE !!!",et.grasGaucheNonWrappe);
+			et.addRow(mc.getNom(),et.grasGaucheNonWrappe);
+			et.addRow(mc.getDescription(),et.grasGaucheNonWrappe);
+			et.addRow("Extrait le "+df1.format(DateUtils.getDate()),et.grasGaucheNonWrappe);
 		}
 		
 	}

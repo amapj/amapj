@@ -75,7 +75,7 @@ public class PopupCopyAllMail extends CorePopup
 					+ "<li>Faire un copier de toutes les adresses e-mail en faisant Ctrl+C ou en faisant clic droit + Copier sur la zone bleue ci dessous</li>"
 					+ "<li>Ouvrir votre outil favori pour l'envoi des mails (Thunderbird, Gmail, Outlook, ...)</li>"
 					+ "<li>Faire nouveau message</li>"
-					+ "<li>Faire un coller de toutes les adresses e-mail en faisant Ctrl+C ou en faisant clic droit + Coller dans la liste des destinataires du message.</li></ul>";
+					+ "<li>Faire un coller de toutes les adresses e-mail en faisant Ctrl+V ou en faisant clic droit + Coller dans la liste des destinataires du message.</li></ul>";
 		
 		HorizontalLayout hlTexte = new HorizontalLayout();
 		hlTexte.setMargin(true);

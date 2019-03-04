@@ -33,6 +33,7 @@ import fr.amapj.model.models.editionspe.TypEditionSpecifique;
 import fr.amapj.model.models.editionspe.engagement.EngagementJson;
 import fr.amapj.service.engine.generator.pdf.PdfHtmlUtils;
 import fr.amapj.service.services.edgenerator.pdf.PGEngagement;
+import fr.amapj.service.services.edgenerator.pdf.PGEngagement.PGEngagementMode;
 import fr.amapj.service.services.editionspe.EditionSpeDTO;
 import fr.amapj.service.services.editionspe.EditionSpeService;
 import fr.amapj.view.engine.excelgenerator.LinkCreator;
@@ -163,7 +164,7 @@ public class EngagementEditorPart extends WizardFormPopup
 		// Titre
 		setStepTitle("le contenu du contrat");
 		
-		addCKEditorField("text");    
+		addCKEditorFieldForDocument("text");    
 	}
 	
 	
@@ -178,7 +179,7 @@ public class EngagementEditorPart extends WizardFormPopup
 		s.setBuffered(false);
 		
 		//
-		Link link = LinkCreator.createLink(new PGEngagement(null,null,etiquetteDTO));
+		Link link = LinkCreator.createLink(new PGEngagement(PGEngagementMode.TOUS_LES_CONTRATS_EN_MODE_TEST,null,null,etiquetteDTO));
 		link.setCaption("Cliquer ici pour tester cette édition");
 		form.addComponent(link);
 	}

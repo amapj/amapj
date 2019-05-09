@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -27,7 +27,6 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 
-import fr.amapj.model.models.param.paramecran.PELivraisonProducteur;
 import fr.amapj.service.services.parametres.ParametresDTO;
 import fr.amapj.service.services.parametres.ParametresService;
 import fr.amapj.view.engine.popup.PopupListener;
@@ -41,12 +40,11 @@ import fr.amapj.view.views.parametres.paramecran.PEMesContratsEditorPart;
 import fr.amapj.view.views.parametres.paramecran.PEMesLivraisonsEditorPart;
 import fr.amapj.view.views.parametres.paramecran.PEReceptionChequeEditorPart;
 import fr.amapj.view.views.parametres.paramecran.PESaisiePaiementEditorPart;
+import fr.amapj.view.views.parametres.paramecran.PESyntheseMultiContratEditorPart;
 
 
 /**
  * Page permettant à l'administrateur de modifier les paramètres généraux
- *  
- *
  */
 public class ParametresView extends BackOfficeLongView implements PopupListener
 {
@@ -106,7 +104,7 @@ public class ParametresView extends BackOfficeLongView implements PopupListener
 		
 		addButton("Ecran \"Réception des chèques\"",e -> CorePopup.open(new PEReceptionChequeEditorPart(),listener));
 
-		
+		addButton("Ecran \"Synthèse multi contrats\"",e -> CorePopup.open(new PESyntheseMultiContratEditorPart(),listener));
 		
 		
 		refresh();

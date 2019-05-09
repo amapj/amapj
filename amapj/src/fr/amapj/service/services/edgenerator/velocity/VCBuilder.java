@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -20,12 +20,15 @@
  */
  package fr.amapj.service.services.edgenerator.velocity;
 
+import java.util.Date;
+
 import javax.persistence.EntityManager;
 
 import org.apache.velocity.VelocityContext;
 
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 
+import fr.amapj.common.periode.TypPeriode;
 import fr.amapj.model.models.contrat.modele.ModeleContrat;
 import fr.amapj.model.models.contrat.reel.Contrat;
 import fr.amapj.model.models.cotisation.PeriodeCotisationUtilisateur;
@@ -126,6 +129,22 @@ public class VCBuilder
 	
 		ctx.put("contrat", cc);
 	}
+	
+	/**
+	 * 
+	 * @param ctx
+	 * @param c
+	 * @param em
+	 */
+	static public void addBilanLivraison(VelocityContext ctx,Utilisateur utilisateur,EntityManager em,TypPeriode typPeriode,Date startDate,Date endDate)
+	{
+		VCBilanLivraison cc = new VCBilanLivraison();
+		cc.load(em, utilisateur, typPeriode, startDate, endDate);
+	
+		ctx.put("livraison", cc);
+	}
+	
+	
 	
 	static public void addAdhesion(VelocityContext ctx,PeriodeCotisationUtilisateur pcu,EntityManager em)
 	{

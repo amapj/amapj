@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -78,6 +78,8 @@ public enum MenuList
 	LIVRAISON_AMAPIEN("Livraisons d'un amapien",FontAwesome.CUTLERY) ,
 	
 	CONTRAT_ARCHIVE("Contrats archivés",FontAwesome.ARCHIVE),
+	
+	SYNTHESE_MULTI_CONTRAT("Synthèses multi contrats",FontAwesome.FILE_TEXT_O),
 	
 	
 	// Partie permanence

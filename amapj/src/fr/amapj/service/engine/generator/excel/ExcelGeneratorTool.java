@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -962,6 +962,22 @@ public class ExcelGeneratorTool
 	public int getColumnWidthInPoints(int numCol)
 	{
 		return (int) (sheet.getColumnWidth(numCol)/48.0-5);
+	}
+	
+	
+	/**
+	 * Permet de connaitre une largeur en nombre de points pour x cellules fusionnes consecutives
+	 *  
+	 */
+	public int getColumnWidthInPointsForMergedCell(int numCol,int nbCol)
+	{
+		int res = 0;
+		for (int i = 0; i < nbCol; i++)
+		{
+			res = res +sheet.getColumnWidth(numCol+i);
+		}
+
+		return (int) (res/48.0-5);
 	}
 
 	

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -160,8 +160,8 @@ public class AppInitializer implements ServletContextListener
 
 		try
 		{
-			// Les demons se lancent 1 minute après le lancement de l'application 
-			Date ref = DateUtils.addMinute(new Date(),1);
+			// Les demons se lancent 10 minutes après le lancement de l'application 
+			Date ref = DateUtils.addMinute(new Date(),10);
 			
 			SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -37,6 +37,18 @@ public class LinkCreator
 	
 	static public Link createLink(CoreGenerator generator)
 	{
+		return createLink(generator, true);
+	}
+	
+	
+	/**
+	 * 
+	 * @param generator
+	 * @param addPrefixTelecharger : si true, on ajoute le libellé "Telecharger" devant le nom du fichier
+	 * @return
+	 */
+	static public Link createLink(CoreGenerator generator,boolean addPrefixTelecharger)
+	{
 		FileInfoDTO fileInfoDTO = new CoreGeneratorService().getFileInfo(generator);
 		
 		String titre = fileInfoDTO.nameToDisplay;
@@ -46,7 +58,9 @@ public class LinkCreator
 		StreamResource streamResource = new StreamResource(new CoreResource(fileInfoDTO.generator), fileName+"."+extension);
 		streamResource.setCacheTime(1000);
 		
-		Link extractFile = new Link("Télécharger "+titre,streamResource);
+		
+		String lien = addPrefixTelecharger ? "Télécharger "+titre : titre;
+		Link extractFile = new Link(lien,streamResource);
 		extractFile.setIcon(FontAwesome.DOWNLOAD);
 		extractFile.setTargetName("_blank");
 		

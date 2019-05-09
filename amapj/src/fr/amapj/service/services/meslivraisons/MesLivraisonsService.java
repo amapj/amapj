@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -108,7 +108,7 @@ public class MesLivraisonsService
 	}
 	
 
-	private List<PeriodePermanenceDate> getAllDistributionsForUtilisateur(EntityManager em, Date dateDebut, Date dateFin,Utilisateur utilisateur)
+	public List<PeriodePermanenceDate> getAllDistributionsForUtilisateur(EntityManager em, Date dateDebut, Date dateFin,Utilisateur utilisateur)
 	{
 		Query q = em.createQuery("select distinct(du.periodePermanenceDate) from PermanenceCell du WHERE " +
 				"du.periodePermanenceDate.periodePermanence.etat=:etat and " +

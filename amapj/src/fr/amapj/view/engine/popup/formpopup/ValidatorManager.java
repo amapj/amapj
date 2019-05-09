@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.vaadin.ui.AbstractField;
+import com.vaadin.ui.ComboBox;
 
 import fr.amapj.view.engine.popup.formpopup.validator.ValidatorHolder;
 import fr.amapj.view.engine.popup.formpopup.validator.IValidator;
@@ -64,6 +65,11 @@ public class ValidatorManager
 			res.addAll(validatorHolder.validate());
 		}
 		return res;
+	}
+
+	public String getTitle(AbstractField f)
+	{
+		return validatorHolders.stream().filter(e->e.getField()==f).map(e->e.getTitle()).findAny().orElse(null);
 	}
 
 }

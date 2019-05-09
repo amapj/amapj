@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -24,13 +24,18 @@ import java.io.File;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.google.gson.Gson;
 
 import fr.amapj.common.AmapjRuntimeException;
 import fr.amapj.common.CollectionUtils;
@@ -52,6 +57,8 @@ import fr.amapj.service.engine.appinitializer.AppInitializer;
 import fr.amapj.service.services.appinstance.SqlRequestDTO.DataBaseResponseDTO;
 import fr.amapj.service.services.appinstance.SqlRequestDTO.ResponseDTO;
 import fr.amapj.service.services.appinstance.SqlRequestDTO.SqlType;
+import fr.amapj.service.services.logview.LogViewService;
+import fr.amapj.service.services.logview.StatInstanceDTO;
 import fr.amapj.service.services.mailer.MailerCounter;
 import fr.amapj.service.services.parametres.ParametresDTO;
 import fr.amapj.service.services.parametres.ParametresService;
@@ -337,10 +344,13 @@ public class AppInstanceService
 			res.add(dto);
 		}
 		
-		// TODO trier suivant la logique voulue
+		// Tri pour avoir les administrateurs en premier, puis les tresoriers , puis par ordre alphabetique
+		CollectionUtils.sort(res, e->!e.roles.contains("ADMIN"),e->!e.roles.contains("TRESORIER"),e->e.nom,e->e.prenom);	
 		
 		return res;
 	}
+
+
 
 	/**
 	 * 
@@ -466,7 +476,7 @@ public class AppInstanceService
 
 	
 	/**
-	 * Permet de recuperer les mails de tous les tresoriers et adminitrateurs sur toutes les bases 
+	 * Permet de recuperer les mails de tous les adminitrateurs sur toutes les bases 
 	 * @return
 	 */
 	public String getAllMails()
@@ -490,4 +500,47 @@ public class AppInstanceService
 		
 		return null;
 	}
+	
+	
+	
+	/**
+	 * Permet de recuperer des infos générales sur toutes les instances 
+	 * @return
+	 */
+	public String getStatInfo()
+	{
+		AdminTresorierDataDTO data = new AdminTresorierDataDTO();
+		data.extractionDate = new Date();
+		
+		// Recuperation des statistiques sur les acces
+		List<StatInstanceDTO> statAccess = new LogViewService().getStatInstance();
+		
+		SpecificDbUtils.executeInAllDb(()->appendStatInfo(data,statAccess),false);
+		
+		return new Gson().toJson(data);
+	}
+	
+	@DbRead
+	private Void appendStatInfo(AdminTresorierDataDTO data, List<StatInstanceDTO> statAccess)
+	{
+		EntityManager em = TransactionHelper.getEm();
+		String dbName = DbUtil.getCurrentDb().getDbName();
+		
+		AdminTresorierDataDTO.InstanceDTO stat = new AdminTresorierDataDTO.InstanceDTO();
+		
+		stat.code = dbName;
+		stat.nom = new ParametresService().getParametres().nomAmap;
+		stat.nbAccessLastMonth = statAccess.stream().filter(e->e.nomInstance.equals(dbName)).findFirst().map(e->e.detail[0].nbAccess).orElse(0);
+		
+		TypedQuery<Utilisateur> q = em.createQuery("select distinct(u) from Utilisateur u  where u.id in (select a.utilisateur.id from RoleAdmin a) order by u.nom,u.prenom",Utilisateur.class);
+		stat.admins = q.getResultList().stream().map(e->new AdminTresorierDataDTO.ContactDTO(e.nom, e.prenom, e.email)).collect(Collectors.toList());
+		
+		q = em.createQuery("select distinct(u) from Utilisateur u  where u.id in (select a.utilisateur.id from RoleTresorier a) order by u.nom,u.prenom",Utilisateur.class);
+		stat.tresoriers = q.getResultList().stream().map(e->new AdminTresorierDataDTO.ContactDTO(e.nom, e.prenom, e.email)).collect(Collectors.toList());
+				
+		data.instances.add(stat);
+		
+		return null;
+	}
+	
 }

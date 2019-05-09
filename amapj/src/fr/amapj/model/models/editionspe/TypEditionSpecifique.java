@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -32,6 +32,9 @@ public enum TypEditionSpecifique
 	CONTRAT_ENGAGEMENT , 
 	
 	//
-	BULLETIN_ADHESION
+	BULLETIN_ADHESION,
+	
+	//
+	BILAN_LIVRAISON
 
 }

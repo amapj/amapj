@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -57,6 +57,9 @@ public class IntegerGridParam
 	
 	// Libellé utilisé pour le prix total 
 	public String libPrixTotal="";
+	
+	// Message specifique a afficher en bas de popup
+	public String messageSpecifiqueBottom;
 	
 	public List<GridHeaderLine> headerLines = new ArrayList<>();
 	

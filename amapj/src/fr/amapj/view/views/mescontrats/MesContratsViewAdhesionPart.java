@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -245,6 +245,13 @@ public class MesContratsViewAdhesionPart implements PopupSuppressionListener
 	
 	private boolean shouldDisplayLinkBulletinInAffichageOnly(AffichageOnly aff)
 	{
+		// si il n'y a pas de modele de bulletin : on ne met pas le lien 
+		if (aff.idBulletin==null)
+		{
+			return false;
+		}
+		
+		
 		PEMesContrats peMesContrats = (PEMesContrats) new ParametresService().loadParamEcran(MenuList.MES_CONTRATS);
 		switch (peMesContrats.canPrintAdhesion)
 		{

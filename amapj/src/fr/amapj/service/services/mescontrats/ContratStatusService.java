@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -20,6 +20,7 @@
  */
  package fr.amapj.service.services.mescontrats;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import javax.persistence.EntityManager;
@@ -27,6 +28,7 @@ import javax.persistence.Query;
 
 import fr.amapj.common.DateUtils;
 import fr.amapj.common.SQLUtils;
+import fr.amapj.model.models.contrat.modele.JokerMode;
 import fr.amapj.model.models.contrat.modele.ModeleContrat;
 import fr.amapj.model.models.contrat.modele.ModeleContratDate;
 import fr.amapj.model.models.contrat.modele.NatureContrat;
@@ -74,12 +76,12 @@ public class ContratStatusService
 		// Autre cas
 		else
 		{
-			Date dateFinInscription = mc.getDateFinInscription();
-			Date d = DateUtils.addHour(dateFinInscription,23);
-			d = DateUtils.addMinute(d, 59);
-			return  d.after(now);
+			return isInscriptionNonTerminee(mc, now);
 		}
 	}
+	
+	
+
 	
 	
 	/**
@@ -97,14 +99,45 @@ public class ContratStatusService
 			int cartePrepayeeDelai = mcd.modeleContrat.cartePrepayeeDelai;
 			return service.cartePrepayeeLigModifiable(mcd, now, cartePrepayeeDelai);
 		}
-		// Autre cas
+		// Cas abonnement 
+		else if (nature==NatureContrat.ABONNEMENT)
+		{
+			boolean inscriptionNonTerminee = isInscriptionNonTerminee(mcd.modeleContrat, now);
+			
+			if (mcd.modeleContrat.jokerMode==JokerMode.INSCRIPTION)
+			{
+				return inscriptionNonTerminee;
+			}
+			else
+			{
+				if (inscriptionNonTerminee==true)
+				{
+					return inscriptionNonTerminee;
+				}
+				
+				LocalDate limit = DateUtils.asLocalDate(mcd.dateLiv);
+				limit = limit.plusDays(-mcd.modeleContrat.jokerDelai);
+				return DateUtils.asLocalDate(now).isBefore(limit);
+			}
+		} 
+		// Cas LIBRE
 		else
 		{
-			Date dateFinInscription = mcd.modeleContrat.getDateFinInscription();
-			Date d = DateUtils.addHour(dateFinInscription,23);
-			d = DateUtils.addMinute(d, 59);
-			return  d.after(now);
+			return isInscriptionNonTerminee(mcd.modeleContrat, now);
 		}
+	}
+	
+	/**
+	 * Retourne true si les inscriptions ne sont pas terminées pour ce contrat 
+	 * 
+	 * A utiliser uniquement avec les contrats de type ABONNEMENT et LIBRE 
+	 */
+	private boolean isInscriptionNonTerminee(ModeleContrat modeleContrat,Date now)
+	{
+		Date dateFinInscription = modeleContrat.getDateFinInscription();
+		Date d = DateUtils.addHour(dateFinInscription,23);
+		d = DateUtils.addMinute(d, 59);
+		return  d.after(now);
 	}
 	
 	

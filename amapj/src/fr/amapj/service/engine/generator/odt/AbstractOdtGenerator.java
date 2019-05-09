@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -52,6 +52,23 @@ abstract public class AbstractOdtGenerator implements CoreGenerator
 	abstract public String getFileName(EntityManager em);
 	
 	abstract public String getNameToDisplay(EntityManager em);
+	
+	private String nameToDisplaySuffix;
+	
+	/**
+	 * Permet de positionner un suffixe au file name, par exemple pour préciser son format
+	 * Ce suffixe est à la fin du nom de fichier, mais avant l'extension 
+	 */
+	public void setNameToDisplaySuffix(String nameToDisplaySuffix)
+	{
+		this.nameToDisplaySuffix = nameToDisplaySuffix;
+	}	
+	
+	@Override
+	public String getNameToDisplaySuffix()
+	{
+		return nameToDisplaySuffix;
+	}
 	
 	
 	public String getExtension()

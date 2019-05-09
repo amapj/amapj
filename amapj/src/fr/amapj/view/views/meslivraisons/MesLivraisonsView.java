@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -22,10 +22,14 @@
 
 import java.text.SimpleDateFormat;
 
+import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import fr.amapj.common.FormatUtils;
 import fr.amapj.model.models.param.paramecran.PEMesLivraisons;
 import fr.amapj.service.services.edgenerator.excel.emargement.EGFeuilleEmargement;
 import fr.amapj.service.services.meslivraisons.JourLivraisonsDTO;
@@ -44,6 +48,7 @@ import fr.amapj.view.engine.tools.BaseUiTools;
 import fr.amapj.view.views.common.gapviewer.AbstractGapViewer;
 import fr.amapj.view.views.common.gapviewer.GapViewerUtil;
 import fr.amapj.view.views.common.gapviewer.WeekViewer;
+import fr.amapj.view.views.mescontrats.TelechargerMesContrat;
 
 
 /**
@@ -54,22 +59,17 @@ import fr.amapj.view.views.common.gapviewer.WeekViewer;
 public class MesLivraisonsView extends FrontOfficeView implements PopupListener
 {
 	
-	// FORMAT : le type d'objet (PANEL, LABEL , BUTTON , ...) "-"  un descriptif 
-
-	
 	static private String LABEL_DATEJOURLIV = "datejourliv";
 	static private String LABEL_QTEPRODUIT = "qteproduit";	
 	static private String PANEL_UNJOUR = "unjour";
 
-	
-		
 	private VerticalLayout planning;
 	
 	private VerticalLayout livraison;
 	
 	private AbstractGapViewer semaineViewer;
 	
-	private SimpleDateFormat df1 = new SimpleDateFormat("EEEEE dd MMMMM yyyy");
+	private SimpleDateFormat df1 = FormatUtils.getFullDate();
 
 	
 	@Override
@@ -97,10 +97,24 @@ public class MesLivraisonsView extends FrontOfficeView implements PopupListener
 		livraison = new VerticalLayout();
 		central.addComponent(livraison);
 		
+		// Le bouton pour télécharger les livraisons	
+		Button telechargerButton = new Button("Imprimer mes livraisons ...");
+		telechargerButton.setIcon(FontAwesome.PRINT);
+		telechargerButton.addStyleName("borderless");
+		telechargerButton.addStyleName("large");
+		telechargerButton.addClickListener(e->handleTelecharger());
+				
+		addComponent(telechargerButton);
+		setComponentAlignment(telechargerButton, Alignment.MIDDLE_LEFT);
+		
 		onPopupClose();
 	}
 
-	
+	private void handleTelecharger()
+	{
+		new TelechargerMesLivraisons().displayPopupTelecharger(semaineViewer, SessionManager.getUserId(),this);
+	}
+
 	
 
 

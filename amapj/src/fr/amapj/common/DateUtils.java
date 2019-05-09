@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -22,6 +22,10 @@
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -293,6 +297,40 @@ public class DateUtils
 		System.out.println("d=" + addMonth(d,1));
 	}
 
+
+	public static LocalDateTime getLocalDateTime()
+	{
+		return asLocalDateTime(getDate());
+		
+	}
+	
+	public static LocalDate getLocalDate()
+	{
+		return asLocalDate(getDate());
+		
+	}
+
+	
+	
+	public static Date asDate(LocalDate localDate)
+	{
+		return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+	}
+
+	public static Date asDate(LocalDateTime localDateTime)
+	{
+		return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+	}
+
+	public static LocalDate asLocalDate(Date date)
+	{
+		return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+	}
+
+	public static LocalDateTime asLocalDateTime(Date date)
+	{
+		return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime();
+	}
 	
 
 }

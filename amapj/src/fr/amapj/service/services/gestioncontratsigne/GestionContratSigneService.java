@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -26,6 +26,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import fr.amapj.common.CollectionUtils;
 import fr.amapj.common.DateUtils;
@@ -56,6 +57,7 @@ import fr.amapj.service.services.mescontrats.ContratLigDTO;
 import fr.amapj.service.services.mescontrats.MesContratsService;
 import fr.amapj.service.services.utilisateur.util.UtilisateurUtil;
 import fr.amapj.view.engine.widgets.CurrencyTextFieldConverter;
+import fr.amapj.view.views.saisiecontrat.ContratAboManager;
 
 /**
  * Permet la gestion des modeles de contrat
@@ -868,7 +870,49 @@ public class GestionContratSigneService
 	}
 	
 	
+	// Modification des regeles de gestion des jokers
 
+	/**
+	 * Permet de connaitre les impacts de de la modification des règles de gestion des jokers
+	 */
+	@DbRead
+	public String getModifJokerInfo(ModeleContratDTO modeleContrat)
+	{
+		EntityManager em = TransactionHelper.getEm();
+		ModeleContrat mc  =em.find(ModeleContrat.class, modeleContrat.id);
+
+		StringBuilder buf = new StringBuilder();
+		
+		TypedQuery<Contrat> q = em.createQuery("select c from Contrat c  where c.modeleContrat=:mc order by c.utilisateur.nom, c.utilisateur.prenom",Contrat.class);
+		q.setParameter("mc", mc);
+
+		List<Contrat> cs = q.getResultList();
+		List<Utilisateur> utilisateurs = new ArrayList<Utilisateur>();
+		
+		for (Contrat c : cs)
+		{
+			String msg = isJokerConforme(c,modeleContrat);
+			if (msg!=null)
+			{
+				Utilisateur u = c.getUtilisateur();
+				buf.append("Le contrat de "+u.nom+" "+u.prenom+" est non conforme :"+msg+"<br/>");
+				utilisateurs.add(u);
+			}
+		}
+		
+		buf.append("<br/><br/>");
+		
+		//
+		buf.append(UtilisateurUtil.getUtilisateurImpactes(utilisateurs));
+		return buf.toString();
+	}
+
+
+	private String isJokerConforme(Contrat c, ModeleContratDTO modeleContrat)
+	{
+		ContratDTO dto = new MesContratsService().loadContrat(c.getModeleContrat().id, c.getId());
+		return new ContratAboManager().isConforme(dto,modeleContrat.jokerNbMin,modeleContrat.jokerNbMax);
+	}
 
 	// REQUETAGE DIVERS
 

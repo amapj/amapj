@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -26,6 +26,7 @@ import java.util.Date;
 
 
 
+
 import org.apache.commons.lang.StringUtils;
 
 import com.vaadin.server.FontAwesome;
@@ -37,6 +38,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import fr.amapj.common.DateUtils;
+import fr.amapj.common.periode.TypPeriode;
 import fr.amapj.view.engine.popup.PopupListener;
 import fr.amapj.view.engine.tools.BaseUiTools;
 
@@ -203,5 +205,12 @@ public class MonthViewer implements AbstractGapViewer
 		Date fin = DateUtils.addMonth(date, 1);
 		fin = DateUtils.addDays(fin, -1);
 		return fin;
+	}
+
+
+	@Override
+	public TypPeriode getTypPeriode()
+	{
+		return TypPeriode.MOIS;
 	}
 }

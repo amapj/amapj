@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -18,56 +18,55 @@
  * 
  * 
  */
- package fr.amapj.view.views.appinstance;
+ package fr.amapj.view.engine.popup.copypopup;
+
+import java.util.function.Supplier;
 
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
 
-import fr.amapj.service.services.appinstance.AppInstanceService;
 import fr.amapj.view.engine.popup.corepopup.CorePopup;
 
 /**
- * Popup pour permettre la copie facile de tous les mails
+ * Popup pour permettre la copie facile d'un long texte
+ * 
+ * Le texte sera affiché et sélectionné, prêt à être copier 
  *  
  */
-@SuppressWarnings("serial")
-public class PopupCopyAllMail extends CorePopup
+public class CopyPopup extends CorePopup
 {
 	
-	private String mails;	
+	private Supplier<String> contentSupplier;
 	
-	public PopupCopyAllMail()
+	/**
+	 * Le contentSupplier permet de retarder le calcul de la chaine : la chaine à afficher est calculée uniquement à l'ouverture du popup, pas avant
+	 * 
+	 * @param title
+	 * @param contentSupplier
+	 */
+	public CopyPopup(String title,Supplier<String> contentSupplier)
 	{
-		popupTitle = "Mails des administrateurs";
-		setWidth(60);
-				
-		this.mails = new AppInstanceService().getAllMails();
-		
+		this.contentSupplier = contentSupplier;
+		popupTitle = title;
+		setWidth(60);		
 	}
 	
 	
 	protected void createButtonBar()
 	{		
-		Button okButton = addDefaultButton("OK", new Button.ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				close();
-			}
-		});
+		addDefaultButton("OK", e->close());
 	}
 	
 
 	protected void createContent(VerticalLayout contentLayout)
 	{
+		// Calcul du texte a afficher
+		String str = contentSupplier.get();
 		
-		// Construction de la zone d'affichage des mails
+		// Construction de la zone d'affichage du texte
 		HorizontalLayout hlTexte = new HorizontalLayout();
 		hlTexte.setMargin(true);
 		hlTexte.setSpacing(true);
@@ -75,7 +74,7 @@ public class PopupCopyAllMail extends CorePopup
 		
 		
 		TextArea listeMails = new TextArea("");
-		listeMails.setValue(mails);
+		listeMails.setValue(str);
 		listeMails.setReadOnly(true);
 		listeMails.selectAll();
 		listeMails.setWidth("80%");

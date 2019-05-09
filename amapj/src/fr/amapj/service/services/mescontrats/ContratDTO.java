@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import fr.amapj.model.models.contrat.modele.JokerMode;
 import fr.amapj.model.models.contrat.modele.NatureContrat;
 
 /**
@@ -78,8 +79,17 @@ public class ContratDTO
 	// Ce contrat est supprimable - null dans le cas d'un modele de contrat   
 	public Boolean isSupprimable;
 	
+	// Ce contrat n'est pas modifiable mais comporte des jokers que l'utilisateur peut modifier - null dans le cas d'un modele de contrat
+	public Boolean isJoker;
+	
 	// Champ chargé uniquement pour les cartes prépayées
 	public CartePrepayeeDTO cartePrepayee = null;
+	
+	// Champs concernant uniquement les contrats de type abonnement avec joker  
+	public int jokerNbMin = 0;
+	public int jokerNbMax = 0;
+	public JokerMode jokerMode;
+	public int jokerDelai;
 	
 	
 	/**
@@ -117,64 +127,24 @@ public class ContratDTO
 		}
 		return mnt;
 	}
-	
+
 	/**
-	 * Retourne true si ce contrat est regulier strictement, c'est à dire si les quantités sont strictement 
-	 * égales sur toutes les dates, et en tenant compte des dates exclues
-	 * @return
+	 * Return true si toute la ligne est exclue
 	 */
-	public boolean isRegulier()
+	public boolean isFullExcludedLine(int lineNumber)
 	{
-		// Car particulier des contrats sans date (ne devrait pas arriver) 
-		if (contratLigs.size()==0)
+		for (int j = 0; j <  contratColumns.size(); j++)
 		{
-			return false;
-		}
-		
-		for (int j = 0; j < contratColumns.size(); j++)
-		{
-			// On lit la quantité de la première ligne non exclue
-			int qteRef = extractFirstQte(j);
-		
-			// On verifie si les quantités sont  égales sur toute la colonne à cette quantité
-			for (int i = 0; i < contratLigs.size(); i++)
+			if (isExcluded(lineNumber,j)==false)
 			{
-				if (isExcluded(i,j)==false)
-				{
-					if (qte[i][j]!=qteRef)
-					{
-						return false;
-					}
-				}
+				return false;
 			}
 		}
-		
 		return true;
-	
-	}
-
-
-	/**
-	 * Extrait la quantité de la premiere ligne non exclue, pour le produit indiqué par cette colone
-	 * 
-	 * Retourne 0 si toutes les lignes sont exclues pour ce produit 
-	 * 
-	 * @param col
-	 * @return
-	 */
-	public int extractFirstQte(int col)
-	{
-		// 
-		for (int i = 0; i < contratLigs.size(); i++)
-		{
-			if (isExcluded(i, col)==false)
-			{
-				return qte[i][col];
-			}
-		}
-		return 0;
 	}
 	
+
+
 	/**
 	 * Retourne true si cette cellule est exclue,false sinon 
 	 * 

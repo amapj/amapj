@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -37,6 +37,26 @@ public class ResourceUtils
 		try
 		{
 			InputStream in = ref.getClass().getResourceAsStream(resourceName);
+			byte[] bs = IOUtils.toByteArray(in);
+			return new String(bs);
+		} 
+		catch (IOException e)
+		{
+			throw new AmapjRuntimeException();
+		}
+	}
+	
+	
+	/**
+	 * Permet de charger un fichier resource sous forme de String
+	 * 
+	 * @param resourceName exemple /amapj_version.txt pour le chemin complet 
+	 */
+	static public String toStringClass(Class clazz,String resourceName)
+	{
+		try
+		{
+			InputStream in = clazz.getResourceAsStream(resourceName);
 			byte[] bs = IOUtils.toByteArray(in);
 			return new String(bs);
 		} 

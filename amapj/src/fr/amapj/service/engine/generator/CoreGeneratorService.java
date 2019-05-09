@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -66,8 +66,15 @@ public class CoreGeneratorService
 		for (CoreGenerator generator : generators)
 		{
 			FileInfoDTO dto = new FileInfoDTO();
+			
 			dto.fileName = generator.getFileName(em);
+			
 			dto.nameToDisplay = generator.getNameToDisplay(em);
+			String suffix = generator.getNameToDisplaySuffix();
+			if (suffix!=null)
+			{
+				dto.nameToDisplay = dto.nameToDisplay+suffix;
+			}
 			dto.extension = generator.getExtension();
 			dto.generator = generator;
 			res.add(dto);

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -44,6 +44,8 @@ public class SearcherList
 	static public SearcherDefinition ENGAGEMENT = new SDEditionSpe(TypEditionSpecifique.CONTRAT_ENGAGEMENT);
 	
 	static public SearcherDefinition BULLETIN_ADHESION = new SDEditionSpe(TypEditionSpecifique.BULLETIN_ADHESION);
+	
+	static public SearcherDefinition BILAN_LIVRAISON = new SDEditionSpe(TypEditionSpecifique.BILAN_LIVRAISON);
 	
 	// Searcher d'un produit lié à un producteur
 	// Permet de lister tous les produits d'un producteur donné

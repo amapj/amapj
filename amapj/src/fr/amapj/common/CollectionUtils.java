@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -652,6 +652,19 @@ public class CollectionUtils
 	    Map<Object,Boolean> seen = new ConcurrentHashMap<Object, Boolean>();
 	    return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
 	}
+	
+	
+	/**
+	 * Supprime tous les doublons de la liste passée en parametre
+	 * @param ls
+	 */
+	public static <T> void removeDuplicate(List<T> ls)
+	{
+		List<T> l2 = ls.stream().distinct().collect(Collectors.toList());
+		ls.clear();
+		ls.addAll(l2);
+	}
+	 
 	
 
 }

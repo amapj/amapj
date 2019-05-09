@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -27,6 +27,7 @@ import fr.amapj.view.views.gestioncontratsignes.modifiermasse.date.PopupDeBarrer
 import fr.amapj.view.views.gestioncontratsignes.modifiermasse.date.PopupDeplacerDateLivraison;
 import fr.amapj.view.views.gestioncontratsignes.modifiermasse.date.PopupSupprimerDateLivraison;
 import fr.amapj.view.views.gestioncontratsignes.modifiermasse.grille.PopupBarrerProduit;
+import fr.amapj.view.views.gestioncontratsignes.modifiermasse.joker.PopupModifJoker;
 import fr.amapj.view.views.gestioncontratsignes.modifiermasse.produit.PopupProduitAjout;
 import fr.amapj.view.views.gestioncontratsignes.modifiermasse.produit.PopupProduitModifPrix;
 import fr.amapj.view.views.gestioncontratsignes.modifiermasse.produit.PopupProduitOrdreContrat;
@@ -72,6 +73,10 @@ public class ModifierEnMasseContratSigne extends SwitchPopup
 		addSeparator();
 		
 		addLine("Barrer / Ne pas barrer des produits sur certaines dates", new PopupBarrerProduit(mcId));
+		
+		addSeparator();
+		
+		addLine("Modifier les règles de gestion des jokers", new PopupModifJoker(mcId));
 
 	}
 

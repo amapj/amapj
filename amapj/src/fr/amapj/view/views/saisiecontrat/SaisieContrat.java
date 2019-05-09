@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -106,7 +106,7 @@ public class SaisieContrat
 		}
 		
 		// Si Saisie standard et Abonnement et si le contrat n'est pas régulier : l'utilisateur n'aurait pas du avoir le droit de le modifier
-		if ( (data.modeSaisie==ModeSaisie.STANDARD) && (data.contratDTO.nature==NatureContrat.ABONNEMENT) && (data.contratDTO.isRegulier()==false) )
+		if ( (data.modeSaisie==ModeSaisie.STANDARD) && (data.contratDTO.nature==NatureContrat.ABONNEMENT) && (new ContratAboManager().isRegulier(data.contratDTO)==false) )
 		{
 			return "Vous ne pouvez pas modifier ce contrat <br/> car il a été saisi par le référent";
 		}
@@ -184,7 +184,7 @@ public class SaisieContrat
 	private ContratPopupType computeAbonnement()
 	{	
 		// Sinon, dans le cas du contrat ABO, ca depend de l'utilisateur
-		boolean isRegulier = data.contratDTO.isRegulier();
+		boolean isRegulier = new ContratAboManager().isRegulier(data.contratDTO);
 		
 		switch (data.modeSaisie)
 		{

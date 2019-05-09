@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2016 Emmanuel BRUN (contact@amapj.fr)
+ *  Copyright 2013-2018 Emmanuel BRUN (contact@amapj.fr)
  * 
  *  This file is part of AmapJ.
  *  
@@ -36,6 +36,7 @@ import fr.amapj.model.engine.transaction.DbWrite;
 import fr.amapj.model.engine.transaction.TransactionHelper;
 import fr.amapj.model.models.contrat.modele.EtatModeleContrat;
 import fr.amapj.model.models.contrat.modele.GestionPaiement;
+import fr.amapj.model.models.contrat.modele.JokerMode;
 import fr.amapj.model.models.contrat.modele.NatureContrat;
 import fr.amapj.model.models.fichierbase.EtatNotification;
 import fr.amapj.model.models.fichierbase.Producteur;
@@ -359,6 +360,7 @@ public class DemoService
 		modeleContrat.frequence = FrequenceLivraison.UNE_FOIS_PAR_SEMAINE;
 		modeleContrat.gestionPaiement = GestionPaiement.GESTION_STANDARD;
 		modeleContrat.nature = NatureContrat.LIBRE;
+		modeleContrat.jokerMode = JokerMode.INSCRIPTION;
 
 		modeleContrat.dateDebut = dateDebut;
 		modeleContrat.dateFin = dateFin;

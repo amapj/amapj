@@ -25,9 +25,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import fr.amapj.common.AmapjRuntimeException;
 import fr.amapj.common.CollectionUtils;
 import fr.amapj.model.models.fichierbase.Utilisateur;
+import fr.amapj.model.models.permanence.periode.RegleInscriptionPeriodePermanence;
 import fr.amapj.service.services.dbservice.DbService;
+import fr.amapj.service.services.utilisateur.UtilisateurService;
 import fr.amapj.view.engine.tools.TableItem;
 
 /**
@@ -44,6 +47,13 @@ public class PeriodePermanenceDateDTO implements TableItem
 	
 	// Deatil de chaque cellule ou place de permanence
 	public List<PermanenceCellDTO> permanenceCellDTOs = new ArrayList<PermanenceCellDTO>();
+	
+	public RegleInscriptionPeriodePermanence regleInscription;
+	
+	public PeriodePermanenceDateDTO()
+	{
+		
+	}
 	
 
 	public Date getDatePerm()
@@ -155,10 +165,31 @@ public class PeriodePermanenceDateDTO implements TableItem
 	
 
 	/**
-	 * Cette methode verifie si une personne est présente deux fois ou plus dans la liste des inscrits 
+	 * Cette methode verifie si la regle d'inscription RegleInscriptionPeriodePermanence est bien respectée 
+	 *  
+	 *  Retourne null si tout est OK, sinon retourne un message 
 	 * 
 	 */
-	public String findDoublons()
+	public String checkRegleInscription()
+	{
+		switch (regleInscription)
+		{
+		case UNE_INSCRIPTION_PAR_DATE:
+			return checkRegleInscriptionUneInscriptionParDate();
+
+		case MULTIPLE_INSCRIPTION_SUR_ROLE_DIFFERENT:
+			return checkRegleInscriptionRoleDifferent();
+			
+		case TOUT_AUTORISE:
+			return null;
+
+		default:
+			throw new AmapjRuntimeException();
+		}	
+	}	
+	
+	
+	private String checkRegleInscriptionUneInscriptionParDate()
 	{
 		List<PermanenceCellDTO> tmp = new ArrayList<PermanenceCellDTO>();
 		for (int i = 0; i < permanenceCellDTOs.size(); i++)
@@ -166,12 +197,12 @@ public class PeriodePermanenceDateDTO implements TableItem
 			PermanenceCellDTO lig = permanenceCellDTOs.get(i);
 			
 			if (lig.idUtilisateur!=null)
-			{
-				PermanenceCellDTO alreadyIn = CollectionUtils.findMatching(tmp, e->e.idUtilisateur==lig.idUtilisateur);
+			{	
+				PermanenceCellDTO alreadyIn = CollectionUtils.findMatching(tmp, e->lig.idUtilisateur.equals(e.idUtilisateur));
 				if (alreadyIn!=null)
 				{
-					Utilisateur u = (Utilisateur) new DbService().getOneElement(Utilisateur.class, alreadyIn.idUtilisateur);
-					return "L'utilisateur "+u.getNom()+" "+u.getPrenom()+" est présent deux fois ou plus.";
+					String  u = new UtilisateurService().prettyString(alreadyIn.idUtilisateur);
+					return "L'utilisateur "+u+" est présent deux fois ou plus.";
 				}
 				else
 				{
@@ -181,14 +212,33 @@ public class PeriodePermanenceDateDTO implements TableItem
 		}
 		return null;
 	}
+	
+	private String checkRegleInscriptionRoleDifferent()
+	{
+		List<PermanenceCellDTO> tmp = new ArrayList<PermanenceCellDTO>();
+		for (int i = 0; i < permanenceCellDTOs.size(); i++)
+		{
+			PermanenceCellDTO lig = permanenceCellDTOs.get(i);
+			
+			if (lig.idUtilisateur!=null)
+			{	
+				PermanenceCellDTO alreadyIn = CollectionUtils.findMatching(tmp, e->(lig.idUtilisateur.equals(e.idUtilisateur) && lig.idRole.equals(e.idRole)));
+				if (alreadyIn!=null)
+				{
+					String  u = new UtilisateurService().prettyString(alreadyIn.idUtilisateur);
+					return "L'utilisateur "+u+" est présent deux fois ou plus sur le même rôle.";
+				}
+				else
+				{
+					tmp.add(lig);
+				}
+			}
+		}
+		return null;
+	}
+	
+	
 
-	
-	
-	
-	
-	
-	
-	
 	@Override
 	public Long getId()
 	{

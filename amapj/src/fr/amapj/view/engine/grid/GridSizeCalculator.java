@@ -41,6 +41,11 @@ public class GridSizeCalculator
 	 */
 	public int getHeight(String cellValue, int cellWidth , String fontName,int fontSize)
 	{
+		if (cellValue==null || cellValue.length()==0) 
+		{
+			return 1;
+		}
+		
 		// Create Font object with Font attribute (e.g. Font family, Font size, etc)
 	
 		java.awt.Font currFont = new java.awt.Font(fontName, 0, fontSize);

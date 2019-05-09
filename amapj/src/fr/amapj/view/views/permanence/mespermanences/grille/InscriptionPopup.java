@@ -28,6 +28,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import fr.amapj.common.FormatUtils;
+import fr.amapj.model.models.permanence.periode.RegleInscriptionPeriodePermanence;
 import fr.amapj.service.services.permanence.mespermanences.MesPermanencesService;
 import fr.amapj.service.services.permanence.mespermanences.UnePeriodePermanenceDTO;
 import fr.amapj.service.services.permanence.mespermanences.MesPermanencesService.InscriptionMessage;
@@ -143,7 +144,7 @@ public class InscriptionPopup extends OKCancelPopup
 			}
 		}
 		
-		InscriptionMessage msg = new MesPermanencesService().inscription(userId,date.idPeriodePermanenceDate,selectedRole);
+		InscriptionMessage msg = new MesPermanencesService().inscription(userId,date.idPeriodePermanenceDate,selectedRole,RegleInscriptionPeriodePermanence.UNE_INSCRIPTION_PAR_DATE);
 		if (msg!=null)
 		{
 			String lib = computeLib(msg);
@@ -165,6 +166,11 @@ public class InscriptionPopup extends OKCancelPopup
 	
 		case PAS_DE_PLACE_CETTE_DATE:
 			return "il n'y a plus de place disponible à cette date.";
+			
+		case PLACE_NON_DISPONIBLE:
+			return "cette place n'est plus disponible.";
+
+			
 		}
 		return null;
 	}

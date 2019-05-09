@@ -40,12 +40,14 @@ import fr.amapj.model.models.permanence.periode.NaturePeriodePermanence;
 import fr.amapj.model.models.permanence.periode.PeriodePermanence;
 import fr.amapj.model.models.permanence.periode.PeriodePermanenceDate;
 import fr.amapj.model.models.permanence.periode.PeriodePermanenceUtilisateur;
+import fr.amapj.model.models.permanence.periode.RegleInscriptionPeriodePermanence;
 import fr.amapj.model.models.permanence.reel.PermanenceCell;
 import fr.amapj.service.services.permanence.detailperiode.DetailPeriodePermanenceService;
 import fr.amapj.service.services.permanence.periode.PeriodePermanenceDTO;
 import fr.amapj.service.services.permanence.periode.PeriodePermanenceDateDTO;
 import fr.amapj.service.services.permanence.periode.PeriodePermanenceService;
 import fr.amapj.service.services.permanence.periode.PeriodePermanenceService.DateInfo;
+import fr.amapj.service.services.permanence.periode.PermanenceCellDTO;
 import fr.amapj.service.services.permanence.periode.SmallPeriodePermanenceDTO;
 
 public class MesPermanencesService
@@ -224,6 +226,8 @@ public class MesPermanencesService
 			dto.firstDateModifiable = computeFirstDateModifiable(p,em,nowNoTime);
 		}
 		
+		dto.regleInscription = p.regleInscription;
+		
 		return dto;
 	}
 
@@ -284,12 +288,19 @@ public class MesPermanencesService
 	{
 		DEJA_INSCRIT_CETTE_DATE,
 		NOMBRE_SUFFISANT,
-		PAS_DE_PLACE_CETTE_DATE;
+		PAS_DE_PLACE_CETTE_DATE,
+		
+		// Correspond au choix precis d'une place, et celle ci n'est plus disponible 
+		PLACE_NON_DISPONIBLE;
 	}
 	
 	
+	/**
+	 * Permet à un utilisateur de s'inscrire pour une permanence, avec la regle RegleInscriptionPeriodePermanence.UNE_INSCRIPTION_PAR_DATE 
+	 * ou la regle RegleInscriptionPeriodePermanence.MULTIPLE_INSCRIPTION_SUR_ROLE_DIFFERENT
+	 */
 	@DbWrite
-	public InscriptionMessage inscription(Long userId, Long idPeriodePermanenceDate,Long idRole)
+	public InscriptionMessage inscription(Long userId, Long idPeriodePermanenceDate,Long idRole,RegleInscriptionPeriodePermanence regle)
 	{
 		EntityManager em = TransactionHelper.getEm();
 		
@@ -314,13 +325,27 @@ public class MesPermanencesService
 		
 		
 		// On verifie d'abord que l'utilisateur ne soit pas déjà inscrit à cette date
-		for (PermanenceCell pc : pcs)
+		if (regle==RegleInscriptionPeriodePermanence.UNE_INSCRIPTION_PAR_DATE)
 		{
-			if (pc.periodePermanenceUtilisateur!=null && pc.periodePermanenceUtilisateur.utilisateur.getId()==userId)
+			for (PermanenceCell pc : pcs)
 			{
-				return InscriptionMessage.DEJA_INSCRIT_CETTE_DATE;
+				if (pc.periodePermanenceUtilisateur!=null && pc.periodePermanenceUtilisateur.utilisateur.getId().equals(userId))
+				{
+					return InscriptionMessage.DEJA_INSCRIT_CETTE_DATE;
+				}
 			}
 		}
+		else
+		{
+			for (PermanenceCell pc : pcs)
+			{
+				if (pc.periodePermanenceUtilisateur!=null && pc.periodePermanenceUtilisateur.utilisateur.getId().equals(userId) && pc.permanenceRole.id.equals(idRole))
+				{
+					return InscriptionMessage.DEJA_INSCRIT_CETTE_DATE;
+				}
+			}
+		}
+			
 		
 		// On vérifie ensuite que l'utilisateur n'a pas dépassé son quota d'inscription sur la période
 		q = em.createQuery("select count(c) from PermanenceCell c WHERE c.periodePermanenceUtilisateur=:ppu");
@@ -352,17 +377,18 @@ public class MesPermanencesService
 	{
 		for (PermanenceCell pc : pcs)
 		{
-			if (   (pc.periodePermanenceUtilisateur==null) && (pc.permanenceRole.id==idRole) )
+			if (   (pc.periodePermanenceUtilisateur==null) && (pc.permanenceRole.id.equals(idRole)) )
 			{
 				return pc;
 			}
 		}
 		return null;
 	}
+	
 
 
 	/**
-	 * Permet à un utilisateur de supprimer une inscription pour une permanence
+	 * Permet à un utilisateur de supprimer une inscription pour une permanence , avec la regle RegleInscriptionPeriodePermanence.UNE_INSCRIPTION_PAR_DATE,
 	 * 
 	 * @param userId
 	 * @param idPeriodePermanenceDate
@@ -387,13 +413,129 @@ public class MesPermanencesService
 		// On supprime les inscriptions de cet utilisateur
 		for (PermanenceCell pc : pcs)
 		{
-			if (pc.periodePermanenceUtilisateur!=null && pc.periodePermanenceUtilisateur.utilisateur.getId()==userId)
+			if (pc.periodePermanenceUtilisateur!=null && pc.periodePermanenceUtilisateur.utilisateur.getId().equals(userId))
 			{
 				pc.dateNotification = null;
 				pc.periodePermanenceUtilisateur = null;
 			}
 		}		
 	}
+	
+	
+	
+	/**
+	 * Permet à un utilisateur de supprimer une inscription pour une permanence , avec la regle RegleInscriptionPeriodePermanence.MULTIPLE_INSCRIPTION_SUR_ROLE_DIFFERENT,
+	 * 
+	 * @param userId
+	 * @param idPeriodePermanenceDate
+	 */
+	@DbWrite
+	public void deleteInscriptionRoleDifferent(Long userId, Long idPeriodePermanenceDate,Long idRole)
+	{
+		EntityManager em = TransactionHelper.getEm();
+		
+		// On verrouille la date 
+		new PeriodePermanenceService().lockOneDate(em, idPeriodePermanenceDate);
+
+		
+		PeriodePermanenceDate ppd = em.find(PeriodePermanenceDate.class, idPeriodePermanenceDate);
+		
+		// On recharge d'abord les anciennes valeurs  
+		Query q = em.createQuery("select c from PermanenceCell c WHERE c.periodePermanenceDate=:ppd");
+		q.setParameter("ppd", ppd);
+		
+		List<PermanenceCell> pcs = q.getResultList();
+		
+		// On supprime les inscriptions de cet utilisateur
+		for (PermanenceCell pc : pcs)
+		{
+			if (pc.periodePermanenceUtilisateur!=null && pc.periodePermanenceUtilisateur.utilisateur.getId().equals(userId) && pc.permanenceRole.id.equals(idRole))
+			{
+				pc.dateNotification = null;
+				pc.periodePermanenceUtilisateur = null;
+			}
+		}		
+	}
+	
+	
+	/**
+	 * Permet à un utilisateur de s'inscrire pour une permanence, avec la regle RegleInscriptionPeriodePermanence.TOUT_AUTORISE,
+	 */
+	@DbWrite
+	public InscriptionMessage inscriptionToutAutorise(Long userId, Long idPeriodePermanenceCell,Long idPeriodePermanenceDate)
+	{
+		EntityManager em = TransactionHelper.getEm();
+		
+		// On verrouille la date 
+		new PeriodePermanenceService().lockOneDate(em, idPeriodePermanenceDate);
+
+		// On recherche le ppu
+		PeriodePermanenceDate ppd = em.find(PeriodePermanenceDate.class, idPeriodePermanenceDate);
+		PeriodePermanenceUtilisateur ppu = new DetailPeriodePermanenceService().findPeriodePermanenceUtilisateur(em,userId,ppd.periodePermanence);
+		if (ppu==null)
+		{
+			throw new AmapjRuntimeException("Vous ne pouvez pas vous inscrire à cette période");
+		}
+		
+		// On vérifie ensuite que l'utilisateur n'a pas dépassé son quota d'inscription sur la période
+		Query q = em.createQuery("select count(c) from PermanenceCell c WHERE c.periodePermanenceUtilisateur=:ppu");
+		q.setParameter("ppu", ppu);
+		int nbInscriptionReel = SQLUtils.toInt(q.getSingleResult());
+		if (nbInscriptionReel>=ppu.nbParticipation)
+		{
+			return InscriptionMessage.NOMBRE_SUFFISANT;
+		}
+		
+		PermanenceCell cell = em.find(PermanenceCell.class, idPeriodePermanenceCell);
+		
+		// On verifie que personne ne soit inscrit entre temps 
+		if (cell.periodePermanenceUtilisateur!=null)
+		{
+			return InscriptionMessage.PLACE_NON_DISPONIBLE;
+		}
+		
+		// On inscrit l'utilisateur
+		cell.periodePermanenceUtilisateur = ppu;
+		
+		return null;
+	}
+	
+	
+	/**
+	 * Permet à un utilisateur de supprimer une inscription pour une permanence , avec la regle RegleInscriptionPeriodePermanence.TOUT_AUTORISE,
+	 * 
+	 * @param userId
+	 * @param idPeriodePermanenceDate
+	 */
+	@DbWrite
+	public void deleteInscriptionToutAutorise(Long userId, Long idPeriodePermanenceCell,Long idPeriodePermanenceDate)
+	{
+		EntityManager em = TransactionHelper.getEm();
+		
+		// On verrouille la date 
+		new PeriodePermanenceService().lockOneDate(em, idPeriodePermanenceDate);
+
+		PermanenceCell cell = em.find(PermanenceCell.class, idPeriodePermanenceCell);
+		
+		// On verifie que l'on est toujours bien inscrit 
+		if (cell.periodePermanenceUtilisateur==null)
+		{
+			// Quelqu'un nous a desincrit entre temps
+			return;
+		}
+		if (cell.periodePermanenceUtilisateur.utilisateur.getId().equals(userId)==false)
+		{
+			// Quelqu'un nous a desincrit entre temps et un autre s'est inscrit 
+			return;
+		}
+		
+		cell.dateNotification = null;
+		cell.periodePermanenceUtilisateur = null;	
+	}
+	
+	
+	
+	
 
 	/**
 	 * Permet de connaitre toutes les periodes de permanence avec des dates dans le futur et qui sont actives 

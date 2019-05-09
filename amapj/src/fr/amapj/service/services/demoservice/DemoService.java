@@ -255,9 +255,10 @@ public class DemoService
 		
 		em.persist(pu);
 		
-		ProducteurReferent pr  =new ProducteurReferent();
-		pr.setProducteur(p);
-		pr.setReferent(em.find(Utilisateur.class, new Long(idReferent)));
+		ProducteurReferent pr = new ProducteurReferent();
+		pr.producteur = p;
+		pr.referent = em.find(Utilisateur.class, new Long(idReferent));
+		pr.notification = EtatNotification.SANS_NOTIFICATION_MAIL;
 		
 		em.persist(pr);
 	}

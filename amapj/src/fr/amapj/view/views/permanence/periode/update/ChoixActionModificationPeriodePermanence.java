@@ -59,6 +59,9 @@ public class ChoixActionModificationPeriodePermanence extends SwitchPopup
 		addSeparator();
 		
 		addLine("Positionner les rôles pour toutes les dates en masse", new PopupUpdateAllRole(idPeriodePermanence));
+		addSeparator();
+		
+		addLine("Modifier les régles d'inscriptions sur une date", new PopupRegleInscriptionPeriodePermanence(idPeriodePermanence));
 	}
 
 }

@@ -138,7 +138,7 @@ public class UtilisateurListPart extends StandardListPart<UtilisateurDTO> implem
 	protected void handleEditer()
 	{
 		UtilisateurDTO dto = getSelectedLine();
-		ModificationUtilisateurEditorPart.open(new ModificationUtilisateurEditorPart(dto), this);
+		ModificationUtilisateurEditorPart.open(new ModificationUtilisateurEditorPart(dto.id), this);
 	}
 
 	protected void handleSupprimer()

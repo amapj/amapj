@@ -22,8 +22,14 @@
 
 import java.text.SimpleDateFormat;
 
+import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.Label;
+
 import fr.amapj.common.AmapjRuntimeException;
+import fr.amapj.model.models.contrat.modele.extendparam.MiseEnFormeGraphique;
+import fr.amapj.model.models.param.ChoixOuiNon;
 import fr.amapj.model.models.param.paramecran.PESaisiePaiement;
+import fr.amapj.service.services.gestioncontrat.ExtPModeleContratService;
 import fr.amapj.service.services.mescontrats.DatePaiementDTO;
 import fr.amapj.service.services.mescontrats.InfoPaiementDTO;
 import fr.amapj.service.services.mescontrats.MesContratsService;
@@ -61,6 +67,7 @@ public class PopupSaisiePaiement extends PopupCurrencyVector
 		this.paiementDTO = data.contratDTO.paiement;
 		this.peConf =  (PESaisiePaiement) new ParametresService().loadParamEcran(MenuList.OUT_SAISIE_PAIEMENT);
 		
+		MiseEnFormeGraphique miseEnForme = new ExtPModeleContratService().loadMiseEnFormeGraphique(data.contratDTO.modeleContratId);
 		
 		//
 		popupTitle = "Vos paiements pour le contrat "+data.contratDTO.nom;
@@ -68,13 +75,33 @@ public class PopupSaisiePaiement extends PopupCurrencyVector
 		
 		// 
 		param.readOnly = (data.modeSaisie==ModeSaisie.READ_ONLY);
+		
+		// Message 1 
 		param.messageSpecifique = data.messageSpecifique;
-		param.messageSpecifique2 = "<b>Ordre des chèques : "+paiementDTO.libCheque+"</b>";
-		if (paiementDTO.referentsRemiseCheque.size()>0)
+		
+		// Message 2
+		if (miseEnForme.paiementStdLib1Modifier==ChoixOuiNon.NON)
 		{
-			ProdUtilisateurDTO r = paiementDTO.referentsRemiseCheque.get(0);
-			param.messageSpecifique2 = param.messageSpecifique2 +"<br/><b>Chèques à remettre à "+r.prenom+" "+r.nom+"</b>";
+			param.messageSpecifique2 = getDefaultMessageOrdreCheque();
 		}
+		else
+		{
+			param.messageSpecifique2 = miseEnForme.paiementStdLib1;
+		}
+		
+		// Message 3
+		if ((param.readOnly==false) && (param.computeLastLine==true))
+		{
+			if (miseEnForme.paiementStdLib2Modifier==ChoixOuiNon.NON)
+			{
+				param.messageSpecifique3 = getDefaultMessageIndicationRemplissage();
+			}
+			else
+			{
+				param.messageSpecifique3 = miseEnForme.paiementStdLib2;
+			}
+		}
+		
 		
 		
 		
@@ -84,6 +111,29 @@ public class PopupSaisiePaiement extends PopupCurrencyVector
 	
 	
 	
+	private String getDefaultMessageIndicationRemplissage()
+	{
+		String message = 	"Une proposition de paiement a été calculée et est affichée ci dessous.<br/>"+
+				"Vous pouvez modifier cette proposition en saisissant directement les montants en face de chaque mois<br/>"+
+				"Le dernier mois est calculé automatiquement pour ajuster le contrat<br/><br/>";
+		return message;
+	}
+
+
+
+	private String getDefaultMessageOrdreCheque()
+	{
+		String str = "<b>Ordre des chèques : "+paiementDTO.libCheque+"</b>";
+		if (paiementDTO.referentsRemiseCheque.size()>0)
+		{
+			ProdUtilisateurDTO r = paiementDTO.referentsRemiseCheque.get(0);
+			str = str + "<br/><b>Chèques à remettre à "+r.prenom+" "+r.nom+"</b>";
+		}
+		return str;
+	}
+
+
+
 	public void loadParam()
 	{
 		param.nbLig = paiementDTO.datePaiements.size();

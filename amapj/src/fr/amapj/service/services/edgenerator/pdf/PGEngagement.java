@@ -57,20 +57,40 @@ public class PGEngagement extends TestablePdfGenerator
 	
 	private Long contratId;
 	
+	private PGEngagementMode mode;
+	
+	
+	public enum PGEngagementMode
+	{
+		TOUS_LES_CONTRATS,
+		
+		UN_CONTRAT,
+		
+		UN_VIERGE,
+		
+		TOUS_LES_CONTRATS_EN_MODE_TEST,
+		
+	}
+	
+	
 	/**
-	 * Trois modes sont possibles : 
-	 * tous les contrats d'un modele (id,null,null) 
+	 * 4 modes sont possibles :
+	 *  
+	 * tous les contrats d'un modele (TOUS_LES_CONTRATS,id,null,null) 
 	 * 
-	 * un contrat d'un amapien d'un modele (id,id,null)
+	 * un contrat d'un amapien d'un modele (UN_CONTRAT,id,id,null)
 	 * 
-	 * le mode test (null,null,fortest) 
+	 * un vierge d'un modele de contrat (UN_VIERGE,id,null,null)
+	 * 
+	 * le mode test (TOUS_LES_CONTRATS_EN_MODE_TEST,null,null,fortest) 
 	 * 
 	 * @param modeleContratId
 	 * @param forTest
 	 */
-	public PGEngagement(Long modeleContratId,Long contratId,EngagementJson forTest)
+	public PGEngagement(PGEngagementMode mode,Long modeleContratId,Long contratId,EngagementJson forTest)
 	{
 		super(forTest);
+		this.mode = mode;
 		this.modeleContratId = modeleContratId;
 		this.contratId = contratId;
 	}
@@ -105,14 +125,33 @@ public class PGEngagement extends TestablePdfGenerator
 	@Override
 	public void fillPdfFile(EntityManager em, PdfGeneratorTool et, String htmlContent)
 	{
-		if (contratId!=null)
+		switch (mode)
 		{
-			performOneContrat(em,et,htmlContent);
-		}
-		else
-		{
+		case TOUS_LES_CONTRATS:
+		case TOUS_LES_CONTRATS_EN_MODE_TEST:
 			performAllContratOfModele(em,et,htmlContent);
-		}	
+			break;
+			
+		case UN_CONTRAT:
+			performOneContrat(em,et,htmlContent);
+			break;
+			
+		case UN_VIERGE:
+			performOneContratVierge(em,et,htmlContent);
+			break;
+			
+		default:
+			throw new AmapjRuntimeException();
+		}
+	}
+
+	
+	private void performOneContratVierge(EntityManager em, PdfGeneratorTool et, String htmlContent)
+	{
+		ModeleContrat mc =  em.find(ModeleContrat.class, modeleContratId);
+		Producteur producteur = mc.getProducteur();
+		
+		addOneContrat(em,mc,null,null,et,htmlContent,producteur);
 	}
 	
 
@@ -122,18 +161,20 @@ public class PGEngagement extends TestablePdfGenerator
 		// 
 		Contrat c = em.find(Contrat.class, contratId);
 		Utilisateur utilisateur = c.getUtilisateur();
+		Producteur producteur = c.getModeleContrat().getProducteur();
 		
 		//
 		if (c.getModeleContrat().getId().equals(modeleContratId)==false)
 		{
 			throw new AmapjRuntimeException("Incoherence");
 		}
-		addOneContrat(em,c,utilisateur,et,htmlContent);
+		addOneContrat(em,c.getModeleContrat(),c,utilisateur,et,htmlContent,producteur);
 	}
 
 	private void performAllContratOfModele(EntityManager em, PdfGeneratorTool et, String htmlContent)
 	{
 		ModeleContrat mc =  em.find(ModeleContrat.class, modeleContratId);
+		Producteur producteur = mc.getProducteur();
 		
 		// Avec une sous requete, on obtient la liste de tous les utilisateur ayant commandé au moins un produit
 		List<Utilisateur> utilisateurs = new MesContratsService().getUtilisateur(em, mc);
@@ -143,7 +184,7 @@ public class PGEngagement extends TestablePdfGenerator
 			Utilisateur utilisateur = utilisateurs.get(i);
 		
 			Contrat c = new MesContratsService().getContrat(mc.getId(), em, utilisateur);
-			addOneContrat(em,c,utilisateur,et,htmlContent);
+			addOneContrat(em,mc,c,utilisateur,et,htmlContent,producteur);
 		
 			if (i!=nb-1)
 			{
@@ -160,23 +201,29 @@ public class PGEngagement extends TestablePdfGenerator
 
 
 
-	private void addOneContrat(EntityManager em, Contrat c, Utilisateur utilisateur, PdfGeneratorTool et, String htmlContent)
+	private void addOneContrat(EntityManager em, ModeleContrat mc,Contrat c, Utilisateur utilisateur, PdfGeneratorTool et, String htmlContent,Producteur producteur)
 	{
-		VelocityContext ctx = generateContext(em,c,utilisateur);		
+		VelocityContext ctx = generateContext(em,mc,c,utilisateur,producteur);		
 		String res = VelocityUtils.evaluate(ctx, htmlContent);
 		et.addContent(res);
 	}
 
-	private VelocityContext generateContext(EntityManager em, Contrat c, Utilisateur utilisateur)
+	/**
+	 * 
+	 * @param em
+	 * @param c peut être null dans le cas de la generation d'un vierge
+	 * @param utilisateur peut être null dans le cas de la generation d'un vierge
+	 * @param producteur n'est jamais null 
+	 * @return
+	 */
+	private VelocityContext generateContext(EntityManager em, ModeleContrat mc,Contrat c, Utilisateur utilisateur,Producteur producteur)
 	{
 		VelocityContext ctx = new VelocityContext();
-		
-		Producteur producteur = c.getModeleContrat().getProducteur();
 		
 		VCBuilder.addAmap(ctx);
 		VCBuilder.addDateInfo(ctx);
 		VCBuilder.addAmapien(ctx, utilisateur);
-		VCBuilder.addContrat(ctx, c, em);
+		VCBuilder.addContrat(ctx, mc, c, em);
 		VCBuilder.addProducteur(ctx, producteur);
 		List<ProdUtilisateurDTO> refs=new ProducteurService().getReferents(em, producteur);
 		if (refs.size()>=1)
@@ -209,39 +256,56 @@ public class PGEngagement extends TestablePdfGenerator
 	@Override
 	public String getFileNameStandard(EntityManager em)
 	{
-		if (contratId==null)
-		{
-			ModeleContrat mc = em.find(ModeleContrat.class,modeleContratId);
-			return "engagements-"+mc.getNom();	
-		}
-		else
-		{
-			Contrat c = em.find(Contrat.class,contratId);
-			Utilisateur u = c.getUtilisateur();
-			return "contrat-engagement-"+c.getModeleContrat().getNom()+"-"+u.getNom()+" "+u.getPrenom();
-		}
+		ModeleContrat mc = em.find(ModeleContrat.class,modeleContratId);
 		
+		switch (mode)
+		{
+		case TOUS_LES_CONTRATS:
+			return "engagements-"+mc.getNom();	
+
+		case TOUS_LES_CONTRATS_EN_MODE_TEST:
+			return "test-"+mc.getNom();	
+			
+		case UN_CONTRAT:
+			Utilisateur u = em.find(Contrat.class,contratId).getUtilisateur();
+			return "contrat-engagement-"+mc.getNom()+"-"+u.getNom()+" "+u.getPrenom();
+			
+		case UN_VIERGE:
+			return "engagement-vierge-"+mc.getNom();	
+			
+		default:
+			throw new AmapjRuntimeException();
+		}		
 	}
 
 	@Override
 	public String getNameToDisplayStandard(EntityManager em)
 	{
-		if (contratId==null)
+		switch (mode)
 		{
+		case TOUS_LES_CONTRATS:
 			return "tous les contrats d'engagement";
-		}
-		else
-		{
+
+		case TOUS_LES_CONTRATS_EN_MODE_TEST:
+			return "mode test";
+			
+		case UN_CONTRAT:
 			Contrat c = em.find(Contrat.class,contratId);
 			Utilisateur u = c.getUtilisateur();
 			return "le contrat d'engagement "+c.getModeleContrat().getNom()+" pour "+u.getNom()+" "+u.getPrenom();
+			
+		case UN_VIERGE:
+			return "un contrat d'engagement vierge";
+			
+		default:
+			throw new AmapjRuntimeException();
 		}
 	}
 	
 	
 	public static void main(String[] args) throws Exception
 	{
-		new PGEngagement(10011L,null,null).test();
+		new PGEngagement(PGEngagementMode.TOUS_LES_CONTRATS,10011L,null,null).test();
 	}
 
 }

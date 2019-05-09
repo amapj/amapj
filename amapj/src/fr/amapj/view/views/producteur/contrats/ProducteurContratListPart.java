@@ -30,6 +30,7 @@ import fr.amapj.service.services.gestioncontrat.GestionContratService;
 import fr.amapj.service.services.gestioncontrat.ModeleContratSummaryDTO;
 import fr.amapj.service.services.mescontrats.ContratDTO;
 import fr.amapj.service.services.mescontrats.MesContratsService;
+import fr.amapj.service.services.producteur.ProducteurService;
 import fr.amapj.view.engine.excelgenerator.TelechargerPopup;
 import fr.amapj.view.engine.listpart.ButtonType;
 import fr.amapj.view.engine.listpart.StandardListPart;
@@ -114,16 +115,7 @@ public class ProducteurContratListPart extends StandardListPart<ModeleContratSum
 			return null;
 		}
 		
-		List<ModeleContratSummaryDTO> res = new ArrayList<>(); 
-		List<ModeleContratSummaryDTO> modeleContratInfo = new GestionContratService().getModeleContratInfo();
-		for (ModeleContratSummaryDTO dto : modeleContratInfo)
-		{
-			if (dto.producteurId.equals(idProducteur))
-			{
-				res.add(dto);
-			}
-		}
-		return res;
+		return new ProducteurService().getModeleContratInfo(idProducteur);
 	}
 
 
@@ -132,6 +124,12 @@ public class ProducteurContratListPart extends StandardListPart<ModeleContratSum
 	{
 		return new String[] { "etat" , "dateDebut"  };
 	}
+	
+	protected boolean[] getSortAsc()
+	{
+		return new boolean[] { true , false  };
+	}
+	
 	
 	protected String[] getSearchInfos()
 	{

@@ -67,9 +67,12 @@ public class ProducteurListPart extends StandardListPart<ProducteurDTO> implemen
 	protected void drawTable() 
 	{
 		// Titre des colonnes
-		cdesTable.setVisibleColumns(new String[] { "nom", "delaiModifContrat"  });
+		cdesTable.setVisibleColumns(new String[] { "nom", "utilisateurInfo" ,"referentInfo" });
+		
 		cdesTable.setColumnHeader("nom","Nom");
-		cdesTable.setColumnHeader("delaiModifContrat","Délai avant modification d'un contrat");
+		cdesTable.setColumnHeader("utilisateurInfo","Producteurs");
+		cdesTable.setColumnHeader("referentInfo","Referents");
+		
 	}
 
 

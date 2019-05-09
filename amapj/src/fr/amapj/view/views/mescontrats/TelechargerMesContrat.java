@@ -28,7 +28,9 @@ import fr.amapj.common.DateUtils;
 import fr.amapj.model.models.param.paramecran.ImpressionContrat;
 import fr.amapj.model.models.param.paramecran.PEMesContrats;
 import fr.amapj.service.services.edgenerator.excel.feuilledistribution.amapien.EGFeuilleDistributionAmapien;
+import fr.amapj.service.services.edgenerator.excel.feuilledistribution.amapien.EGFeuilleDistributionAmapien.EGMode;
 import fr.amapj.service.services.edgenerator.pdf.PGEngagement;
+import fr.amapj.service.services.edgenerator.pdf.PGEngagement.PGEngagementMode;
 import fr.amapj.service.services.editionspe.EditionSpeService;
 import fr.amapj.service.services.mescontrats.ContratDTO;
 import fr.amapj.service.services.parametres.ParametresService;
@@ -116,7 +118,7 @@ public class TelechargerMesContrat
 		{
 			if (canPrintContrat(c))
 			{
-				popup.addGenerator(new EGFeuilleDistributionAmapien(c.contratId));
+				popup.addGenerator(new EGFeuilleDistributionAmapien(EGMode.STD,c.modeleContratId,c.contratId));
 			}
 		}
 	}
@@ -157,7 +159,7 @@ public class TelechargerMesContrat
 		{
 			if (canPrintContratEngagement(c))
 			{
-				popup.addGenerator(new PGEngagement(c.modeleContratId,c.contratId,null));
+				popup.addGenerator(new PGEngagement(PGEngagementMode.UN_CONTRAT,c.modeleContratId,c.contratId,null));
 			}
 		}
 	}
@@ -194,11 +196,11 @@ public class TelechargerMesContrat
 		{
 			if (canPrintContrat(c))
 			{
-				popup.addGenerator(new EGFeuilleDistributionAmapien(c.contratId));
+				popup.addGenerator(new EGFeuilleDistributionAmapien(EGMode.STD,c.modeleContratId,c.contratId));
 			}
 			if (canPrintContratEngagement(c))
 			{
-				popup.addGenerator(new PGEngagement(c.modeleContratId,c.contratId,null));
+				popup.addGenerator(new PGEngagement(PGEngagementMode.UN_CONTRAT,c.modeleContratId,c.contratId,null));
 			}
 		}
 		

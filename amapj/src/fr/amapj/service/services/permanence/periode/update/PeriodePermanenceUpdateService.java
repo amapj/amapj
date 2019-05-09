@@ -80,6 +80,22 @@ public class PeriodePermanenceUpdateService
 		
 	}
 
+	
+	/**
+	 * Modification des regles d'inscription 
+	 * @param dto
+	 */
+	@DbWrite
+	public void updateRegleInscription(PeriodePermanenceDTO dto)
+	{
+		EntityManager em = TransactionHelper.getEm(); 
+		PeriodePermanence pp = em.find(PeriodePermanence.class,dto.id);
+		
+		pp.regleInscription = dto.regleInscription;
+		
+	}
+	
+	
 
 	/**
 	 * Ajouter des dates 

@@ -20,41 +20,20 @@
  */
  package fr.amapj.service.services.moncompte;
 
-import org.apache.logging.log4j.LogManager;import org.apache.logging.log4j.Logger;
-
 import javax.persistence.EntityManager;
 
-import fr.amapj.model.engine.transaction.DbRead;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import fr.amapj.model.engine.transaction.DbWrite;
 import fr.amapj.model.engine.transaction.TransactionHelper;
 import fr.amapj.model.models.fichierbase.Utilisateur;
-import fr.amapj.service.services.session.SessionManager;
 import fr.amapj.service.services.utilisateur.UtilisateurDTO;
-import fr.amapj.service.services.utilisateur.UtilisateurService;
 
 public class MonCompteService
 {
 	private final static Logger logger = LogManager.getLogger();
 
-	public MonCompteService()
-	{
-
-	}
-
-	/**
-	 * Permet de récuperer les infos de l'utilisateur courant
-	 */
-	@DbRead
-	public UtilisateurDTO getUtilisateurInfo()
-	{
-		EntityManager em = TransactionHelper.getEm();
-	
-		Long id = SessionManager.getUserId();
-		Utilisateur u = em.find(Utilisateur.class, id);
-		UtilisateurDTO dto = new UtilisateurService().createUtilisateurDto(em, u);
-		return dto;
-
-	}
 
 	/**
 	 * Permet de changer le password

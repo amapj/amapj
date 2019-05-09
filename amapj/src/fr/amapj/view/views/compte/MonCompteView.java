@@ -20,8 +20,6 @@
  */
  package fr.amapj.view.views.compte;
 
-import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -30,14 +28,13 @@ import com.vaadin.ui.VerticalLayout;
 
 import fr.amapj.service.services.authentification.PasswordManager;
 import fr.amapj.service.services.moncompte.MonCompteService;
+import fr.amapj.service.services.session.SessionManager;
 import fr.amapj.service.services.utilisateur.UtilisateurDTO;
+import fr.amapj.service.services.utilisateur.UtilisateurService;
 import fr.amapj.view.engine.popup.PopupListener;
-import fr.amapj.view.engine.popup.formpopup.FormPopup;
-import fr.amapj.view.engine.popup.formpopup.ValidatorManager;
 import fr.amapj.view.engine.popup.formpopup.validator.EmailValidator;
 import fr.amapj.view.engine.template.FrontOfficeView;
 import fr.amapj.view.engine.tools.InLineFormHelper;
-import fr.amapj.view.engine.ui.ValoMenuLayout;
 
 
 /**
@@ -186,7 +183,7 @@ public class MonCompteView extends FrontOfficeView implements PopupListener
 
 	private void refresh()
 	{
-		u = new MonCompteService().getUtilisateurInfo();
+		u = new UtilisateurService().loadUtilisateurDto(SessionManager.getUserId());
 		
 		setValue(nom,u.getNom());
 		setValue(prenom,u.getPrenom());

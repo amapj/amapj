@@ -30,10 +30,7 @@ import fr.amapj.view.views.importdonnees.UtilisateurImporter;
 
 /**
  * Permet de modifier les utilisateurs
- * 
- *
  */
-@SuppressWarnings("serial")
 public class ModificationUtilisateurEditorPart extends FormPopup
 {
 
@@ -44,12 +41,12 @@ public class ModificationUtilisateurEditorPart extends FormPopup
 	/**
 	 * 
 	 */
-	public ModificationUtilisateurEditorPart(UtilisateurDTO utilisateurDTO)
+	public ModificationUtilisateurEditorPart(Long idUtilisateur)
 	{
 		setWidth(80);
 		popupTitle = "Modification d'un utilisateur";
 
-		this.utilisateurDTO = utilisateurDTO;
+		this.utilisateurDTO = new UtilisateurService().loadUtilisateurDto(idUtilisateur);
 		item = new BeanItem<UtilisateurDTO>(utilisateurDTO);
 
 	}

@@ -23,12 +23,14 @@
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import org.apache.poi.ss.usermodel.CellStyle;
+
 import fr.amapj.model.models.contrat.modele.ModeleContrat;
-import fr.amapj.model.models.contrat.modele.ModeleContratDate;
 import fr.amapj.model.models.contrat.modele.ModeleContratProduit;
 import fr.amapj.model.models.contrat.reel.Contrat;
 import fr.amapj.model.models.fichierbase.Utilisateur;
@@ -38,6 +40,7 @@ import fr.amapj.service.engine.generator.excel.ExcelGeneratorTool;
 import fr.amapj.service.services.edgenerator.excel.feuilledistribution.producteur.EGGrilleTool;
 import fr.amapj.service.services.gestioncontrat.GestionContratService;
 import fr.amapj.service.services.mescontrats.ContratDTO;
+import fr.amapj.service.services.mescontrats.ContratLigDTO;
 import fr.amapj.service.services.mescontrats.MesContratsService;
 
 
@@ -50,11 +53,36 @@ import fr.amapj.service.services.mescontrats.MesContratsService;
 public class EGFeuilleDistributionAmapien  extends AbstractExcelGenerator
 {
 	
-	Long contratId;
+	private Long contratId;
 	
-	public EGFeuilleDistributionAmapien(Long contratId)
+	private Long modeleContratId;
+	
+	private EGMode mode;
+	
+	public enum EGMode
 	{
+		STD , 
+		UN_VIERGE
+	}
+	
+	
+	/**
+	 * Deux cas sont possibles 
+	 * 
+	 * STD,not null,not null
+	 * 
+	 * UN_VIERGE,not null,null
+	 * 
+	 * @param mode
+	 * @param modeleContratId
+	 * @param contratId
+	 */
+	public EGFeuilleDistributionAmapien(EGMode mode,Long modeleContratId,Long contratId)
+	{
+		this.mode = mode;
+		this.modeleContratId = modeleContratId;
 		this.contratId = contratId;
+		
 	}
 	
 	@Override
@@ -72,18 +100,14 @@ public class EGFeuilleDistributionAmapien  extends AbstractExcelGenerator
 	 */
 	public void addOnePage(EntityManager em, ExcelGeneratorTool et,String nomPage)
 	{
-		Contrat c = em.find(Contrat.class, contratId);
-		
-		ModeleContrat mc = c.getModeleContrat();
+		ModeleContrat mc = em.find(ModeleContrat.class, modeleContratId);
 		
 		// Avec une sous requete, on récupere la liste des produits
 		List<ModeleContratProduit> prods = new GestionContratService().getAllProduit(em, mc);
-		
-		// Avec une sous requete, on obtient la liste de toutes les dates de livraison, trièes par ordre croissant 
-		List<ModeleContratDate> dates = new GestionContratService().getAllDates(em, mc);
 
-		// On charge ensuite le contrat
-		ContratDTO contratDTO = new MesContratsService().loadContrat(mc.getId(), c.getId());
+		// On charge le contrat
+		ContratDTO contratDTO = new MesContratsService().loadContrat(mc.getId(), contratId);
+		List<ContratLigDTO> dates = contratDTO.contratLigs;
 		
 		// Nombre de colonnes fixe à gauche
 		int nbColGauche = 3;
@@ -101,7 +125,14 @@ public class EGFeuilleDistributionAmapien  extends AbstractExcelGenerator
 	    List<String> titres = new ArrayList<>();
 	    titres.add("");
 	    
-	    String firstLine = "Feuille de distribution amapien de "+c.getUtilisateur().getPrenom()+" "+c.getUtilisateur().getNom();
+	    String firstLine = "Feuille de distribution amapien de ";
+	    if (mode==EGMode.STD)
+	    {
+	    	Utilisateur u = em.find(Contrat.class, contratId).getUtilisateur();
+	    	firstLine = firstLine+u.getPrenom()+" "+u.getNom();
+	    }
+	    
+	    
 	    int nbLine = dates.size();
 
 		// Construction de l'entete
@@ -113,20 +144,42 @@ public class EGFeuilleDistributionAmapien  extends AbstractExcelGenerator
 		for (int i = 0; i < dates.size(); i++)
 		{			 
 			// Construction de la ligne
-			contructRow(et,contratDTO,nbColGauche,i,dates.get(i),df2,prods.size());
+			contructRow(et,contratDTO,nbColGauche,i,dates.get(i).date,df2,prods.size());
 		}	
+		
+		// Si on est un vierge et qu'il y a au moins une case exclue et qu'il y a au moins un produit
+		// On ajoute un texte explicatfi sur la signification de la croix barrée
+		if ( (mode==EGMode.UN_VIERGE) && (contratDTO.excluded!=null) && (nbColTotal>=4) )
+	    {
+			et.addRow();
+			
+			et.addRow();
+			
+			// Colonne 0  : vide
+			et.setCell(0, "", et.grasGaucheNonWrappe);
+			
+			// Colonne 1 - Vide
+			et.setCell(1, "", et.grasGaucheNonWrappe);
+
+			// Colonne 2 - une croix  
+			et.setCell(2, "", et.nonGrasCentreBordureDiagonal);
+			
+			// Colonne 3 : un texte explicatif 
+			et.setCell(3, "produit non disponible", et.grasGaucheNonWrappe);
+	    }
+		
 	}
 
 	/**
 	 * Construction des lignes 
 	 * 
 	 */
-	private void contructRow(ExcelGeneratorTool et, ContratDTO contratDto, int nbColGauche, int dateIndex,ModeleContratDate date, SimpleDateFormat df2,int nbProd)
+	private void contructRow(ExcelGeneratorTool et, ContratDTO contratDto, int nbColGauche, int dateIndex,Date date, SimpleDateFormat df2,int nbProd)
 	{
 		et.addRow();
 		
 		// Colonne 0  : la date
-		et.setCell(0,df2.format(date.getDateLiv()),et.grasCentreBordure);
+		et.setCell(0,df2.format(date),et.grasCentreBordure);
 		
 		// Colonne 1 - Vide
 		et.setCell(1,"",et.grasGaucheNonWrappeBordure);
@@ -140,7 +193,14 @@ public class EGFeuilleDistributionAmapien  extends AbstractExcelGenerator
 		// On itere sur les produits
 		for (int j = 0; j < contratDto.contratColumns.size(); j++)
 		{	
-			et.setCellQte(index, contratDto.qte[dateIndex][j], et.nonGrasCentreBordure);
+			CellStyle style = et.nonGrasCentreBordure;
+			if (contratDto.isExcluded(dateIndex, j))
+			{
+				style = et.nonGrasCentreBordureDiagonal;
+			}
+			
+			
+			et.setCellQte(index, contratDto.qte[dateIndex][j], style);
 			index++;
 		}
 	}
@@ -149,18 +209,36 @@ public class EGFeuilleDistributionAmapien  extends AbstractExcelGenerator
 	@Override
 	public String getFileName(EntityManager em)
 	{
-		Contrat c = em.find(Contrat.class, contratId);
-		Utilisateur u = c.getUtilisateur();
-		return "distri-amapien-"+c.getModeleContrat().getNom()+"-"+u.getNom()+" "+u.getPrenom();
+		ModeleContrat mc = em.find(ModeleContrat.class, modeleContratId);
+		String str = "distri-amapien-"+mc.getNom();
+		
+		if (mode==EGMode.UN_VIERGE)
+		{
+			return str+"-vierge";
+		}
+		else
+		{
+			Utilisateur u = em.find(Contrat.class, contratId).getUtilisateur();
+			return str+"-"+u.getNom()+" "+u.getPrenom();
+		}
 	}
 
 
 	@Override
 	public String getNameToDisplay(EntityManager em)
 	{
-		Contrat c = em.find(Contrat.class, contratId);
-		Utilisateur u = c.getUtilisateur();
-		return "la feuille de distribution amapien "+c.getModeleContrat().getNom()+" pour "+u.getNom()+" "+u.getPrenom();
+		ModeleContrat mc = em.find(ModeleContrat.class, modeleContratId);
+		String str = "la feuille de distribution amapien "+mc.getNom();
+		
+		if (mode==EGMode.UN_VIERGE)
+		{
+			return str+" vierge";
+		}
+		else
+		{
+			Utilisateur u = em.find(Contrat.class, contratId).getUtilisateur();
+			return str+" pour "+u.getNom()+" "+u.getPrenom();
+		}
 	}
 	
 	@Override
@@ -173,7 +251,7 @@ public class EGFeuilleDistributionAmapien  extends AbstractExcelGenerator
 
 	public static void main(String[] args) throws IOException
 	{
-		new EGFeuilleDistributionAmapien(8342L).test(); 
+		new EGFeuilleDistributionAmapien(EGMode.STD,null,null).test(); 
 	}
 
 }

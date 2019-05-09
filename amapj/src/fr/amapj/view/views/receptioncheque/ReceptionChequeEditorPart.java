@@ -27,7 +27,6 @@ import com.vaadin.data.Item;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
@@ -38,7 +37,6 @@ import com.vaadin.ui.VerticalLayout;
 import fr.amapj.model.models.contrat.reel.EtatPaiement;
 import fr.amapj.model.models.param.ChoixOuiNon;
 import fr.amapj.model.models.param.paramecran.PEReceptionCheque;
-import fr.amapj.service.services.gestioncontratsigne.ContratSigneDTO;
 import fr.amapj.service.services.mescontrats.DatePaiementDTO;
 import fr.amapj.service.services.mespaiements.MesPaiementsService;
 import fr.amapj.service.services.parametres.ParametresService;
@@ -52,13 +50,16 @@ import fr.amapj.view.engine.widgets.CurrencyTextFieldConverter;
  * Popup pour la réception des chèques
  *  
  */
-@SuppressWarnings("serial")
 public class ReceptionChequeEditorPart extends OKCancelPopup
 {
 	
 	private SimpleDateFormat df = new SimpleDateFormat("MMMMM yyyy");
 	
-	private ContratSigneDTO c;
+	private Long idContrat;
+	
+	private String nomUtilisateur;
+	
+	private String prenomUtilisateur;
 	
 	private List<DatePaiementDTO> paiements;
 	
@@ -67,30 +68,32 @@ public class ReceptionChequeEditorPart extends OKCancelPopup
 	private PEReceptionCheque peConf;
 		
 	
-	/**
-	 * 
-	 */
-	public ReceptionChequeEditorPart(ContratSigneDTO c)
+	
+	
+	public ReceptionChequeEditorPart(Long idContrat, String nomUtilisateur, String prenomUtilisateur)
 	{
 		super();
 		setHeight("90%");
-		this.c = c;
+		this.idContrat = idContrat;
+		this.nomUtilisateur = nomUtilisateur;
+		this.prenomUtilisateur = prenomUtilisateur;
+		
 	}
-	
+
 	@Override
 	protected void createContent(VerticalLayout contentLayout)
 	{
 		
 	
 		//
-		paiements = new MesPaiementsService().getPaiementAReceptionner(c.idContrat);
+		paiements = new MesPaiementsService().getPaiementAReceptionner(idContrat);
 		peConf = (PEReceptionCheque) new ParametresService().loadParamEcran(MenuList.RECEPTION_CHEQUES);
 		//
 		popupTitle = "Réception chèques";
 		setWidth(60);
 		
 		// Premiere ligne de texte
-		String msg = "<h2> Réception des chèques de "+c.prenomUtilisateur+" "+c.nomUtilisateur+"</h2>";
+		String msg = "<h2> Réception des chèques de "+prenomUtilisateur+" "+nomUtilisateur+"</h2>";
 		Label lab = new Label(msg,ContentMode.HTML);
 		contentLayout.addComponent(lab);
 		

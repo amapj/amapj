@@ -207,6 +207,7 @@ public class MesContratsService
 	private void computeExistingContrat(EntityManager em, MesContratsDTO res, List<Contrat> contrats,Date now)
 	{
 		MesCartesPrepayeesService service = new MesCartesPrepayeesService();
+		ContratStatusService statusService = new ContratStatusService();
 		
 		for (Contrat contrat : contrats)
 		{
@@ -215,9 +216,9 @@ public class MesContratsService
 			
 			// On calcule les informations sur les cartes prepayées et s'il est modifiable 
 			CartePrepayeeDTO cartePrepayeeDTO = service.computeCartePrepayee(mc,em,now);
-			boolean isModifiable = isModifiable(mc,em,cartePrepayeeDTO,now);
+			boolean isModifiable = statusService.isModifiable(mc,em,cartePrepayeeDTO,now);
 			
-			if (isHistorique(contrat,em,now,isModifiable)==false)
+			if (statusService.isHistorique(contrat,em,now,isModifiable)==false)
 			{
 				// Appel du service modele de contrat pour avoir toutes les infos
 				// sur ce modele de contrat
@@ -235,7 +236,7 @@ public class MesContratsService
 				dto.dateFin = summaryDTO.dateFin;
 				dto.nature = mc.nature; 
 				dto.isModifiable = isModifiable;
-				dto.isSupprimable = isSupprimable(contrat,em,cartePrepayeeDTO,now,isModifiable);
+				dto.isSupprimable = statusService.isSupprimable(contrat,em,cartePrepayeeDTO,now,isModifiable);
 				dto.cartePrepayee = cartePrepayeeDTO;
 				
 	
@@ -244,95 +245,7 @@ public class MesContratsService
 		}
 	}
 
-	/**
-	 * Un contrat est historique si la date de la dernière livraison 
-	 * est passée de plus de 5 jours et si il n'est plus possible de s'inscrire
-	 */
-	public boolean isHistorique(Contrat contrat,EntityManager em,Date now,boolean isModifiable)
-	{
-		// Si on peut modifier ce contrat, il n'est pas en historique 
-		if (isModifiable)
-		{
-			return false;
-		}
-		
-		// Cas standard
-		Query q = em.createQuery("select count(cc) from ContratCell cc " +
-				"WHERE cc.contrat=:c and cc.modeleContratDate.dateLiv>=:d");
 
-		q.setParameter("c",contrat);
-		
-		Date d = DateUtils.suppressTime(now);
-		d = DateUtils.addDays(d, -5);
-		q.setParameter("d",d);
-		
-		// On obtient le nombre de livraisons restantes
-		long count = (Long) q.getSingleResult();
-		
-		return (count==0);
-	}
-	
-	
-	/**
-	 * Indique si ce modele de contrat est modifiable par l'adhérent à cette date 
-	 * 
-	 * (soit modifiable si un contrat existe, soit on peut s'inscrire)   
-	 */
-	public boolean isModifiable(ModeleContrat mc,EntityManager em,CartePrepayeeDTO cartePrepayeeDTO,Date now)
-	{
-		NatureContrat nature = mc.nature;
-		
-		// Cas de la carte prépayée
-		if (nature==NatureContrat.CARTE_PREPAYEE)
-		{
-			return cartePrepayeeDTO.nbLigModifiable>0;
-		}
-		// Autre cas
-		else
-		{
-			Date dateFinInscription = mc.getDateFinInscription();
-			Date d = DateUtils.addHour(dateFinInscription,23);
-			d = DateUtils.addMinute(d, 59);
-			return  d.after(now);
-		}
-	}
-	
-	
-	/**
-	 * Indique si le contrat est supprimable par l'adhérent 
-	 */
-	public boolean isSupprimable(Contrat contrat,EntityManager em,CartePrepayeeDTO cartePrepayeeDTO,Date now,boolean isModifiable)
-	{
-		// Contrat peut être null dans certains cas 
-		if (contrat==null)
-		{
-			return false;
-		}
-
-		
-		NatureContrat nature = contrat.getModeleContrat().nature;
-	
-		// Cas de la carte prépayée 
-		if (nature==NatureContrat.CARTE_PREPAYEE)
-		{
-			// On verifie si il y a des lignes non modifiables avec des quantités non nulles
-			Date d = DateUtils.suppressTime(now);
-			d = DateUtils.addDays(d, contrat.getModeleContrat().cartePrepayeeDelai);
-			
-			Query q = em.createQuery("select count(cc) from ContratCell cc  WHERE cc.contrat=:c and cc.modeleContratDate.dateLiv<=:d");
-			q.setParameter("c",contrat);
-			q.setParameter("d",d);
-			
-			int count = SQLUtils.toInt(q.getSingleResult());
-			return (count==0);
-		}
-		// Autre cas
-		else
-		{
-			return isModifiable;
-		}
-	}
-	
 	
 	// PARTIE CHARGEMENT D'UN CONTRAT A PARTIR D'UN MODELE DE CONTRAT
 
@@ -366,9 +279,11 @@ public class MesContratsService
 		
 		// On calcule les informations sur les cartes prepayées et s'il est modifiable 
 		CartePrepayeeDTO cartePrepayeeDTO = new MesCartesPrepayeesService().computeCartePrepayee(mc,em,now);
-		boolean isModifiable = isModifiable(mc,em,cartePrepayeeDTO,now);
+		ContratStatusService statusService = new ContratStatusService();
+		
+		boolean isModifiable = statusService.isModifiable(mc,em,cartePrepayeeDTO,now);
 		dto.isModifiable = isModifiable;
-		dto.isSupprimable = isSupprimable(contrat, em, cartePrepayeeDTO, now, isModifiable);
+		dto.isSupprimable = statusService.isSupprimable(contrat, em, cartePrepayeeDTO, now, isModifiable);
 		dto.cartePrepayee = cartePrepayeeDTO;
 
 		// Avec une sous requete, on récupere la liste des produits

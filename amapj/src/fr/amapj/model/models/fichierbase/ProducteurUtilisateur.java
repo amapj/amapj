@@ -60,24 +60,7 @@ public class ProducteurUtilisateur implements Identifiable
 	@NotNull
 	// Numéro d'ordre 
 	private int indx;
-	
-	
-	public enum P implements Mdm
-	{ 
-		ID("id") ,  UTILISATEUR("utilisateur") ,  PRODUCTEUR("producteur")  ;
-	
-		private String propertyId;   
-	   
-	    P(String propertyId) 
-	    {
-	        this.propertyId = propertyId;
-	    }
-	    public String prop() 
-	    { 
-	    	return propertyId; 
-	    }
-	} ;
-	
+		
 	
 	// Getters ans setters
 	

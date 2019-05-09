@@ -27,9 +27,6 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 import fr.amapj.common.AmapjRuntimeException;
 import fr.amapj.common.DateUtils;
@@ -192,56 +189,32 @@ public class GestionContratService
 
 	/**
 	 * Retrouve la liste des produits, triés suivant la valeur indx
-	 * 
-	 * @param em
-	 * @param mc
-	 * @return
+	 *
 	 */
 	public List<ModeleContratProduit> getAllProduit(EntityManager em, ModeleContrat mc)
 	{
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-
-		CriteriaQuery<ModeleContratProduit> cq = cb.createQuery(ModeleContratProduit.class);
-		Root<ModeleContratProduit> root = cq.from(ModeleContratProduit.class);
-
-		// On ajoute la condition where
-		cq.where(cb.equal(root.get(ModeleContratProduit.P.MODELECONTRAT.prop()), mc));
-
-		// On trie par ordre croissant indx
-		cq.orderBy(cb.asc(root.get(ModeleContratProduit.P.INDX.prop())));
-
-		List<ModeleContratProduit> prods = em.createQuery(cq).getResultList();
+		Query q = em.createQuery("select mcp from ModeleContratProduit mcp where mcp.modeleContrat=:mc ORDER BY mcp.indx"); 
+		q.setParameter("mc", mc);
+		
+		List<ModeleContratProduit> prods = q.getResultList();
 		return prods;
 	}
 
 	public List<ModeleContratDate> getAllDates(EntityManager em, ModeleContrat mc)
 	{
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-
-		CriteriaQuery<ModeleContratDate> cq = cb.createQuery(ModeleContratDate.class);
-		Root<ModeleContratDate> root = cq.from(ModeleContratDate.class);
-
-		// On ajoute la condition where
-		cq.where(cb.equal(root.get(ModeleContratDate.P.MODELECONTRAT.prop()), mc));
-
-		// On trie par ordre croissant de date
-		cq.orderBy(cb.asc(root.get(ModeleContratDate.P.DATELIV.prop())));
-
-		List<ModeleContratDate> dates = em.createQuery(cq).getResultList();
+		Query q = em.createQuery("select mcd from ModeleContratDate mcd where mcd.modeleContrat=:mc ORDER BY mcd.dateLiv"); 
+		q.setParameter("mc", mc);
+		
+		List<ModeleContratDate> dates = q.getResultList();
 		return dates;
 	}
 
 	public List<ModeleContratExclude> getAllExcludedDateProduit(EntityManager em, ModeleContrat mc)
 	{
-		CriteriaBuilder cb = em.getCriteriaBuilder();
+		Query q = em.createQuery("select mce from ModeleContratExclude mce where mce.modeleContrat=:mc"); 
+		q.setParameter("mc", mc);
 
-		CriteriaQuery<ModeleContratExclude> cq = cb.createQuery(ModeleContratExclude.class);
-		Root<ModeleContratExclude> root = cq.from(ModeleContratExclude.class);
-
-		// On ajoute la condition where
-		cq.where(cb.equal(root.get(ModeleContratExclude.P.MODELECONTRAT.prop()), mc));
-
-		List<ModeleContratExclude> exclude = em.createQuery(cq).getResultList();
+		List<ModeleContratExclude> exclude = q.getResultList();
 		return exclude;
 	}
 	
@@ -621,47 +594,23 @@ public class GestionContratService
 
 	private void suppressAllProduits(EntityManager em, ModeleContrat mc)
 	{
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-
-		CriteriaQuery<ModeleContratProduit> cq = cb.createQuery(ModeleContratProduit.class);
-		Root<ModeleContratProduit> root = cq.from(ModeleContratProduit.class);
-
-		// On ajoute la condition where
-		cq.where(cb.equal(root.get(ModeleContratProduit.P.MODELECONTRAT.prop()), mc));
-
-		List<ModeleContratProduit> prods = em.createQuery(cq).getResultList();
-		for (ModeleContratProduit modeleContratProduit : prods)
-		{
-			em.remove(modeleContratProduit);
-		}
+		Query q = em.createQuery("select mcp from ModeleContratProduit mcp where mcp.modeleContrat=:mc"); 
+		q.setParameter("mc", mc);
+		SQLUtils.deleteAll(em, q);
 	}
 
 	private void suppressAllDates(EntityManager em, ModeleContrat mc)
 	{
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-
-		CriteriaQuery<ModeleContratDate> cq = cb.createQuery(ModeleContratDate.class);
-		Root<ModeleContratDate> root = cq.from(ModeleContratDate.class);
-
-		// On ajoute la condition where
-		cq.where(cb.equal(root.get(ModeleContratDate.P.MODELECONTRAT.prop()), mc));
-
-		List<ModeleContratDate> dates = em.createQuery(cq).getResultList();
-		for (ModeleContratDate modeleContratDate : dates)
-		{
-			em.remove(modeleContratDate);
-		}
+		Query q = em.createQuery("select mcd from ModeleContratDate mcd where mcd.modeleContrat=:mc ORDER BY mcd.dateLiv"); 
+		q.setParameter("mc", mc);
+		SQLUtils.deleteAll(em, q);
 	}
 	
 	private void suppressAllDatesPaiement(EntityManager em, ModeleContrat mc)
 	{
 		Query q = em.createQuery("select d from ModeleContratDatePaiement d WHERE d.modeleContrat=:mc");
 		q.setParameter("mc",mc);
-		List<ModeleContratDatePaiement> ds = q.getResultList();
-		for (ModeleContratDatePaiement modeleContratDatePaiement : ds)
-		{
-			em.remove(modeleContratDatePaiement);
-		}
+		SQLUtils.deleteAll(em, q);
 	}
 
 	// PARTIE MISE A JOUR

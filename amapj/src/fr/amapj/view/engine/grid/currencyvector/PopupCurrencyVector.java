@@ -73,9 +73,6 @@ abstract public class PopupCurrencyVector extends CorePopup
 	
 	private Label montantTotalPaiement;
 	
-	private String message = 	"Une proposition de paiement a été calculée et est affichée ci dessous.<br/>"+
-								"Vous pouvez modifier cette proposition en saisissant directement les montants en face de chaque mois<br/>"+
-								"Le dernier mois est calculé automatiquement pour ajuster le contrat<br/><br/>";
 
 	/**
 	 * 
@@ -109,10 +106,11 @@ abstract public class PopupCurrencyVector extends CorePopup
 			mainLayout.addComponent(messageSpeLabel);
 		}
 		
-		
-		if ((param.readOnly==false) && (param.computeLastLine==true))
+		if (param.messageSpecifique3 != null)
 		{
-			mainLayout.addComponent(new Label(message, ContentMode.HTML));
+			Label messageSpeLabel = new Label(param.messageSpecifique3,ContentMode.HTML);
+			messageSpeLabel.addStyleName("popup-currency-vector-message");
+			mainLayout.addComponent(messageSpeLabel);
 		}
 		
 		if (param.avoirInitial!=0)

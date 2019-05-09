@@ -130,7 +130,7 @@ public class MesCartesPrepayeesService
 	
 	
 	
-	private boolean cartePrepayeeLigModifiable(ModeleContratDate lig,Date now, int cartePrepayeeDelai)
+	public boolean cartePrepayeeLigModifiable(ModeleContratDate lig,Date now, int cartePrepayeeDelai)
 	{
 		Date d = DateUtils.addDays(lig.getDateLiv(), -cartePrepayeeDelai);
 		return  d.after(now);

@@ -25,11 +25,13 @@ import java.util.ArrayList;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 
 import fr.amapj.model.models.permanence.periode.NaturePeriodePermanence;
 import fr.amapj.model.models.permanence.periode.PeriodePermanence;
+import fr.amapj.model.models.permanence.periode.RegleInscriptionPeriodePermanence;
 import fr.amapj.service.services.permanence.periode.FrequencePermanence;
 import fr.amapj.service.services.permanence.periode.PeriodePermanenceDTO;
 import fr.amapj.service.services.permanence.periode.PeriodePermanenceDateDTO;
@@ -87,6 +89,7 @@ public class PeriodePermanenceCreationEditorPart extends WizardFormPopup
 		dto  = new PeriodePermanenceDTO();
 		dto.frequencePermanence = FrequencePermanence.UNE_FOIS_PAR_SEMAINE;
 		dto.nature = NaturePeriodePermanence.INSCRIPTION_LIBRE_AVEC_DATE_LIMITE;
+		dto.regleInscription = RegleInscriptionPeriodePermanence.UNE_INSCRIPTION_PAR_DATE;
 		
 		item = new BeanItem<PeriodePermanenceDTO>(dto);
 
@@ -120,6 +123,9 @@ public class PeriodePermanenceCreationEditorPart extends WizardFormPopup
 		addComboEnumField("Fréquence des permanences", "frequencePermanence",notNull);
 		
 		addIntegerField("Nombre de personnes par permanence", "nbPlaceParDate");
+		
+		ComboBox box = addComboEnumField("Régle d'inscription sur une date", "regleInscription", notNull);
+		box.setWidth("600px");
 
 	}
 	

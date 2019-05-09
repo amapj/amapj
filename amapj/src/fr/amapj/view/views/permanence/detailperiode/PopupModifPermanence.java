@@ -82,7 +82,7 @@ public class PopupModifPermanence extends WizardFormPopup
 		builder.setPageLength(8);
 		
 		
-		builder.addString("Role", false, 300, e->getRole(e));
+		builder.addString("Role", false, 300, e->e.nomRole);
 		builder.addSearcher("Adhérent", "cb",true, 300, e->e.idUtilisateur, searcher);
 		
 		addComplexTable(builder);
@@ -100,17 +100,6 @@ public class PopupModifPermanence extends WizardFormPopup
 		
 	}
 	
-	private String getRole(PermanenceCellDTO pc)
-	{
-		if (pc.nomRole==null)
-		{
-			return "Place numero x";
-		}
-		
-		return pc.nomRole;
-	}
-	
-	
 	private String checkFieldUtilisateur()
 	{
 		for (int i = 0; i < dto.permanenceCellDTOs.size(); i++)
@@ -123,8 +112,8 @@ public class PopupModifPermanence extends WizardFormPopup
 			lig.idUtilisateur = (Long) cb.getConvertedValue();
 		}	
 		
-		// On vérifie ensuite qu'il n'y a pas de doublons
-		return dto.findDoublons();
+		// On vérifie ensuite que les regles d'inscriptions sont bien respectées
+		return dto.checkRegleInscription();
 
 	}
 

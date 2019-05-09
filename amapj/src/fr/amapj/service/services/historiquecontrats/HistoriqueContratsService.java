@@ -37,23 +37,15 @@ import fr.amapj.service.services.gestioncontrat.GestionContratService;
 import fr.amapj.service.services.gestioncontrat.ModeleContratSummaryDTO;
 import fr.amapj.service.services.gestioncontratsigne.GestionContratSigneService;
 import fr.amapj.service.services.mescontrats.CartePrepayeeDTO;
+import fr.amapj.service.services.mescontrats.ContratStatusService;
 import fr.amapj.service.services.mescontrats.MesCartesPrepayeesService;
-import fr.amapj.service.services.mescontrats.MesContratsService;
 
 /**
- * Permet la gestion des modeles de contrat
- * 
- *  
- *
+ * Permet la gestion de l'historisation des contrats des utilisateurs
  */
 public class HistoriqueContratsService
 {
-	public HistoriqueContratsService()
-	{
 
-	}
-
-	
 	// PARTIE HISTORIQUE DES CONTRATS
 	
 	/**
@@ -65,9 +57,9 @@ public class HistoriqueContratsService
 		Date now = DateUtils.getDate();
 		EntityManager em = TransactionHelper.getEm();
 		
-		MesContratsService mesContratsService = new MesContratsService();
 		GestionContratSigneService gestionContratSigneService = new GestionContratSigneService();
 		MesCartesPrepayeesService mesCartesPrepayeesService = new MesCartesPrepayeesService();
+		ContratStatusService statusService = new ContratStatusService();
 
 		List<HistoriqueContratDTO> res = new ArrayList<>();
 
@@ -85,8 +77,8 @@ public class HistoriqueContratsService
 			
 			ModeleContrat mc = contrat.getModeleContrat();
 			CartePrepayeeDTO cartePrepayeeDTO = mesCartesPrepayeesService.computeCartePrepayee(mc,em,now);
-			boolean isModifiable = mesContratsService.isModifiable(mc,em,cartePrepayeeDTO,now);
-			if (mesContratsService.isHistorique(contrat,em,now,isModifiable)==true)
+			boolean isModifiable = statusService.isModifiable(mc,em,cartePrepayeeDTO,now);
+			if (statusService.isHistorique(contrat,em,now,isModifiable)==true)
 			{
 	
 				// Appel du service modele de contrat pour avoir toutes les infos
@@ -113,8 +105,5 @@ public class HistoriqueContratsService
 		
 		return res;
 	}
-	
-	
-	
 
 }

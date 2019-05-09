@@ -25,15 +25,16 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Layout;
 
+import fr.amapj.common.AmapjRuntimeException;
+import fr.amapj.model.models.permanence.periode.RegleInscriptionPeriodePermanence;
 import fr.amapj.service.services.permanence.mespermanences.MesPermanencesService;
 import fr.amapj.service.services.permanence.mespermanences.UnePeriodePermanenceDTO;
 import fr.amapj.service.services.permanence.periode.PeriodePermanenceDateDTO;
-import fr.amapj.view.engine.tools.BaseUiTools;
 import fr.amapj.view.views.permanence.grille.AbstractPeriodePermanenceGrillePart;
 import fr.amapj.view.views.permanence.mespermanences.MesPermanencesUtils;
 
 /**
- * Permet à un utilisatezur de s'inzcrire en grille  
+ * Permet à un utilisateur de s'inscrire en grille  
  *
  */
 public class GrilleInscriptionPermanence extends AbstractPeriodePermanenceGrillePart
@@ -73,6 +74,25 @@ public class GrilleInscriptionPermanence extends AbstractPeriodePermanenceGrille
 		}
 		
 		
+		switch (periodePermanenceDTO.regleInscription)
+		{
+		case UNE_INSCRIPTION_PAR_DATE:
+			return specificButtonInscriptionUniqueParDate(hl,isInscrit,isComplet,date);
+
+		case MULTIPLE_INSCRIPTION_SUR_ROLE_DIFFERENT:
+		case TOUT_AUTORISE:
+			return specificButtonInscriptionMultipleParDate(hl,isInscrit,isComplet,date);
+
+		default:
+			throw new AmapjRuntimeException();
+		}
+	}
+
+	/**
+	 * Dessin des boutons dans le cas ou l'utilisateur peut s'inscrire une seule fois sur une date 
+	 */
+	private Layout specificButtonInscriptionUniqueParDate(HorizontalLayout hl, boolean isInscrit, boolean isComplet, PeriodePermanenceDateDTO date)
+	{
 		// Si l'utilisateur est inscrit pour cette date 
 		if (isInscrit)
 		{
@@ -99,9 +119,8 @@ public class GrilleInscriptionPermanence extends AbstractPeriodePermanenceGrille
 		hl.addComponent(b);
 		hl.setComponentAlignment(b, Alignment.MIDDLE_CENTER);
 		return hl;
-		
 	}
-
+	
 	private void handleSuppressionInscription(PeriodePermanenceDateDTO date)
 	{
 		DesinscriptionPopup.open(new DesinscriptionPopup(date, userId), this);
@@ -111,6 +130,55 @@ public class GrilleInscriptionPermanence extends AbstractPeriodePermanenceGrille
 	{
 		InscriptionPopup.open(new InscriptionPopup(date, userId,dto.id), this); 
 	}
+	
+	
+	
+	/**
+	 * Dessin des boutons dans le cas ou l'utilisateur peut s'inscrire plusieurs fois sur une date 
+	 */
+	private Layout specificButtonInscriptionMultipleParDate(HorizontalLayout hl, boolean isInscrit, boolean isComplet, PeriodePermanenceDateDTO date)
+	{
+		// Si l'utilisateur est inscrit pour cette date 
+		if (isInscrit)
+		{
+			Button b = new Button("Je change mon choix pour cette date.");
+			b.addStyleName("suppress-inscrire");
+			b.addClickListener(e ->	handleMultipleInscription(date));
+				
+			hl.addComponent(b);
+			hl.setComponentAlignment(b, Alignment.MIDDLE_CENTER);
+			return hl;
+		}
+		
+		// Si pas de place disponible
+		if (isComplet==true)
+		{
+			return null;
+		}
+		
+		// Cas standard : on peut s'inscrire 
+		Button b = new Button("Je m'inscris à cette date");
+		b.addStyleName("inscrire");
+		b.addClickListener(e ->	handleMultipleInscription(date));
+			
+		hl.addComponent(b);
+		hl.setComponentAlignment(b, Alignment.MIDDLE_CENTER);
+		return hl;
+	}
+
+	private void handleMultipleInscription(PeriodePermanenceDateDTO date)
+	{
+		if (dto.regleInscription==RegleInscriptionPeriodePermanence.TOUT_AUTORISE)
+		{
+			InscriptionPopupToutAutorise.open(new InscriptionPopupToutAutorise(date.idPeriodePermanenceDate, userId,dto.id), this);
+		}
+		else
+		{
+			InscriptionPopupRoleDifferent.open(new InscriptionPopupRoleDifferent(date.idPeriodePermanenceDate, userId,dto.id), this);
+		}
+	}
+
+	
 
 	
 }

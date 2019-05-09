@@ -23,7 +23,10 @@
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.amapj.common.CollectionUtils;
+import fr.amapj.model.models.fichierbase.Utilisateur;
 import fr.amapj.model.models.param.ChoixOuiNon;
+import fr.amapj.service.services.utilisateur.util.UtilisateurUtil;
 import fr.amapj.view.engine.tools.TableItem;
 
 /**
@@ -77,6 +80,21 @@ public class ProducteurDTO implements TableItem
 	public List<ProdUtilisateurDTO> utilisateurs = new ArrayList<>();
 		
 
+	
+	// Pour affichage dans ProducteurListPart 
+	public String getUtilisateurInfo()
+	{
+		return CollectionUtils.asString(utilisateurs, ",", e->e.nom+" "+e.prenom);
+	}
+	
+	// Pour affichage dans ProducteurListPart 
+	public String getReferentInfo()
+	{
+		return CollectionUtils.asString(referents, ",", e->e.nom+" "+e.prenom);
+	}
+
+	
+	
 	
 	public Long getId()
 	{

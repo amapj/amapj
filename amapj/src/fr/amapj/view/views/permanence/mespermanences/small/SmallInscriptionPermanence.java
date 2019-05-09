@@ -24,6 +24,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.VerticalLayout;
 
+import fr.amapj.model.models.permanence.periode.RegleInscriptionPeriodePermanence;
 import fr.amapj.service.services.permanence.mespermanences.MesPermanencesService;
 import fr.amapj.service.services.permanence.mespermanences.MesPermanencesService.InscriptionMessage;
 import fr.amapj.service.services.permanence.mespermanences.UnePeriodePermanenceDTO;
@@ -307,7 +308,7 @@ public class SmallInscriptionPermanence extends OKCancelPopup implements PopupLi
 		
 		
 		//
-		InscriptionMessage msg = new MesPermanencesService().inscription(userId,detail.idPeriodePermanenceDate,null); // TODO gerer le role 
+		InscriptionMessage msg = new MesPermanencesService().inscription(userId,detail.idPeriodePermanenceDate,null,RegleInscriptionPeriodePermanence.UNE_INSCRIPTION_PAR_DATE); // TODO gerer le role 
 		if (msg!=null)
 		{
 			String lib = InscriptionPopup.computeLib(msg);

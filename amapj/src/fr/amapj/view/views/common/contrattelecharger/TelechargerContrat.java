@@ -26,9 +26,11 @@ import fr.amapj.service.services.edgenerator.excel.EGCollecteCheque;
 import fr.amapj.service.services.edgenerator.excel.EGUtilisateurContrat;
 import fr.amapj.service.services.edgenerator.excel.feuilledistribution.amapien.EGFeuilleDistributionAmapien;
 import fr.amapj.service.services.edgenerator.excel.feuilledistribution.amapien.EGLiasseFeuilleDistributionAmapien;
+import fr.amapj.service.services.edgenerator.excel.feuilledistribution.amapien.EGFeuilleDistributionAmapien.EGMode;
 import fr.amapj.service.services.edgenerator.excel.feuilledistribution.producteur.EGFeuilleDistributionProducteur;
 import fr.amapj.service.services.edgenerator.excel.feuilledistribution.producteur.EGSyntheseContrat;
 import fr.amapj.service.services.edgenerator.pdf.PGEngagement;
+import fr.amapj.service.services.edgenerator.pdf.PGEngagement.PGEngagementMode;
 import fr.amapj.service.services.editionspe.EditionSpeService;
 import fr.amapj.service.services.gestioncontrat.GestionContratService;
 import fr.amapj.service.services.gestioncontrat.ModeleContratDTO;
@@ -54,10 +56,10 @@ public class TelechargerContrat
 		
 		if (idContrat!=null)
 		{
-			popup.addGenerator(new EGFeuilleDistributionAmapien(idContrat));
+			popup.addGenerator(new EGFeuilleDistributionAmapien(EGMode.STD,idModeleContrat,idContrat));
 			if (needEngagement)
 			{
-				popup.addGenerator(new PGEngagement(idModeleContrat,idContrat,null));
+				popup.addGenerator(new PGEngagement(PGEngagementMode.UN_CONTRAT,idModeleContrat,idContrat,null));
 			}
 			popup.addSeparator();
 		}
@@ -68,16 +70,14 @@ public class TelechargerContrat
 		popup.addGenerator(new EGFeuilleDistributionProducteur(idModeleContrat));
 		popup.addGenerator(new EGLiasseFeuilleDistributionAmapien(idModeleContrat));
 		popup.addGenerator(new EGSyntheseContrat(idModeleContrat));
-		
 		popup.addLabel("");
 		
 		// 3 - Partie dédiée au contrat d'engagement 
 		if (needEngagement)
 		{
-			popup.addGenerator(new PGEngagement(idModeleContrat,null,null));
+			popup.addGenerator(new PGEngagement(PGEngagementMode.TOUS_LES_CONTRATS,idModeleContrat,null,null));
 			popup.addLabel("");
 		}
-		
 		
 		// 4 - Partie dédiée au paiement du contrat 
 		// Ces documents sont utilisables uniquement si le modele de contrat gere les paiements 
@@ -90,8 +90,15 @@ public class TelechargerContrat
 		
 		// 5 - Partie dédiée aux infos sur les amapiens de ce contrat 
 		popup.addGenerator(new EGUtilisateurContrat(idModeleContrat));
+		popup.addLabel("");
 		
-		
+
+		// 6 - Partie dédiée aux contrats vierges
+		popup.addGenerator(new EGFeuilleDistributionAmapien(EGMode.UN_VIERGE,idModeleContrat,null));
+		if (needEngagement)
+		{
+			popup.addGenerator(new PGEngagement(PGEngagementMode.UN_VIERGE,idModeleContrat,null,null));
+		}
 	
 				
 		CorePopup.open(popup,listener);

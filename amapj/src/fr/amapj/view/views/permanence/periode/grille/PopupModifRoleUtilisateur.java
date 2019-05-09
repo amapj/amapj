@@ -107,8 +107,8 @@ public class PopupModifRoleUtilisateur extends WizardFormPopup
 			}
 		}	
 		
-		// On vérifie ensuite qu'il n'y a pas de doublons
-		return dto.findDoublons();
+		// On vérifie ensuite que les regles d'inscriptions sont bien respectées
+		return dto.checkRegleInscription();
 	}
 	
 	

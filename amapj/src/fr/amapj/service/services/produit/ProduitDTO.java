@@ -34,6 +34,8 @@ public class ProduitDTO implements TableItem
 	
 	public String conditionnement;
 	
+	public String description;
+	
 	public Long producteurId;
 	
 	
@@ -66,6 +68,14 @@ public class ProduitDTO implements TableItem
 	public void setConditionnement(String conditionnement)
 	{
 		this.conditionnement = conditionnement;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public Long getProducteurId()

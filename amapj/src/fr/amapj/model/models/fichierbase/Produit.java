@@ -51,7 +51,10 @@ public class Produit  implements Identifiable
 	@Size(min = 1, max = 500)
 	@Column(length = 500)
 	private String conditionnement;
-	
+
+	@Size(min = 0, max = 2048)
+	@Column(length = 2048)
+	public String description;
 
 	@NotNull
 	@ManyToOne
@@ -65,7 +68,7 @@ public class Produit  implements Identifiable
 	
 	public enum P implements Mdm
 	{
-		ID("id") , NOM("nom") , CONDITIONNEMENT("conditionnement") , PRODUCTEUR("producteur") , TYPFACTURATION("typFacturation")  ;
+		ID("id") , NOM("nom") , CONDITIONNEMENT("conditionnement") , DESCRIPTION("description"), PRODUCTEUR("producteur") , TYPFACTURATION("typFacturation")  ;
 		
 		private String propertyId;   
 		   
@@ -133,9 +136,13 @@ public class Produit  implements Identifiable
 	{
 		this.conditionnement = conditionnement;
 	}
-	
-	
-	
-	
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 	
 }

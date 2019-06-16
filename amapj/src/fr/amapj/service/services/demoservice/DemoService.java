@@ -266,14 +266,14 @@ public class DemoService
 
 	private void createProduit(EntityManager em)
 	{
-		insertProduit(em,3003,"Tomme de chèvre - blanc","la pièce", 3002);
-		insertProduit(em,3004,"Tomme de chèvre - crémeux","la pièce", 3002);
-		insertProduit(em,3005,"Tomme de chèvre - sec","la pièce", 3002);
-		insertProduit(em,3006,"Faisselle","le pot de 500 g", 3002);
-		insertProduit(em,3007,"Yaourt","le pot de 140 g", 3002);
-		insertProduit(em,3008,"Dessert lacté parfumé","le pot de 140 g", 3002);
-		insertProduit(em,3009,"Savon au lait de chèvre","la pièce", 3002);
-		insertProduit(em,3010,"Tomme pressée","la pièce de 200/230 g", 3002);
+		insertProduit(em,3003,"Tomme de chèvre - blanc","la pièce", "AB", 3002);
+		insertProduit(em,3004,"Tomme de chèvre - crémeux","la pièce", "AB", 3002);
+		insertProduit(em,3005,"Tomme de chèvre - sec","la pièce", "AB", 3002);
+		insertProduit(em,3006,"Faisselle","le pot de 500 g", "Convertion AB, Zero-Déchet: contenant repris", 3002);
+		insertProduit(em,3007,"Yaourt","le pot de 140 g", "Convertion AB, Zero-Déchet: contenant repris", 3002);
+		insertProduit(em,3008,"Dessert lacté parfumé","le pot de 140 g", "", 3002);
+		insertProduit(em,3009,"Savon au lait de chèvre","la pièce", "", 3002);
+		insertProduit(em,3010,"Tomme pressée","la pièce de 200/230 g", "", 3002);
 		
 		
 		insertProduit(em,3012,"Lait","le litre", 3011);
@@ -307,14 +307,20 @@ public class DemoService
 
 
 	}
-
+	
 	private void insertProduit(EntityManager em, int idProduit, String nom, String cond, int idProducteur)
+	{
+		insertProduit(em, idProduit, nom, cond, "", idProducteur);
+	}
+
+	private void insertProduit(EntityManager em, int idProduit, String nom, String cond, String description, int idProducteur)
 	{
 		Produit p = new Produit();
 		
 		p.setId(new Long(idProduit));
 		p.setNom(nom);
 		p.setConditionnement(cond);
+		p.setDescription(description);
 		p.setProducteur(em.find(Producteur.class, new Long(idProducteur)));
 		
 		em.persist(p);

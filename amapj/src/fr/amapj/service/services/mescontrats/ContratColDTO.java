@@ -32,6 +32,8 @@ public class ContratColDTO
 	
 	public String condtionnementProduit;
 	
+	public String descriptionProduit;
+	
 	public Integer prix;
 	
 	public Long modeleContratProduitId;

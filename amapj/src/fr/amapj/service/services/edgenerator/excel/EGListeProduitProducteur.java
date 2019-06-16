@@ -61,7 +61,7 @@ public class EGListeProduitProducteur extends AbstractExcelGenerator
 	@Override
 	public void fillExcelFile(EntityManager em,ExcelGeneratorTool et)
 	{
-		et.addSheet("Liste des produits et des producteurs", 3, 60);
+		et.addSheet("Liste des produits et des producteurs", 4, 60);
 		
 		List<ImportProduitProducteurDTO> prods;
 		
@@ -79,6 +79,7 @@ public class EGListeProduitProducteur extends AbstractExcelGenerator
 			dto.producteur = "EARL BIO LAIT";
 			dto.produit = "Yaourt";
 			dto.conditionnement = "le pot de 1 kg";
+			dto.description = "AB";
 			prods.add(dto);
 			
 			dto = new ImportProduitProducteurDTO();
@@ -132,6 +133,7 @@ public class EGListeProduitProducteur extends AbstractExcelGenerator
 		et.setCell(0, "Producteur", et.grasGaucheNonWrappeBordure);
 		et.setCell(1, "Nom du produit", et.grasGaucheNonWrappeBordure);
 		et.setCell(2, "Conditionnement du produit", et.grasGaucheNonWrappeBordure);
+		et.setCell(3, "Description du produit", et.grasGaucheNonWrappeBordure);
 		
 	}
 
@@ -144,6 +146,7 @@ public class EGListeProduitProducteur extends AbstractExcelGenerator
 		et.setCell(0, u.producteur, et.grasGaucheNonWrappeBordure);
 		et.setCell(1, u.produit, et.nonGrasGaucheBordure);
 		et.setCell(2, u.conditionnement, et.nonGrasGaucheBordure);
+		et.setCell(3, u.description, et.nonGrasGaucheBordure);
 		
 	}
 	

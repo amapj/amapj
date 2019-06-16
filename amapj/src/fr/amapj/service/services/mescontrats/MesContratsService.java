@@ -301,6 +301,7 @@ public class MesContratsService
 			col.modeleContratProduitId = prod.getId();
 			col.nomProduit = prod.getProduit().getNom();
 			col.condtionnementProduit = prod.getProduit().getConditionnement();
+			col.descriptionProduit = prod.getProduit().getDescription();
 			col.prix = prod.getPrix();
 			col.j = dto.contratColumns.size();
 

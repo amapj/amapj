@@ -35,7 +35,7 @@ public class ProduitImporter extends AbstractImporter<ImportProduitProducteurDTO
 	@Override
 	public int getNumCol()
 	{
-		return 3;
+		return 4;
 	}
 
 	@Override
@@ -72,6 +72,14 @@ public class ProduitImporter extends AbstractImporter<ImportProduitProducteurDTO
 		{
 			return msg;
 		}
+
+		
+		// DESCRIPTION DU PRODUIT		
+		msg = checkLength(dto.description, 0, 2048, "conditionnement du produit");
+		if (msg!=null)
+		{
+			return msg;
+		}
 		
 		
 		// PRODUCTEUR
@@ -101,6 +109,7 @@ public class ProduitImporter extends AbstractImporter<ImportProduitProducteurDTO
 		dto.producteur = strs[0];
 		dto.produit = strs[1];
 		dto.conditionnement = strs[2];
+		dto.description = strs[3];
 		
 		return dto;
 	}
@@ -132,6 +141,7 @@ public class ProduitImporter extends AbstractImporter<ImportProduitProducteurDTO
 		errorMessage.add("Producteur:"+dto.producteur);
 		errorMessage.add("Nom du produit:"+dto.produit);
 		errorMessage.add("Conditionnement du produit:"+dto.conditionnement);
+		errorMessage.add("Description du produit:"+dto.description);
 		
 	}
 	

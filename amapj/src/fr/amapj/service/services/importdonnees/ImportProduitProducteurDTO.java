@@ -34,6 +34,7 @@ public class ImportProduitProducteurDTO implements TableItem
 	public String producteur;
 	public String produit;
 	public String conditionnement;
+	public String description;
 	
 	public Long getId()
 	{

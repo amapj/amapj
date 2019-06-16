@@ -93,6 +93,7 @@ public class ImportDonneesService
 		
 		Produit pr = new Produit();
 		pr.setConditionnement(dto.conditionnement);
+		pr.setDescription(dto.description);
 		pr.setNom(dto.produit);
 		pr.setProducteur(p);
 		em.persist(pr);
@@ -115,6 +116,7 @@ public class ImportDonneesService
 			dto.producteur = prod.getProducteur().nom;
 			dto.produit = prod.getNom();
 			dto.conditionnement = prod.getConditionnement();
+			dto.description = prod.getDescription();
 			
 			res.add(dto);
 		}

@@ -21,7 +21,9 @@
  package fr.amapj.view.engine.grid;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 
@@ -37,5 +39,7 @@ public class GridHeaderLine
 	public String styleName = null;
 	
 	public List<String> cells = new ArrayList<>();
+	
+	public Map<Integer, String> descriptions = new HashMap<>();
 	
 }

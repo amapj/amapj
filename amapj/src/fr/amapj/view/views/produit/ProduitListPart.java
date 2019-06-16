@@ -86,9 +86,10 @@ public class ProduitListPart extends StandardListPart<ProduitDTO> implements Pop
 	protected void drawTable() 
 	{
 		// Titre des colonnes
-		cdesTable.setVisibleColumns(new String[] { "nom", "conditionnement"});
+		cdesTable.setVisibleColumns(new String[] { "nom", "conditionnement", "description"});
 		cdesTable.setColumnHeader("nom","Nom");
 		cdesTable.setColumnHeader("conditionnement","Conditionnement");
+		cdesTable.setColumnHeader("description","Description");
 	}
 
 
@@ -108,12 +109,12 @@ public class ProduitListPart extends StandardListPart<ProduitDTO> implements Pop
 	@Override
 	protected String[] getSortInfos() 
 	{
-		return new String[] { "nom" , "conditionnement" };
+		return new String[] { "nom" , "conditionnement", "description" };
 	}
 	
 	protected String[] getSearchInfos()
 	{
-		return new String[] { "nom" , "conditionnement" };
+		return new String[] { "nom" , "conditionnement", "description" };
 	}
 	
 	

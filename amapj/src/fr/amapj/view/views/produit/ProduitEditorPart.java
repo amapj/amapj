@@ -37,7 +37,7 @@ import fr.amapj.view.engine.popup.formpopup.validator.StringLengthValidator;
 public class ProduitEditorPart extends FormPopup
 {
 
-	private ProduitDTO producteurDTO;
+	private ProduitDTO produitDTO;
 
 	private boolean create;
 
@@ -53,18 +53,18 @@ public class ProduitEditorPart extends FormPopup
 		if (create)
 		{
 			popupTitle = "Création d'un produit";
-			this.producteurDTO = new ProduitDTO();
-			this.producteurDTO.producteurId = idProducteur;
+			this.produitDTO = new ProduitDTO();
+			this.produitDTO.producteurId = idProducteur;
 		}
 		else
 		{
 			popupTitle = "Modification d'un produit";
-			this.producteurDTO = p;
+			this.produitDTO = p;
 		}	
 		
 	
 		
-		item = new BeanItem<ProduitDTO>(this.producteurDTO);
+		item = new BeanItem<ProduitDTO>(this.produitDTO);
 
 	}
 	
@@ -72,13 +72,11 @@ public class ProduitEditorPart extends FormPopup
 	protected void addFields()
 	{
 		IValidator len_1_255 = new StringLengthValidator(1, 255);
-		IValidator len_1_500 = new StringLengthValidator(1, 255);
+		IValidator len_1_500 = new StringLengthValidator(1, 500);
 		
-		// Champ 1
 		addTextField("Nom", "nom",len_1_255);
-		
-		// Champ 2
 		addTextField("Conditionnement", "conditionnement",len_1_500);
+		addTextAeraField("Description", "description");
 		
 	}
 
@@ -87,6 +85,6 @@ public class ProduitEditorPart extends FormPopup
 	@Override
 	protected void performSauvegarder() throws OnSaveException
 	{
-		new ProduitService().update(producteurDTO, create);
+		new ProduitService().update(produitDTO, create);
 	}
 }

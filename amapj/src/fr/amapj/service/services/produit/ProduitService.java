@@ -84,6 +84,7 @@ public class ProduitService
 		dto.id = p.getId();
 		dto.nom = p.getNom();
 		dto.conditionnement = p.getConditionnement();
+		dto.description = p.getDescription();
 		dto.producteurId = p.getProducteur().getId();
 		
 		return dto;
@@ -116,6 +117,7 @@ public class ProduitService
 		
 		p.setNom(dto.nom);
 		p.setConditionnement(dto.conditionnement);
+		p.setDescription(dto.description);
 		p.setProducteur(em.find(Producteur.class, dto.producteurId));
 		
 		if (create)

@@ -22,6 +22,8 @@
 
 import java.text.SimpleDateFormat;
 
+import org.apache.commons.lang.StringUtils;
+
 import fr.amapj.service.services.mescontrats.ContratColDTO;
 import fr.amapj.service.services.mescontrats.ContratDTO;
 import fr.amapj.service.services.mescontrats.ContratLigDTO;
@@ -98,6 +100,7 @@ public class PopupSaisieQteContrat extends PopupIntegerGrid
 		for (ContratColDTO col : contratDTO.contratColumns)
 		{
 			line1.cells.add(col.nomProduit);
+			line1.descriptions.put(line1.cells.size()-1, col.descriptionProduit);
 		}
 		GridSizeCalculator.autoSize(line1,param.largeurCol,"Arial",16);
 		

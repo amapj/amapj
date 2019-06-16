@@ -23,6 +23,8 @@
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -267,12 +269,19 @@ abstract public class PopupIntegerGrid extends CorePopup
 		int index=0;
 		for (String str : line.cells)
 		{
-			Label dateLabel = new Label(str);
+			boolean hasDescription = line.descriptions.containsKey(index) && StringUtils.isNotBlank(line.descriptions.get(index));
+			Label dateLabel = new Label(str + (hasDescription ? " 🗒":""));
 			dateLabel.setSizeFull();
 			if (line.styleName != null)
 			{
 				dateLabel.addStyleName(line.styleName);
 			}
+
+			if(hasDescription)
+			{
+				dateLabel.setDescription(line.descriptions.get(index));
+			}
+			
 			if (index==0)
 			{
 				dateLabel.setWidth((param.leftPartLineLargeur+5)+"px");
